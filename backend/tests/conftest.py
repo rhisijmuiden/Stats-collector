@@ -9,7 +9,16 @@ os.environ["SC_CONFIG_FILE"] = "/nonexistent"
 
 @pytest.fixture()
 def app_env(tmp_path, monkeypatch):
-    monkeypatch.setenv("SC_DATABASE_URL", f"sqlite:///{tmp_path / 'test.db'}")
+    # SC_TEST_DATABASE_URL runs the tests against an empty PostgreSQL database instead of SQLite.
+    pg = os.environ.get("SC_TEST_DATABASE_URL")
+    if pg:
+        from sqlalchemy import create_engine, text
+
+        engine = create_engine(pg)
+        with engine.begin() as conn:
+            conn.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public"))
+        engine.dispose()
+    monkeypatch.setenv("SC_DATABASE_URL", pg or f"sqlite:///{tmp_path / 'test.db'}")
     monkeypatch.setenv("SC_DATA_DIR", str(tmp_path / "var"))
     monkeypatch.setenv("SC_SECRET_KEY", "test-secret")
     from stats_collector import db
