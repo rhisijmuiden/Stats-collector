@@ -7,6 +7,10 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- Threads accounts as sources through the Threads API of the Meta app: views per day for the account, views, likes, replies, reposts, quotes and shares per post and per day, and the follower count; the token is renewed every week.
+  NL: Threads-accounts als bron via de Threads API van de Meta-app: weergaven per dag voor het account, weergaven, likes, antwoorden, reposts, citaten en keren gedeeld per bericht en per dag, en het aantal volgers; het token wordt elke week vernieuwd.
+- Live walls: the public address of the walls and the address of their own reverse proxy can be set under Live walls, instead of only with `SC_LIVEWALL_URL`.
+  NL: Live walls: het openbare adres van de walls en het adres van hun eigen reverse proxy zijn in te stellen onder Live walls, in plaats van alleen met `SC_LIVEWALL_URL`.
 - Bluesky and Mastodon accounts as sources: likes, reposts or boosts, replies and quotes per post and per day, and the follower count, through the platforms' open APIs (no app review needed; Mastodon optionally with an access token). They count towards the interactions and followers measures, and their posts are linked to the articles they point to.
   NL: Bluesky- en Mastodon-accounts als bron: likes, reposts of boosts, antwoorden en citaten per bericht en per dag, en het aantal volgers, via de open API's van de platforms (geen app-review nodig; Mastodon eventueel met een toegangstoken). Ze tellen mee voor de maten interacties en volgers, en hun berichten worden gekoppeld aan de artikelen waarnaar ze verwijzen.
 - Roadmap: phase 3f adds X, LinkedIn, TikTok, Threads, Bluesky and Mastodon (`docs/DESIGN.md`).

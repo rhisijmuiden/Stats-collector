@@ -1,14 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { AtSign, Cloud, Copy, Download, Facebook, Globe, Instagram, KeyRound, Link2, Pencil, PlugZap, Plus, Radio, RefreshCw, Trash2, Tv, Unlink, Youtube } from "lucide-react";
+import { AtSign, Cloud, Copy, Download, Facebook, Globe, Instagram, KeyRound, Link2, MessageSquare, Pencil, PlugZap, Plus, Radio, RefreshCw, Trash2, Tv, Unlink, Youtube } from "lucide-react";
 import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
 import { errorText } from "../i18n";
 import { formatDate } from "../lib/format";
 import { Alert, Card, Field, Modal, PageHead, Switch, useLoad } from "../components/ui";
 
-type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram" | "bluesky" | "mastodon";
-const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon"];
+type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram" | "threads" | "bluesky" | "mastodon";
+const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon"];
 interface Source {
   id?: number; kind: Kind; name: string; url: string; mounts: string[]; admin_user: string; admin_password_set?: boolean;
   verify_tls: boolean; poll_seconds: number; enabled: boolean; webhook_url?: string | null; items?: number;
@@ -27,10 +27,10 @@ interface TestResult { ok: boolean; error?: string; online?: boolean; info?: Rec
 
 const EMPTY: Source = { kind: "icecast", name: "", url: "", mounts: [], admin_user: "admin", verify_tls: true, poll_seconds: 30, enabled: true };
 
-const oauth = (k: Kind) => k === "youtube" || k === "facebook" || k === "instagram";
-const social = (k: Kind) => k === "facebook" || k === "instagram";
+const oauth = (k: Kind) => k === "youtube" || k === "facebook" || k === "instagram" || k === "threads";
+const social = (k: Kind) => k === "facebook" || k === "instagram" || k === "threads";
 const fedi = (k: Kind) => k === "bluesky" || k === "mastodon";
-const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, bluesky: <Cloud size={16} />, mastodon: <AtSign size={16} />, icecast: <Radio size={16} /> })[k];
+const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, threads: <AtSign size={16} />, bluesky: <Cloud size={16} />, mastodon: <MessageSquare size={16} />, icecast: <Radio size={16} /> })[k];
 
 export default function Sources() {
   const { t, i18n } = useTranslation();
@@ -48,10 +48,11 @@ export default function Sources() {
     const q = new URLSearchParams(window.location.search);
     if (q.has("yt_connected")) toast("success", t("sources.ytConnected"));
     if (q.has("meta_connected")) toast("success", t("sources.metaConnected"));
-    const err = q.get("yt_error") ?? q.get("meta_error");
+    if (q.has("threads_connected")) toast("success", t("sources.metaConnected"));
+    const err = q.get("yt_error") ?? q.get("meta_error") ?? q.get("threads_error");
     if (err) toast("error", errorText(err));
     if (q.has("meta_choose") || err) setReopen(Number(q.get("source")) || null);
-    if ([...q.keys()].some((k) => k.startsWith("yt_") || k.startsWith("meta_"))) window.history.replaceState(null, "", window.location.pathname);
+    if ([...q.keys()].some((k) => k.startsWith("yt_") || k.startsWith("meta_") || k.startsWith("threads_"))) window.history.replaceState(null, "", window.location.pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
@@ -98,9 +99,10 @@ export default function Sources() {
 
   const web = draft?.kind === "wordpress";
   const yt = draft?.kind === "youtube";
-  const fbig = draft?.kind === "facebook" || draft?.kind === "instagram";
+  const th = draft?.kind === "threads";
+  const fbig = draft?.kind === "facebook" || draft?.kind === "instagram" || th;
   const fediDraft = draft ? fedi(draft.kind) : false;
-  const connector = yt ? "youtube" : "meta";
+  const connector = yt ? "youtube" : th ? "threads" : "meta";
   const disconnect = async () => {
     if (!window.confirm(t(yt ? "sources.ytDisconnectConfirm" : "sources.metaDisconnectConfirm"))) return;
     try { open(await api.post<Source>(`/api/connectors/${connector}/${draft!.id}/disconnect`)); list.reload(); }
@@ -218,13 +220,13 @@ export default function Sources() {
             )}
             {fbig && (
               <div className="stack">
-                <Alert kind="info">{t("sources.metaSteps")}</Alert>
-                <Field label={t("sources.metaRedirect")} hint={t("sources.metaRedirectHint")}>
-                  <div className="copy-field"><input readOnly value={draft.redirect_uri ?? `${window.location.origin}/api/connectors/meta/callback`} onFocus={(e) => e.target.select()} /><button type="button" className="btn secondary" onClick={() => copy(draft.redirect_uri ?? `${window.location.origin}/api/connectors/meta/callback`)}><Copy /> {t("sources.copy")}</button></div>
+                <Alert kind="info">{t(th ? "sources.threadsSteps" : "sources.metaSteps")}</Alert>
+                <Field label={t(th ? "sources.threadsRedirect" : "sources.metaRedirect")} hint={t(th ? "sources.threadsRedirectHint" : "sources.metaRedirectHint")}>
+                  <div className="copy-field"><input readOnly value={draft.redirect_uri ?? `${window.location.origin}/api/connectors/${connector}/callback`} onFocus={(e) => e.target.select()} /><button type="button" className="btn secondary" onClick={() => copy(draft.redirect_uri ?? `${window.location.origin}/api/connectors/${connector}/callback`)}><Copy /> {t("sources.copy")}</button></div>
                 </Field>
                 <div className="grid two">
-                  <Field label={t("sources.metaAppId")}><input required inputMode="numeric" value={draft.client_id ?? ""} onChange={(e) => setDraft({ ...draft, client_id: e.target.value })} placeholder="1234567890123456" /></Field>
-                  <Field label={t("sources.metaAppSecret")} hint={draft.client_secret_set ? t("common.secretKept") : undefined}>
+                  <Field label={t(th ? "sources.threadsAppId" : "sources.metaAppId")}><input required inputMode="numeric" value={draft.client_id ?? ""} onChange={(e) => setDraft({ ...draft, client_id: e.target.value })} placeholder="1234567890123456" /></Field>
+                  <Field label={t(th ? "sources.threadsAppSecret" : "sources.metaAppSecret")} hint={draft.client_secret_set ? t("common.secretKept") : undefined}>
                     <input type="password" autoComplete="new-password" required={!draft.client_secret_set} value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder={draft.client_secret_set ? "••••••••" : ""} />
                   </Field>
                 </div>
@@ -241,8 +243,8 @@ export default function Sources() {
                       <button type="button" key={c.id} className="btn secondary" onClick={() => choose(c.id)}>{draft.kind === "facebook" ? <Facebook /> : <Instagram />} {c.name}{c.page ? <span className="muted small"> · {c.page}</span> : null}</button>
                     ))}</div>
                   </Field>
-                ) : <Alert kind="warning">{t("sources.metaConnectHint")}</Alert>) : <Alert kind="info">{t("sources.metaAfterSave")}</Alert>}
-                <details className="advanced">
+                ) : <Alert kind="warning">{t(th ? "sources.threadsConnectHint" : "sources.metaConnectHint")}</Alert>) : <Alert kind="info">{t(th ? "sources.threadsAfterSave" : "sources.metaAfterSave")}</Alert>}
+                {!th && <details className="advanced">
                   <summary>{t("sources.metaAdvanced")}</summary>
                   <div className="stack">
                     <Field label={t("sources.metaConfigId")} hint={t("sources.metaConfigIdHint")}><input value={draft.config_id ?? ""} onChange={(e) => setDraft({ ...draft, config_id: e.target.value })} /></Field>
@@ -256,7 +258,7 @@ export default function Sources() {
                       ))}</div>
                     </Field>
                   </div>
-                </details>
+                </details>}
               </div>
             )}
             {!web && !yt && !fbig && !fediDraft && <div className="grid two">
@@ -317,7 +319,7 @@ export default function Sources() {
               {web && <a className="btn secondary" href="/api/sources/wordpress-plugin.zip" download><Download /> {t("sources.downloadPlugin")}</a>}
               {(yt || fbig) && draft.id && draft.client_secret_set && (draft.connected
                 ? <button type="button" className="btn ghost" onClick={disconnect}><Unlink /> {t("sources.ytDisconnect")}</button>
-                : <a className="btn secondary" href={`/api/connectors/${connector}/start?source=${draft.id}`}><Link2 /> {t(yt ? "sources.ytConnect" : "sources.metaConnect")}</a>)}
+                : <a className="btn secondary" href={`/api/connectors/${connector}/start?source=${draft.id}`}><Link2 /> {t(yt ? "sources.ytConnect" : th ? "sources.threadsConnect" : "sources.metaConnect")}</a>)}
               {!web && !yt && !fbig && <button type="button" className="btn secondary" disabled={busy || !(fediDraft ? draft.account : draft.url)} onClick={runTest}><PlugZap /> {busy ? t("sources.testing") : t("sources.test")}</button>}
               <button type="button" className="btn secondary" onClick={() => setDraft(null)}>{t("common.cancel")}</button>
               <button className="btn">{t("common.save")}</button>

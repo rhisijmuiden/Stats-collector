@@ -31,6 +31,7 @@ ORDER = [
     "wordpress",
     "youtube",
     "meta",
+    "threads",
     "bluesky-mastodon",
     "troubleshooting",
 ]

@@ -1,22 +1,22 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Facebook, Globe, Instagram, Youtube } from "lucide-react";
+import { AtSign, Facebook, Globe, Instagram, Youtube } from "lucide-react";
 import { useApp } from "../lib/app";
 import { Card } from "./ui";
 import Chart, { cssVar, shade } from "./Chart";
 
 export interface Channels {
   granularity: "hour" | "day"; buckets: string[]; total_views: number; total_reach: number;
-  sources: { id: number; name: string; kind: "wordpress" | "youtube" | "facebook" | "instagram"; daily_only: boolean; views: number; visitors: number; reach: number; watch_minutes: number;
+  sources: { id: number; name: string; kind: "wordpress" | "youtube" | "facebook" | "instagram" | "threads"; daily_only: boolean; views: number; visitors: number; reach: number; watch_minutes: number;
     subscribers: number | null; subscribers_gained: number; values: (number | null)[]; last_ok_at: string | null }[];
 }
 
 const fmt = (n: number, lang: string) => new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(n);
 
-const ICONS = { wordpress: <Globe size={15} />, youtube: <Youtube size={15} />, facebook: <Facebook size={15} />, instagram: <Instagram size={15} /> };
+const ICONS = { wordpress: <Globe size={15} />, youtube: <Youtube size={15} />, facebook: <Facebook size={15} />, instagram: <Instagram size={15} />, threads: <AtSign size={15} /> };
 
-/** Website, YouTube, Facebook and Instagram views on the dashboard: a tile per source and the views stacked per hour or day. */
+/** Website, YouTube, Facebook, Instagram and Threads views on the dashboard: a tile per source and the views stacked per hour or day. */
 export default function ChannelsCard({ data, rangeLabel }: { data: Channels; rangeLabel: string }) {
   const { t, i18n } = useTranslation();
   const { theme } = useApp();
@@ -67,6 +67,7 @@ export default function ChannelsCard({ data, rangeLabel }: { data: Channels; ran
                 : s.kind === "youtube"
                 ? t("dashboard.ytSub", { minutes: fmt(s.watch_minutes, lang), subscribers: fmt(s.subscribers ?? 0, lang), gained: fmt(s.subscribers_gained, lang) })
                 : s.kind === "wordpress" ? t("dashboard.webSub", { visitors: fmt(s.visitors, lang) })
+                : s.kind === "threads" ? t("dashboard.threadsSub", { followers: fmt(s.subscribers ?? 0, lang), gained: fmt(s.subscribers_gained, lang) })
                 : t("dashboard.socialSub", { reach: fmt(s.reach, lang), followers: fmt(s.subscribers ?? 0, lang), gained: fmt(s.subscribers_gained, lang) })}
             </div>
           </div>

@@ -25,8 +25,15 @@ from .rollup import org_timezone
 log = logging.getLogger(__name__)
 
 GOAL_METRICS: dict[str, tuple[str, ...]] = {
-    "followers": ("yt_subscribers", "fb_followers", "ig_followers", "bsky_followers", "masto_followers"),
-    "views": ("web_views", "yt_views", "fb_views", "ig_views"),
+    "followers": (
+        "yt_subscribers",
+        "fb_followers",
+        "ig_followers",
+        "th_followers",
+        "bsky_followers",
+        "masto_followers",
+    ),
+    "views": ("web_views", "yt_views", "fb_views", "ig_views", "th_views"),
     "reach": ("web_visitors", "fb_reach", "ig_reach"),
     "interactions": (
         "web_shares",
@@ -41,6 +48,11 @@ GOAL_METRICS: dict[str, tuple[str, ...]] = {
         "ig_comments",
         "ig_shares",
         "ig_saves",
+        "th_likes",
+        "th_replies",
+        "th_reposts",
+        "th_quotes",
+        "th_shares",
         "bsky_likes",
         "bsky_reposts",
         "bsky_replies",

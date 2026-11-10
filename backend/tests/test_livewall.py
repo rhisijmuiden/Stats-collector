@@ -104,3 +104,35 @@ def test_rate_limit():
 
     r = RateLimiter(per_minute=3)
     assert [r.allow("a") for _ in range(4)] == [True, True, True, False] and r.allow("b")
+
+
+def test_wall_address_and_proxy(admin):
+    import asyncio
+
+    from stats_collector.livewall.app import WallProxyHeaders
+
+    client, csrf = admin
+    assert client.get("/api/livewalls/config").json()["public_url"] == ""
+    bad = client.put("/api/livewalls/config", json={"public_url": "wall.example.org"}, headers=csrf)
+    assert bad.status_code == 422
+    bad = client.put("/api/livewalls/config", json={"trusted_proxies": "nonsense"}, headers=csrf)
+    assert bad.status_code == 422
+    body = {"public_url": "https://wall.example.org/", "trusted_proxies": "192.0.2.5"}
+    cfg = client.put("/api/livewalls/config", json=body, headers=csrf).json()
+    assert cfg["public_url"] == "https://wall.example.org" and cfg["trusted_proxies"] == "192.0.2.5"
+    w = client.post("/api/livewalls", json={"name": "Hall"}, headers=csrf).json()
+    assert w["url"].startswith("https://wall.example.org/w/")
+    assert client.get("/api/livewalls").json()["base_url"] == "https://wall.example.org"
+
+    # The wall service trusts the proxy set here (handed over by the worker), next to the config file.
+    seen = {}
+
+    async def app(scope, receive, send):
+        seen["client"] = scope["client"][0]
+
+    mw = WallProxyHeaders(app, "127.0.0.1")
+    scope = {"type": "http", "client": ("192.0.2.5", 1), "headers": [(b"x-forwarded-for", b"198.51.100.7")]}
+    asyncio.run(mw(scope, None, None))
+    assert seen["client"] == "198.51.100.7"
+    asyncio.run(mw({**scope, "client": ("203.0.113.9", 1)}, None, None))
+    assert seen["client"] == "203.0.113.9"  # not a trusted proxy: the header is ignored

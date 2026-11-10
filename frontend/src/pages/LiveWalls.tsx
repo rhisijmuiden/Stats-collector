@@ -10,6 +10,7 @@ import { kindIcon } from "./Content";
 interface Wall { id: number; name: string; title: string; source_ids: number[]; allow_ips: string; enabled: boolean; url: string; rotated_at: string | null }
 interface SourceRef { id: number; name: string; kind: string }
 interface Walls { walls: Wall[]; sources: SourceRef[]; base_url: string }
+interface WallConfig { public_url: string; trusted_proxies: string; default_url: string }
 interface Snapshot { title: string; channels: { id: number; name: string; kind: string; color: string; unit: string; now: number; online: boolean; bars: number[] }[] }
 
 const empty = { name: "", title: "", source_ids: [] as number[], allow_ips: "", enabled: true };
@@ -33,6 +34,38 @@ function Preview({ id }: { id: number }) {
         );
       })}
     </div>
+  );
+}
+
+function AddressCard({ onSaved }: { onSaved: () => void }) {
+  const { t } = useTranslation();
+  const { toast } = useApp();
+  const cfg = useLoad(() => api.get<WallConfig>("/api/livewalls/config"));
+  const [draft, setDraft] = useState<WallConfig | null>(null);
+  const [busy, setBusy] = useState(false);
+  const value = draft ?? cfg.data;
+  if (!value) return null;
+  const save = async () => {
+    setBusy(true);
+    try {
+      setDraft(await api.put<WallConfig>("/api/livewalls/config", { public_url: value.public_url, trusted_proxies: value.trusted_proxies }));
+      toast("success", t("livewalls.addressSaved")); onSaved();
+    } catch (e) { toast("error", errorText(e instanceof ApiError ? e.detail : String(e))); } finally { setBusy(false); }
+  };
+  return (
+    <Card title={t("livewalls.addressTitle")} subtitle={t("livewalls.addressText")}>
+      <form className="stack" onSubmit={(e) => { e.preventDefault(); save(); }}>
+        <div className="grid two">
+          <Field label={t("livewalls.publicUrl")} hint={t("livewalls.publicUrlHint", { url: value.default_url })}>
+            <input type="url" maxLength={300} value={value.public_url} placeholder={value.default_url} onChange={(e) => setDraft({ ...value, public_url: e.target.value })} />
+          </Field>
+          <Field label={t("livewalls.proxies")} hint={t("livewalls.proxiesHint")}>
+            <input maxLength={1000} value={value.trusted_proxies} placeholder="192.0.2.20" onChange={(e) => setDraft({ ...value, trusted_proxies: e.target.value })} />
+          </Field>
+        </div>
+        <div className="row end"><button type="submit" className="btn" disabled={busy}>{t("common.save")}</button></div>
+      </form>
+    </Card>
   );
 }
 
@@ -96,6 +129,7 @@ export default function LiveWallsPage() {
           </div>
         </Card>
       ))}
+      <AddressCard onSaved={data.reload} />
       {edit && (
         <Modal title={t(edit.id ? "livewalls.edit" : "livewalls.add")} onClose={() => setEdit(null)}>
           <form className="stack" onSubmit={(e) => { e.preventDefault(); save(); }}>

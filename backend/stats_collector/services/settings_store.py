@@ -11,6 +11,9 @@ from ..config import get_settings
 from ..models import DEFAULT_TENANT_ID, Setting
 
 DEFAULTS: dict[str, dict[str, Any]] = {
+    # Live walls: the address screens use (when the wall service has its own reverse proxy) and
+    # extra proxy addresses the wall service trusts for X-Forwarded-For.
+    "livewall": {"public_url": "", "trusted_proxies": ""},
     "general": {
         "organization": "Stats Collector",
         "default_language": "en",

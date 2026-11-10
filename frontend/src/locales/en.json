@@ -53,7 +53,8 @@
     "owncast": "Owncast",
     "icecast": "Icecast",
     "bluesky": "Bluesky",
-    "mastodon": "Mastodon"
+    "mastodon": "Mastodon",
+    "threads": "Threads"
   },
   "auth": {
     "signIn": "Sign in",
@@ -139,7 +140,8 @@
     "totalReach": "reach {{reach}}",
     "socialSub": "reach {{reach}} · {{followers}} followers (+{{gained}})",
     "dailyOnly": "Daily numbers only: choose 7 days or more · {{followers}} followers",
-    "dailyOnlyYt": "Daily numbers only: choose 7 days or more · {{followers}} subscribers"
+    "dailyOnlyYt": "Daily numbers only: choose 7 days or more · {{followers}} subscribers",
+    "threadsSub": "{{followers}} followers (+{{gained}})"
   },
   "info": {
     "title": "Info & updates",
@@ -544,7 +546,17 @@
     "masto_token_needed": "This Mastodon server only answers with an access token. Add one under Access token.",
     "social_account_not_found": "The account was not found. Check the handle or the server.",
     "social_forbidden": "The platform refused the request.",
-    "social_rate_limit": "The platform asks us to slow down; the next sync tries again."
+    "social_rate_limit": "The platform asks us to slow down; the next sync tries again.",
+    "test_threads_connect": "Use Connect with Threads to test a Threads source.",
+    "threads_not_connected": "The Threads account is not connected.",
+    "threads_app_missing": "Fill in the Threads App ID and App secret and save first.",
+    "threads_state_invalid": "The sign-in with Threads took too long or was opened twice. Try again.",
+    "threads_access_denied": "Access was not granted on the Threads screen.",
+    "threads_failed": "Connecting with Threads failed.",
+    "threads_token_failed": "Threads did not accept the code: check the Threads App ID, App secret and redirect address.",
+    "threads_reconnect": "Access to Threads has ended. Connect again.",
+    "threads_rate_limit": "Threads asks to slow down; collecting continues automatically in a while.",
+    "threads_permission": "Threads refused access: a permission is missing or your account is not a tester of the app (see Help → Threads)."
   },
   "sources": {
     "title": "Sources",
@@ -564,7 +576,8 @@
       "facebook": "Facebook (Page)",
       "instagram": "Instagram (account)",
       "bluesky": "Bluesky (account)",
-      "mastodon": "Mastodon (account)"
+      "mastodon": "Mastodon (account)",
+      "threads": "Threads (account)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
@@ -574,7 +587,8 @@
       "facebook": "",
       "instagram": "",
       "bluesky": "",
-      "mastodon": "The Mastodon server, e.g. https://mastodon.social. Filled in for you when you enter @name@server."
+      "mastodon": "The Mastodon server, e.g. https://mastodon.social. Filled in for you when you enter @name@server.",
+      "threads": ""
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -674,7 +688,15 @@
     "socialHistoryDone": "Posts of the past year are in; new numbers every hour.",
     "socialHistoryBusy": "Reading older posts (up to one year back)…",
     "socialAfterSave": "After saving, the first numbers come in within a few minutes.",
-    "testFollowers": "{{followers}} followers"
+    "testFollowers": "{{followers}} followers",
+    "threadsSteps": "In your Meta app add the use case Access the Threads API with the permissions threads_basic and threads_manage_insights, paste the redirect address below under its settings, and fill in the Threads App ID and Threads App secret (see Help → Threads).",
+    "threadsRedirect": "Redirect address for Threads",
+    "threadsRedirectHint": "Add this exact address under Use cases → Access the Threads API → Settings → Redirect callback URLs.",
+    "threadsAppId": "Threads App ID",
+    "threadsAppSecret": "Threads App secret",
+    "threadsAfterSave": "Save first; then you can connect with Threads.",
+    "threadsConnectHint": "Not connected yet. Click Connect with Threads.",
+    "threadsConnect": "Connect with Threads"
   },
   "content": {
     "title": "Content",
@@ -761,7 +783,8 @@
       "instagram": "Instagram",
       "youtube": "YouTube",
       "bluesky": "Bluesky",
-      "mastodon": "Mastodon"
+      "mastodon": "Mastodon",
+      "threads": "Threads"
     },
     "socialSub_one": "{{count}} post · {{likes}} likes",
     "socialSub_other": "{{count}} posts · {{likes}} likes",
@@ -792,7 +815,15 @@
     "masto_boosts": "Boosts",
     "masto_replies": "Replies",
     "masto_follows": "New followers (net)",
-    "masto_followers": "Followers"
+    "masto_followers": "Followers",
+    "th_views": "Views",
+    "th_likes": "Likes",
+    "th_replies": "Replies",
+    "th_reposts": "Reposts",
+    "th_quotes": "Quotes",
+    "th_shares": "Shares",
+    "th_follows": "New followers (net)",
+    "th_followers": "Followers"
   },
   "followers": {
     "title": "Followers",
@@ -912,7 +943,7 @@
     "emptyText": "Click Edit and add widgets.",
     "emptyEdit": "Click Add widget to put the first widget on it.",
     "noData": "No numbers for this period.",
-    "dailyOnly": "YouTube, Facebook and Instagram report whole days only, so they are not in a 24-hour chart.",
+    "dailyOnly": "Platforms that report whole days only (YouTube, Facebook, Instagram, Threads, Bluesky, Mastodon) are not in a 24-hour chart.",
     "noCompare": "No previous period to compare with",
     "vsPrevious": "vs previous period",
     "total": "Total",
@@ -965,7 +996,8 @@
       "icecast": "Icecast",
       "total": "Total",
       "bluesky": "Bluesky",
-      "mastodon": "Mastodon"
+      "mastodon": "Mastodon",
+      "threads": "Threads"
     },
     "splits": {
       "platform": "Platform",
@@ -998,7 +1030,7 @@
     "edit": "Edit live wall",
     "defaultName": "Newsroom",
     "saved": "Live wall saved.",
-    "proxyHint": "Walls are served on {{url}}. Point a host name such as live.example.org at port 8081 in your reverse proxy, and set SC_LIVEWALL_URL in the configuration so the links below use it.",
+    "proxyHint": "Walls are served on {{url}}. Point a host name such as live.example.org at port 8081 in your reverse proxy and fill it in under Address of the walls, so the links use it.",
     "noneTitle": "No live walls yet",
     "noneText": "Make a wall, open its link on the TV and it updates itself every minute.",
     "on": "On",
@@ -1026,6 +1058,13 @@
       "listeners": "listening",
       "viewers": "watching",
       "views": "views (5 min)"
-    }
+    },
+    "addressTitle": "Address of the walls",
+    "addressText": "For when the walls have their own reverse proxy and host name.",
+    "publicUrl": "Public address",
+    "publicUrlHint": "The address the reverse proxy forwards to port 8081, e.g. https://live.example.org. Empty: {{url}}.",
+    "proxies": "Reverse proxy addresses (optional)",
+    "proxiesHint": "IP addresses or networks of the proxy in front of the walls, when it is another machine than the main proxy. Needed for Allowed addresses to see the real visitor.",
+    "addressSaved": "Address saved. The links below use it now; the wall service picks up the proxy within two minutes."
   }
 }

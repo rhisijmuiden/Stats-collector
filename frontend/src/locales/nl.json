@@ -53,7 +53,8 @@
     "owncast": "Owncast",
     "icecast": "Icecast",
     "bluesky": "Bluesky",
-    "mastodon": "Mastodon"
+    "mastodon": "Mastodon",
+    "threads": "Threads"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -139,7 +140,8 @@
     "totalReach": "bereik {{reach}}",
     "socialSub": "bereik {{reach}} · {{followers}} volgers (+{{gained}})",
     "dailyOnly": "Alleen cijfers per dag: kies 7 dagen of meer · {{followers}} volgers",
-    "dailyOnlyYt": "Alleen cijfers per dag: kies 7 dagen of meer · {{followers}} abonnees"
+    "dailyOnlyYt": "Alleen cijfers per dag: kies 7 dagen of meer · {{followers}} abonnees",
+    "threadsSub": "{{followers}} volgers (+{{gained}})"
   },
   "info": {
     "title": "Info & updates",
@@ -544,7 +546,17 @@
     "masto_token_needed": "Deze Mastodon-server antwoordt alleen met een toegangstoken. Vul er een in bij Toegangstoken.",
     "social_account_not_found": "Het account is niet gevonden. Controleer de handle of de server.",
     "social_forbidden": "Het platform weigerde het verzoek.",
-    "social_rate_limit": "Het platform vraagt om het rustiger aan te doen; de volgende synchronisatie probeert het opnieuw."
+    "social_rate_limit": "Het platform vraagt om het rustiger aan te doen; de volgende synchronisatie probeert het opnieuw.",
+    "test_threads_connect": "Gebruik Verbinden met Threads om een Threads-bron te testen.",
+    "threads_not_connected": "Het Threads-account is niet verbonden.",
+    "threads_app_missing": "Vul de Threads-app-ID en het app-geheim in en sla eerst op.",
+    "threads_state_invalid": "Het inloggen bij Threads duurde te lang of is twee keer geopend. Probeer het opnieuw.",
+    "threads_access_denied": "Op het Threads-scherm is geen toegang gegeven.",
+    "threads_failed": "Verbinden met Threads is mislukt.",
+    "threads_token_failed": "Threads accepteerde de code niet: controleer de Threads-app-ID, het app-geheim en het doorstuuradres.",
+    "threads_reconnect": "De toegang tot Threads is verlopen. Verbind opnieuw.",
+    "threads_rate_limit": "Threads vraagt om het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
+    "threads_permission": "Threads weigerde de toegang: er ontbreekt een recht of je account is geen tester van de app (zie Help → Threads)."
   },
   "sources": {
     "title": "Bronnen",
@@ -564,7 +576,8 @@
       "facebook": "Facebook (pagina)",
       "instagram": "Instagram (account)",
       "bluesky": "Bluesky (account)",
-      "mastodon": "Mastodon (account)"
+      "mastodon": "Mastodon (account)",
+      "threads": "Threads (account)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
@@ -574,7 +587,8 @@
       "facebook": "",
       "instagram": "",
       "bluesky": "",
-      "mastodon": "De Mastodon-server, bijv. https://mastodon.social. Wordt voor je ingevuld als je @naam@server invult."
+      "mastodon": "De Mastodon-server, bijv. https://mastodon.social. Wordt voor je ingevuld als je @naam@server invult.",
+      "threads": ""
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -674,7 +688,15 @@
     "socialHistoryDone": "Berichten van het afgelopen jaar zijn binnen; elk uur nieuwe cijfers.",
     "socialHistoryBusy": "Oudere berichten worden gelezen (tot een jaar terug)…",
     "socialAfterSave": "Na het opslaan komen de eerste cijfers binnen een paar minuten binnen.",
-    "testFollowers": "{{followers}} volgers"
+    "testFollowers": "{{followers}} volgers",
+    "threadsSteps": "Voeg in je Meta-app de use case Toegang tot de Threads API toe met de rechten threads_basic en threads_manage_insights, plak het doorstuuradres hieronder in de instellingen ervan en vul de Threads-app-ID en het Threads-app-geheim in (zie Help → Threads).",
+    "threadsRedirect": "Doorstuuradres voor Threads",
+    "threadsRedirectHint": "Voeg precies dit adres toe onder Use cases → Toegang tot de Threads API → Instellingen → Redirect callback URLs.",
+    "threadsAppId": "Threads-app-ID",
+    "threadsAppSecret": "Threads-app-geheim",
+    "threadsAfterSave": "Sla eerst op; daarna kun je verbinden met Threads.",
+    "threadsConnectHint": "Nog niet verbonden. Klik op Verbinden met Threads.",
+    "threadsConnect": "Verbinden met Threads"
   },
   "content": {
     "title": "Content",
@@ -761,7 +783,8 @@
       "instagram": "Instagram",
       "youtube": "YouTube",
       "bluesky": "Bluesky",
-      "mastodon": "Mastodon"
+      "mastodon": "Mastodon",
+      "threads": "Threads"
     },
     "socialSub_one": "{{count}} bericht · {{likes}} likes",
     "socialSub_other": "{{count}} berichten · {{likes}} likes",
@@ -792,7 +815,15 @@
     "masto_boosts": "Boosts",
     "masto_replies": "Antwoorden",
     "masto_follows": "Nieuwe volgers (netto)",
-    "masto_followers": "Volgers"
+    "masto_followers": "Volgers",
+    "th_views": "Weergaven",
+    "th_likes": "Likes",
+    "th_replies": "Antwoorden",
+    "th_reposts": "Reposts",
+    "th_quotes": "Citaten",
+    "th_shares": "Keren gedeeld",
+    "th_follows": "Nieuwe volgers (netto)",
+    "th_followers": "Volgers"
   },
   "followers": {
     "title": "Volgers",
@@ -912,7 +943,7 @@
     "emptyText": "Klik op Bewerken en voeg widgets toe.",
     "emptyEdit": "Klik op Widget toevoegen voor de eerste widget.",
     "noData": "Geen cijfers voor deze periode.",
-    "dailyOnly": "YouTube, Facebook en Instagram geven alleen hele dagen door, daarom staan ze niet in een grafiek van 24 uur.",
+    "dailyOnly": "Platforms die alleen hele dagen doorgeven (YouTube, Facebook, Instagram, Threads, Bluesky, Mastodon) staan niet in een grafiek van 24 uur.",
     "noCompare": "Geen vorige periode om mee te vergelijken",
     "vsPrevious": "t.o.v. vorige periode",
     "total": "Totaal",
@@ -965,7 +996,8 @@
       "icecast": "Icecast",
       "total": "Totaal",
       "bluesky": "Bluesky",
-      "mastodon": "Mastodon"
+      "mastodon": "Mastodon",
+      "threads": "Threads"
     },
     "splits": {
       "platform": "Platform",
@@ -998,7 +1030,7 @@
     "edit": "Live wall bewerken",
     "defaultName": "Redactie",
     "saved": "Live wall opgeslagen.",
-    "proxyHint": "Walls draaien op {{url}}. Laat in je reverse proxy een hostnaam zoals live.example.org naar poort 8081 wijzen, en zet SC_LIVEWALL_URL in de configuratie zodat de links hieronder die gebruiken.",
+    "proxyHint": "Walls worden geserveerd op {{url}}. Laat in je reverse proxy een hostnaam zoals live.example.org naar poort 8081 wijzen en vul die in bij Adres van de walls, dan gebruiken de links dat adres.",
     "noneTitle": "Nog geen live walls",
     "noneText": "Maak een wall, open de link op de tv en hij werkt zichzelf elke minuut bij.",
     "on": "Aan",
@@ -1026,6 +1058,13 @@
       "listeners": "luisteraars",
       "viewers": "kijkers",
       "views": "weergaven (5 min)"
-    }
+    },
+    "addressTitle": "Adres van de walls",
+    "addressText": "Voor als de walls een eigen reverse proxy en hostnaam hebben.",
+    "publicUrl": "Openbaar adres",
+    "publicUrlHint": "Het adres dat de reverse proxy doorstuurt naar poort 8081, bijv. https://live.example.org. Leeg: {{url}}.",
+    "proxies": "Adressen van de reverse proxy (optioneel)",
+    "proxiesHint": "IP-adressen of netwerken van de proxy voor de walls, als dat een andere machine is dan de hoofdproxy. Nodig zodat Toegestane adressen het echte bezoekersadres ziet.",
+    "addressSaved": "Adres opgeslagen. De links hieronder gebruiken het nu; de wall-dienst neemt de proxy binnen twee minuten over."
   }
 }

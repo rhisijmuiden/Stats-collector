@@ -78,5 +78,6 @@ nav:
       - wordpress.md
       - youtube.md
       - meta.md
+      - threads.md
       - bluesky-mastodon.md
   - troubleshooting.md
