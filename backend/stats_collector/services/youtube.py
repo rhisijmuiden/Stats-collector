@@ -33,6 +33,7 @@ from ..connectors import ConnectorError
 from ..models import ContentItem, MetricPoint, Source, utcnow
 from ..security import encrypt_secret
 from .collect import source_secrets
+from .links import extract_urls
 from .metrics import (
     YT_COMMENTS,
     YT_DAY_METRICS,
@@ -318,6 +319,7 @@ def upsert_videos(db: Session, source: Source, videos: list[dict]) -> dict[str, 
             "likes_total": int(stats.get("likeCount") or 0),
             "comments": int(stats.get("commentCount") or 0),
             "thumbnail": ((sn.get("thumbnails") or {}).get("medium") or {}).get("url"),
+            "links": extract_urls(sn.get("description")),
         }
     db.flush()
     return items

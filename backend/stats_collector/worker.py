@@ -38,6 +38,11 @@ celery_app.conf.update(
         "rollup": {"task": "stats_collector.rollup", "schedule": 300.0, "options": {"expires": 290}},
         "youtube": {"task": "stats_collector.youtube_due", "schedule": 900.0, "options": {"expires": 880}},
         "meta": {"task": "stats_collector.meta_due", "schedule": 900.0, "options": {"expires": 880}},
+        "links": {
+            "task": "stats_collector.links",
+            "schedule": crontab(minute="5,20,35,50"),
+            "options": {"expires": 800},
+        },
         "goals": {"task": "stats_collector.goals", "schedule": crontab(minute=40), "options": {"expires": 3000}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
@@ -171,6 +176,15 @@ def check_goals() -> int:
 
     with session_factory()() as db:
         return check(db)
+
+
+@celery_app.task(name="stats_collector.links")
+def link_items() -> dict:
+    """Link posts and videos to the articles they point to."""
+    from .services.links import auto_link
+
+    with session_factory()() as db:
+        return auto_link(db)
 
 
 def poll_soon(source_id: int) -> None:

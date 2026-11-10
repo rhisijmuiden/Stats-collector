@@ -7,6 +7,10 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- Facebook and Instagram posts and YouTube videos are linked to the website articles they point to, automatically by address or by hand; an article shows its linked posts and their social views.
+  NL: Facebook- en Instagram-berichten en YouTube-video's worden gekoppeld aan de websiteartikelen waarnaar ze verwijzen, automatisch op adres of met de hand; een artikel toont de gekoppelde berichten en hun sociale weergaven.
+- Editors get the social numbers of posts that link to their articles: a Social views column and numbers per platform.
+  NL: Redacteuren krijgen de sociale cijfers van berichten die naar hun artikelen linken: een kolom Sociale weergaven en cijfers per platform.
 - System design, roadmap and clickable UI sketch (`docs/`).
   NL: Systeemontwerp, roadmap en klikbare UI-schets (`docs/`).
 - Default brand with light and dark theme tokens and logos (`branding/default/`).
