@@ -19,7 +19,7 @@ export default function SsoPage() {
   const [cfg, setCfg] = useState<Sso | null>(null);
   const [secret, setSecret] = useState("");
   useEffect(() => { if (loaded.data) setCfg(loaded.data); }, [loaded.data]);
-  if (!cfg) return <div className="page"><PageHead title={t("sso.title")} /></div>;
+  if (!cfg) return <div className="page"><PageHead help="microsoft-365" title={t("sso.title")} /></div>;
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ export default function SsoPage() {
 
   return (
     <form className="page" onSubmit={save}>
-      <PageHead title={t("sso.title")} subtitle={t("sso.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
+      <PageHead help="microsoft-365" title={t("sso.title")} subtitle={t("sso.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
       <Alert kind="info">{t("sso.phaseNote")}</Alert>
       <Card title={t("sso.app")} actions={<Switch checked={cfg.enabled} onChange={(v) => setCfg({ ...cfg, enabled: v })} label={t("sso.enabled")} />}>
         <div className="stack">

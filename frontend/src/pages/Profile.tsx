@@ -26,7 +26,7 @@ export default function Profile() {
 
   return (
     <div className="page">
-      <PageHead title={t("profile.title")} subtitle={user.email} />
+      <PageHead help="users-and-roles" title={t("profile.title")} subtitle={user.email} />
       <div className="grid two">
         <Card title={t("profile.personal")}>
           <div className="stack">

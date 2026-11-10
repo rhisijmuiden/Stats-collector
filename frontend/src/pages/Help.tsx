@@ -6,8 +6,8 @@ import { ExternalLink } from "lucide-react";
 import { api } from "../lib/api";
 import { Card, PageHead, useLoad } from "../components/ui";
 
-interface Index { lang: string; pages: { slug: string; title: string }[]; github: string }
-interface Page { slug: string; title: string; markdown: string; github: string }
+interface Index { lang: string; pages: { slug: string; title: string }[]; github: string; pages_url: string }
+interface Page { slug: string; title: string; markdown: string; github: string; pages_url: string }
 
 /** Rewrites manual-relative links: images to /help-assets, other .md files to in-app help routes. */
 function rewrite(href: string | undefined, kind: "img" | "a"): string | undefined {
@@ -25,7 +25,7 @@ export default function Help() {
   return (
     <div className="page">
       <PageHead title={t("help.title")} subtitle={t("help.subtitle")} actions={
-        index.data && <a className="btn secondary" href={page.data?.github ?? index.data.github} target="_blank" rel="noreferrer"><ExternalLink /> {t("help.onGithub")}</a>
+        index.data && <a className="btn secondary" href={page.data?.pages_url ?? index.data.pages_url} target="_blank" rel="noreferrer"><ExternalLink /> {t("help.onGithub")}</a>
       } />
       <div className="help-layout">
         <nav className="help-nav card" aria-label={t("help.contents")}>

@@ -6,7 +6,7 @@ Self-hosted statistics and reporting platform for media teams. It collects reach
 
 - Manual: [English](docs/manual/en/README.md) · [Nederlands](docs/manual/nl/README.md)
 - System design and roadmap: [docs/DESIGN.md](docs/DESIGN.md)
-- Changes: [CHANGELOG.md](CHANGELOG.md) · [CHANGELOG.nl.md](CHANGELOG.nl.md)
+- Changes: [CHANGELOG.md](CHANGELOG.md)
 - Clickable UI sketch: [docs/mockup/index.html](docs/mockup/index.html) (open in a browser; example data only)
 - Default brand: [branding/](branding/)
 

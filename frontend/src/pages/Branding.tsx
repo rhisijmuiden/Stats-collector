@@ -17,7 +17,7 @@ export default function Branding() {
   const [theme, setTheme] = useState<Theme | null>(null);
   const [mode, setMode] = useState<"light" | "dark">("light");
   useEffect(() => { if (loaded.data) setTheme(structuredClone(loaded.data.effective)); }, [loaded.data]);
-  if (!theme || !loaded.data) return <div className="page"><PageHead title={t("branding.title")} /></div>;
+  if (!theme || !loaded.data) return <div className="page"><PageHead help="branding" title={t("branding.title")} /></div>;
   const p = theme.colors[mode];
   const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
 
@@ -67,7 +67,7 @@ export default function Branding() {
 
   return (
     <div className="page">
-      <PageHead title={t("branding.title")} subtitle={t("branding.subtitle")} actions={
+      <PageHead help="branding" title={t("branding.title")} subtitle={t("branding.subtitle")} actions={
         <>
           <button className="btn ghost" onClick={reset}><RotateCcw /> {t("branding.reset")}</button>
           <button className="btn" onClick={save}>{t("common.save")}</button>

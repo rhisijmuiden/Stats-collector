@@ -21,15 +21,7 @@ SECTION_MAP = {
     "removed": "removed",
     "fixed": "fixed",
     "security": "fixed",
-    # Dutch headings in CHANGELOG.nl.md
-    "toegevoegd": "added",
-    "nieuw": "added",
-    "gewijzigd": "changed",
-    "verwijderd": "removed",
-    "opgelost": "fixed",
-    "beveiliging": "fixed",
 }
-NL_MARKER = "<!-- nl -->"
 TAG_RE = re.compile(r"^v?(\d+\.\d+\.\d+(?:-(?:rc|test)\.\d+)?)$")
 
 
@@ -56,9 +48,14 @@ def parse_version(value: str) -> Version | None:
         return None
 
 
-def parse_notes(markdown: str) -> dict[str, list[str]]:
-    """Split Keep-a-Changelog style markdown into added/changed/removed/fixed bullet lists."""
-    sections: dict[str, list[str]] = {"added": [], "changed": [], "removed": [], "fixed": []}
+def parse_notes(markdown: str) -> dict[str, dict[str, list[str]]]:
+    """Split Keep-a-Changelog markdown into added/changed/removed/fixed lists, in English and Dutch.
+
+    Each bullet may be followed by an indented ``NL: ...`` line with the Dutch translation; without it the
+    English text is used for Dutch too.
+    """
+    empty = {"added": [], "changed": [], "removed": [], "fixed": []}
+    notes: dict[str, dict[str, list[str]]] = {"en": {k: [] for k in empty}, "nl": {k: [] for k in empty}}
     current: str | None = None
     for raw in markdown.splitlines():
         line = raw.strip()
@@ -66,19 +63,23 @@ def parse_notes(markdown: str) -> dict[str, list[str]]:
         if heading:
             current = SECTION_MAP.get(heading.group(1).strip().lower())
             continue
+        if not current:
+            continue
         bullet = re.match(r"^[-*]\s+(.+)$", line)
-        if bullet and current:
-            sections[current].append(bullet.group(1))
-        elif line and current and sections[current] and raw.startswith(("  ", "\t")):
-            sections[current][-1] += " " + line
-    return sections
+        if bullet and not raw.startswith((" ", "\t")):
+            notes["en"][current].append(bullet.group(1))
+            notes["nl"][current].append(bullet.group(1))
+        elif line.startswith("NL:") and notes["en"][current]:
+            notes["nl"][current][-1] = line[3:].strip()
+        elif line and notes["en"][current] and raw.startswith(("  ", "\t")):
+            notes["en"][current][-1] += " " + line
+            if notes["nl"][current][-1] != notes["en"][current][-1]:
+                notes["nl"][current][-1] += " " + line
+    return notes
 
 
 def split_languages(body: str) -> dict[str, dict[str, list[str]]]:
-    en, _, nl = (body or "").partition(NL_MARKER)
-    notes = {"en": parse_notes(en)}
-    notes["nl"] = parse_notes(nl) if nl.strip() else notes["en"]
-    return notes
+    return parse_notes(body or "")
 
 
 def release_from_github(item: dict) -> Release | None:

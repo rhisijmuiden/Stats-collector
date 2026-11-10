@@ -83,7 +83,7 @@ export default function Backup() {
 
   return (
     <div className="page">
-      <PageHead
+      <PageHead help="backup"
         title={t("backup.title")}
         subtitle={t("backup.subtitle")}
         actions={

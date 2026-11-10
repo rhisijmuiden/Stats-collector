@@ -2,17 +2,14 @@ from stats_collector.services import updates
 
 BODY = """### Added
 - Info button with update check
+  NL: Info-knop
 - Dutch translation
   of every screen
 ### Changed
 - Menu moved left
 ### Removed
 - Old page
-<!-- nl -->
-### Toegevoegd
-- Info-knop
-### Verwijderd
-- Oude pagina
+  NL: Oude pagina
 """
 
 
@@ -40,7 +37,8 @@ def test_parse_notes_sections_and_languages():
     assert notes["en"]["added"] == ["Info button with update check", "Dutch translation of every screen"]
     assert notes["en"]["changed"] == ["Menu moved left"]
     assert notes["en"]["removed"] == ["Old page"]
-    assert notes["nl"]["added"] == ["Info-knop"] and notes["nl"]["removed"] == ["Oude pagina"]
+    assert notes["nl"]["added"] == ["Info-knop", "Dutch translation of every screen"]
+    assert notes["nl"]["removed"] == ["Oude pagina"] and notes["nl"]["changed"] == ["Menu moved left"]
 
 
 def test_dutch_falls_back_to_english():

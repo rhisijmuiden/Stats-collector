@@ -153,6 +153,15 @@ Group mapping and what each role sees are configurable in **Admin → Roles**; t
 | Menu | All admin screens in a fixed left sidebar |
 | Languages | English default, full Dutch translation; language per user, PDFs and emails per recipient language |
 
+### Help and manual
+
+A full manual with screenshots, hosted on GitHub Pages and opened from a **Help** button at the bottom of the left menu.
+
+- **Content**: installation on Debian 13 and Zoraxy; step-by-step setup per source: creating the Meta app and App Review (Facebook, Instagram), Google Cloud project and OAuth for YouTube, installing and linking the WordPress plugin, Owncast and Icecast access; then dashboards, reports, goals, live wall, roles in Microsoft 365, email, backup/restore and updates.
+- **Tooling**: Markdown in `docs/manual/`, built with MkDocs Material, English and Dutch, with search. Published to GitHub Pages on every release, versioned per release so the help always matches the running version.
+- **In the app**: the Help button opens the manual in the user's language. Every screen has a `?` icon that links to its own page. A copy of the manual is bundled in the app for servers without internet access.
+- **Always current**: screenshots are regenerated with Playwright and example data on every release. Every change to a screen or feature must update the manual; a CI check blocks pull requests that change UI or features without touching `docs/manual/`.
+
 ## Installer (Debian 13 Trixie)
 
 `install.sh` turns a bare Debian 13 into a working server and is idempotent.

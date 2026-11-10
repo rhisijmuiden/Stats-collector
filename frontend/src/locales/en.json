@@ -79,12 +79,30 @@
     "stepUsers": "Invite colleagues",
     "stepHelp": "Read the manual",
     "phases": {
-      "p0": { "title": "Foundation", "text": "Installer, accounts, menu, languages, branding, info and updates, email, backup." },
-      "p1": { "title": "Data and streams", "text": "Data model, background jobs, Owncast and Icecast, first dashboard, Microsoft 365 sign-in." },
-      "p2": { "title": "Website and video", "text": "WordPress plugin, YouTube, articles and editors." },
-      "p3": { "title": "Facebook and dashboard builder", "text": "Facebook and Instagram, stacked and overlaid charts, goals, live wall." },
-      "p4": { "title": "Reports", "text": "Report builder, PDF and interactive HTML, schedules." },
-      "p5": { "title": "Go-live", "text": "Security review and production release." }
+      "p0": {
+        "title": "Foundation",
+        "text": "Installer, accounts, menu, languages, branding, info and updates, email, backup."
+      },
+      "p1": {
+        "title": "Data and streams",
+        "text": "Data model, background jobs, Owncast and Icecast, first dashboard, Microsoft 365 sign-in."
+      },
+      "p2": {
+        "title": "Website and video",
+        "text": "WordPress plugin, YouTube, articles and editors."
+      },
+      "p3": {
+        "title": "Facebook and dashboard builder",
+        "text": "Facebook and Instagram, stacked and overlaid charts, goals, live wall."
+      },
+      "p4": {
+        "title": "Reports",
+        "text": "Report builder, PDF and interactive HTML, schedules."
+      },
+      "p5": {
+        "title": "Go-live",
+        "text": "Security review and production release."
+      }
     }
   },
   "info": {
@@ -104,7 +122,10 @@
     "updateAvailableTo": "Version {{version}} is available",
     "channelMismatch": "You are on a test version. The newest production version is {{version}}; install it below to switch back.",
     "channel": "Update channel",
-    "channels": { "production": "Production", "test": "Test" },
+    "channels": {
+      "production": "Production",
+      "test": "Test"
+    },
     "channelHelp": {
       "production": "Production follows the stable releases from the main branch. Recommended for daily use.",
       "test": "Test follows the develop branch: new features first, possibly less stable. Use it on a test server."
@@ -121,10 +142,22 @@
     "install": "Install",
     "noNotes": "No release notes.",
     "nothingInSection": "Nothing in this category.",
-    "sections": { "added": "New", "changed": "Changed", "removed": "Removed", "fixed": "Fixed" },
+    "sections": {
+      "all": "All",
+      "added": "New",
+      "changed": "Changed",
+      "removed": "Removed",
+      "fixed": "Fixed"
+    },
     "confirmTitle": "Install version {{version}}?",
     "confirmText": "A database backup is made first. The application restarts for a moment; if the new version does not start, the previous version and database are restored automatically.",
-    "confirmOtherChannel": "This version belongs to the other channel."
+    "confirmOtherChannel": "This version belongs to the other channel.",
+    "releaseOf": {
+      "production": "Production release",
+      "test": "Test release"
+    },
+    "running": "This version is running",
+    "installVersion": "Install {{version}}"
   },
   "jobs": {
     "recent": "Recent tasks",
@@ -134,8 +167,19 @@
     "finished": "Finished",
     "queuedHint": "Waiting for the system service to pick this up…",
     "succeeded": "Task completed",
-    "kinds": { "update": "Update", "backup": "Backup", "restore": "Restore", "verify_target": "Connection test" },
-    "status": { "queued": "Queued", "running": "Running", "succeeded": "Done", "failed": "Failed", "unknown": "Unknown" }
+    "kinds": {
+      "update": "Update",
+      "backup": "Backup",
+      "restore": "Restore",
+      "verify_target": "Connection test"
+    },
+    "status": {
+      "queued": "Queued",
+      "running": "Running",
+      "succeeded": "Done",
+      "failed": "Failed",
+      "unknown": "Unknown"
+    }
   },
   "users": {
     "title": "Users",
@@ -224,7 +268,11 @@
     "noEncryptionWarning": "Without encryption passwords and messages travel in plain text. Only use this on a trusted local network.",
     "verifyTls": "Verify the server certificate",
     "authentication": "Authentication",
-    "auth": { "password": "Username and password", "xoauth2": "OAuth 2.0 (XOAUTH2)", "none": "None" },
+    "auth": {
+      "password": "Username and password",
+      "xoauth2": "OAuth 2.0 (XOAUTH2)",
+      "none": "None"
+    },
     "username": "Username",
     "password": "Password",
     "tokenUrl": "Token URL",
@@ -247,7 +295,12 @@
     "subtitle": "Full and incremental backups of the database and files, copied to your own remote locations.",
     "runFull": "Full backup now",
     "runIncr": "Incremental backup now",
-    "jobTitle": { "backup": "Backup", "test": "Connection test", "restore": "Restore", "list": "Loading backups from location" },
+    "jobTitle": {
+      "backup": "Backup",
+      "test": "Connection test",
+      "restore": "Restore",
+      "list": "Loading backups from location"
+    },
     "targets": "Remote locations",
     "targetsIntro": "Every backup is copied to all enabled locations.",
     "addTarget": "Add location",
@@ -255,7 +308,11 @@
     "noTargets": "No remote location yet: backups stay on this server only.",
     "name": "Name",
     "protocol": "Protocol",
-    "kinds": { "ftp": "FTP", "ftps": "FTPS", "sftp": "SCP / SFTP (SSH)" },
+    "kinds": {
+      "ftp": "FTP",
+      "ftps": "FTPS",
+      "sftp": "SCP / SFTP (SSH)"
+    },
     "location": "Location",
     "state": "Status",
     "enabled": "Enabled",
@@ -266,7 +323,10 @@
     "port": "Port",
     "portDefault": "Empty means {{port}}",
     "path": "Folder",
-    "auth": { "password": "Password", "key": "SSH key" },
+    "auth": {
+      "password": "Password",
+      "key": "SSH key"
+    },
     "privateKey": "Private key",
     "ftpsMode": "FTPS mode",
     "explicit": "Explicit (port 21, AUTH TLS)",
@@ -275,7 +335,11 @@
     "schedule": "Schedule and retention",
     "scheduleEnabled": "Make backups automatically",
     "fullEvery": "Full backup",
-    "every": { "daily": "Every day", "weekly": "Every week", "monthly": "Every month" },
+    "every": {
+      "daily": "Every day",
+      "weekly": "Every week",
+      "monthly": "Every month"
+    },
     "weekday": "On",
     "time": "At",
     "incrEvery": "Incremental backup every",
@@ -290,7 +354,10 @@
     "history": "Backup history",
     "when": "Date",
     "type": "Type",
-    "types": { "full": "Full", "incr": "Incremental" },
+    "types": {
+      "full": "Full",
+      "incr": "Incremental"
+    },
     "size": "Files size",
     "uploadedTo": "Copied to",
     "localOnly": "Local only",
@@ -321,7 +388,11 @@
     "personal": "Personal",
     "language": "Language",
     "theme": "Appearance",
-    "themes": { "system": "System", "light": "Light", "dark": "Dark" },
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
     "password": "Password",
     "currentPassword": "Current password",
     "changePassword": "Change password",
@@ -337,10 +408,11 @@
   },
   "help": {
     "title": "Help",
-    "subtitle": "The manual for this version. It is also published on GitHub.",
+    "subtitle": "The manual for this version. It is also published online on GitHub Pages.",
     "contents": "Contents",
-    "onGithub": "Open on GitHub",
-    "notFound": "This page does not exist in the manual."
+    "onGithub": "Open online manual",
+    "notFound": "This page does not exist in the manual.",
+    "thisScreen": "Help for this screen"
   },
   "errors": {
     "invalid_credentials": "Email address or password is incorrect.",

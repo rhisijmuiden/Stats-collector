@@ -1,12 +1,20 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, Info, XCircle } from "lucide-react";
 import { useApp } from "../lib/app";
 
-export function PageHead({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }) {
+export function PageHead({ title, subtitle, actions, help }: {
+  title: string; subtitle?: ReactNode; actions?: ReactNode; help?: string;
+}) {
+  const { t } = useTranslation();
   return (
     <div className="page-head">
       <div>
-        <h1>{title}</h1>
+        <h1>
+          {title}
+          {help && <Link to={`/help/${help}`} className="help-q" title={t("help.thisScreen")} aria-label={t("help.thisScreen")}>?</Link>}
+        </h1>
         {subtitle && <p>{subtitle}</p>}
       </div>
       {actions && <div className="row">{actions}</div>}

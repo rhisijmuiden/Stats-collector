@@ -12,7 +12,7 @@ export default function Dashboard() {
   const channels = Object.entries(theme?.channels ?? {});
   return (
     <div className="page">
-      <PageHead title={t("dashboard.title")} subtitle={t("dashboard.welcome", { name: user?.display_name })} />
+      <PageHead help="README" title={t("dashboard.title")} subtitle={t("dashboard.welcome", { name: user?.display_name })} />
       <Card>
         <div className="empty">
           <BarChart3 />

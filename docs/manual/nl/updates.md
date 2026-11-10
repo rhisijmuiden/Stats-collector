@@ -36,4 +36,4 @@ De pagina toont het logboek terwijl dit loopt en herlaadt als het klaar is. De l
 
 De lijst **Releases** toont elke versie met kanaal en datum. De tabbladen **Nieuw**, **Gewijzigd**, **Verwijderd** en **Opgelost** laten zien wat er veranderd is, in jouw taal. Met **Installeren** zet je elke versie uit de lijst op de server, bijvoorbeeld om van een testbuild terug te gaan naar de nieuwste productierelease. Is de gekozen versie ouder, dan wordt het databaseschema eerst teruggezet.
 
-Dezelfde notes staan in [CHANGELOG.nl.md](https://github.com/rhisijmuiden/stats-collector/blob/develop/CHANGELOG.nl.md) en op de releasepagina van GitHub.
+Dezelfde notes staan in [CHANGELOG.md](https://github.com/rhisijmuiden/stats-collector/blob/develop/CHANGELOG.md) (Nederlandse tekst op de regels met `NL:`) en op de releasepagina van GitHub.

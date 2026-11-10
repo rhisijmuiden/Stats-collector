@@ -20,7 +20,7 @@ mkdir -p "$STAGE/$NAME" "$OUT"
 cd "$ROOT"
 tar --exclude='.venv' --exclude='__pycache__' --exclude='*.egg-info' --exclude='.pytest_cache' \
     --exclude='.ruff_cache' --exclude='*.db' --exclude='backend/var' \
-    -cf - backend branding docs deploy scripts install.sh LICENSE README.md CHANGELOG.md CHANGELOG.nl.md \
+    -cf - backend branding docs deploy scripts install.sh LICENSE README.md CHANGELOG.md \
   | tar -xf - -C "$STAGE/$NAME"
 mkdir -p "$STAGE/$NAME/frontend"
 cp -r frontend/dist "$STAGE/$NAME/frontend/dist"

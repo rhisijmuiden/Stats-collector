@@ -79,12 +79,30 @@
     "stepUsers": "Nodig collega's uit",
     "stepHelp": "Lees de handleiding",
     "phases": {
-      "p0": { "title": "Fundament", "text": "Installatiescript, accounts, menu, talen, huisstijl, info en updates, e-mail, back-up." },
-      "p1": { "title": "Data en streams", "text": "Datamodel, achtergrondtaken, Owncast en Icecast, eerste dashboard, inloggen met Microsoft 365." },
-      "p2": { "title": "Website en video", "text": "WordPress-plugin, YouTube, artikelen en redacteuren." },
-      "p3": { "title": "Facebook en dashboardbouwer", "text": "Facebook en Instagram, gestapelde en overlappende grafieken, doelen, live wall." },
-      "p4": { "title": "Rapporten", "text": "Rapportbouwer, PDF en interactieve HTML, planningen." },
-      "p5": { "title": "Livegang", "text": "Beveiligingscontrole en productierelease." }
+      "p0": {
+        "title": "Fundament",
+        "text": "Installatiescript, accounts, menu, talen, huisstijl, info en updates, e-mail, back-up."
+      },
+      "p1": {
+        "title": "Data en streams",
+        "text": "Datamodel, achtergrondtaken, Owncast en Icecast, eerste dashboard, inloggen met Microsoft 365."
+      },
+      "p2": {
+        "title": "Website en video",
+        "text": "WordPress-plugin, YouTube, artikelen en redacteuren."
+      },
+      "p3": {
+        "title": "Facebook en dashboardbouwer",
+        "text": "Facebook en Instagram, gestapelde en overlappende grafieken, doelen, live wall."
+      },
+      "p4": {
+        "title": "Rapporten",
+        "text": "Rapportbouwer, PDF en interactieve HTML, planningen."
+      },
+      "p5": {
+        "title": "Livegang",
+        "text": "Beveiligingscontrole en productierelease."
+      }
     }
   },
   "info": {
@@ -104,7 +122,10 @@
     "updateAvailableTo": "Versie {{version}} is beschikbaar",
     "channelMismatch": "Je draait een testversie. De nieuwste productieversie is {{version}}; installeer die hieronder om terug te gaan.",
     "channel": "Updatekanaal",
-    "channels": { "production": "Productie", "test": "Test" },
+    "channels": {
+      "production": "Productie",
+      "test": "Test"
+    },
     "channelHelp": {
       "production": "Productie volgt de stabiele releases van de main-branch. Aangeraden voor dagelijks gebruik.",
       "test": "Test volgt de develop-branch: nieuwe functies eerst, mogelijk minder stabiel. Gebruik dit op een testserver."
@@ -121,10 +142,22 @@
     "install": "Installeren",
     "noNotes": "Geen releasenotes.",
     "nothingInSection": "Niets in deze categorie.",
-    "sections": { "added": "Nieuw", "changed": "Gewijzigd", "removed": "Verwijderd", "fixed": "Opgelost" },
+    "sections": {
+      "all": "Alle",
+      "added": "Nieuw",
+      "changed": "Gewijzigd",
+      "removed": "Verwijderd",
+      "fixed": "Opgelost"
+    },
     "confirmTitle": "Versie {{version}} installeren?",
     "confirmText": "Eerst wordt een back-up van de database gemaakt. De applicatie herstart even; als de nieuwe versie niet start, worden de vorige versie en de database automatisch teruggezet.",
-    "confirmOtherChannel": "Deze versie hoort bij het andere kanaal."
+    "confirmOtherChannel": "Deze versie hoort bij het andere kanaal.",
+    "releaseOf": {
+      "production": "Productierelease",
+      "test": "Testrelease"
+    },
+    "running": "Deze versie draait",
+    "installVersion": "{{version}} installeren"
   },
   "jobs": {
     "recent": "Recente taken",
@@ -134,8 +167,19 @@
     "finished": "Klaar",
     "queuedHint": "Wacht tot de systeemdienst dit oppakt…",
     "succeeded": "Taak voltooid",
-    "kinds": { "update": "Update", "backup": "Back-up", "restore": "Herstel", "verify_target": "Verbindingstest" },
-    "status": { "queued": "In de wachtrij", "running": "Bezig", "succeeded": "Klaar", "failed": "Mislukt", "unknown": "Onbekend" }
+    "kinds": {
+      "update": "Update",
+      "backup": "Back-up",
+      "restore": "Herstel",
+      "verify_target": "Verbindingstest"
+    },
+    "status": {
+      "queued": "In de wachtrij",
+      "running": "Bezig",
+      "succeeded": "Klaar",
+      "failed": "Mislukt",
+      "unknown": "Onbekend"
+    }
   },
   "users": {
     "title": "Gebruikers",
@@ -224,7 +268,11 @@
     "noEncryptionWarning": "Zonder versleuteling gaan wachtwoorden en berichten onversleuteld over het netwerk. Gebruik dit alleen op een vertrouwd lokaal netwerk.",
     "verifyTls": "Certificaat van de server controleren",
     "authentication": "Authenticatie",
-    "auth": { "password": "Gebruikersnaam en wachtwoord", "xoauth2": "OAuth 2.0 (XOAUTH2)", "none": "Geen" },
+    "auth": {
+      "password": "Gebruikersnaam en wachtwoord",
+      "xoauth2": "OAuth 2.0 (XOAUTH2)",
+      "none": "Geen"
+    },
     "username": "Gebruikersnaam",
     "password": "Wachtwoord",
     "tokenUrl": "Token-URL",
@@ -247,7 +295,12 @@
     "subtitle": "Volledige en incrementele back-ups van database en bestanden, gekopieerd naar je eigen externe locaties.",
     "runFull": "Nu volledige back-up",
     "runIncr": "Nu incrementele back-up",
-    "jobTitle": { "backup": "Back-up", "test": "Verbindingstest", "restore": "Herstel", "list": "Back-ups ophalen van locatie" },
+    "jobTitle": {
+      "backup": "Back-up",
+      "test": "Verbindingstest",
+      "restore": "Herstel",
+      "list": "Back-ups ophalen van locatie"
+    },
     "targets": "Externe locaties",
     "targetsIntro": "Elke back-up wordt naar alle ingeschakelde locaties gekopieerd.",
     "addTarget": "Locatie toevoegen",
@@ -255,7 +308,11 @@
     "noTargets": "Nog geen externe locatie: back-ups blijven alleen op deze server staan.",
     "name": "Naam",
     "protocol": "Protocol",
-    "kinds": { "ftp": "FTP", "ftps": "FTPS", "sftp": "SCP / SFTP (SSH)" },
+    "kinds": {
+      "ftp": "FTP",
+      "ftps": "FTPS",
+      "sftp": "SCP / SFTP (SSH)"
+    },
     "location": "Locatie",
     "state": "Status",
     "enabled": "Ingeschakeld",
@@ -266,7 +323,10 @@
     "port": "Poort",
     "portDefault": "Leeg betekent {{port}}",
     "path": "Map",
-    "auth": { "password": "Wachtwoord", "key": "SSH-sleutel" },
+    "auth": {
+      "password": "Wachtwoord",
+      "key": "SSH-sleutel"
+    },
     "privateKey": "Privésleutel",
     "ftpsMode": "FTPS-modus",
     "explicit": "Expliciet (poort 21, AUTH TLS)",
@@ -275,7 +335,11 @@
     "schedule": "Planning en bewaartermijn",
     "scheduleEnabled": "Automatisch back-ups maken",
     "fullEvery": "Volledige back-up",
-    "every": { "daily": "Elke dag", "weekly": "Elke week", "monthly": "Elke maand" },
+    "every": {
+      "daily": "Elke dag",
+      "weekly": "Elke week",
+      "monthly": "Elke maand"
+    },
     "weekday": "Op",
     "time": "Om",
     "incrEvery": "Incrementele back-up elke",
@@ -290,7 +354,10 @@
     "history": "Back-upgeschiedenis",
     "when": "Datum",
     "type": "Soort",
-    "types": { "full": "Volledig", "incr": "Incrementeel" },
+    "types": {
+      "full": "Volledig",
+      "incr": "Incrementeel"
+    },
     "size": "Grootte bestanden",
     "uploadedTo": "Gekopieerd naar",
     "localOnly": "Alleen lokaal",
@@ -321,7 +388,11 @@
     "personal": "Persoonlijk",
     "language": "Taal",
     "theme": "Weergave",
-    "themes": { "system": "Systeem", "light": "Licht", "dark": "Donker" },
+    "themes": {
+      "system": "Systeem",
+      "light": "Licht",
+      "dark": "Donker"
+    },
     "password": "Wachtwoord",
     "currentPassword": "Huidig wachtwoord",
     "changePassword": "Wachtwoord wijzigen",
@@ -337,10 +408,11 @@
   },
   "help": {
     "title": "Help",
-    "subtitle": "De handleiding bij deze versie. Hij staat ook op GitHub.",
+    "subtitle": "De handleiding bij deze versie. Hij staat ook online op GitHub Pages.",
     "contents": "Inhoud",
-    "onGithub": "Openen op GitHub",
-    "notFound": "Deze pagina bestaat niet in de handleiding."
+    "onGithub": "Online handleiding openen",
+    "notFound": "Deze pagina bestaat niet in de handleiding.",
+    "thisScreen": "Help bij dit scherm"
   },
   "errors": {
     "invalid_credentials": "E-mailadres of wachtwoord klopt niet.",

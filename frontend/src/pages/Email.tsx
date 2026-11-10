@@ -30,7 +30,7 @@ export default function Email() {
   const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (loaded.data) setCfg(loaded.data); }, [loaded.data]);
-  if (!cfg) return <div className="page"><PageHead title={t("email.title")} /></div>;
+  if (!cfg) return <div className="page"><PageHead help="email" title={t("email.title")} /></div>;
   const set = <K extends keyof EmailCfg>(k: K, v: EmailCfg[K]) => setCfg({ ...cfg, [k]: v });
 
   const save = async (e?: FormEvent) => {
@@ -63,7 +63,7 @@ export default function Email() {
 
   return (
     <form className="page" onSubmit={save}>
-      <PageHead title={t("email.title")} subtitle={t("email.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
+      <PageHead help="email" title={t("email.title")} subtitle={t("email.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
       <Card title={t("email.server")} actions={<Switch checked={cfg.enabled} onChange={(v) => set("enabled", v)} label={t("email.enabled")} />}>
         <div className="stack">
           <div className="row small">

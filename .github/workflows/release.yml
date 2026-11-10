@@ -7,9 +7,16 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      channel: ${{ steps.v.outputs.channel }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,3 +46,40 @@ jobs:
           [ "${{ steps.v.outputs.channel }}" = test ] && flags+=(--prerelease --title "Test build $v") || flags+=(--latest --title "Stats Collector $v")
           gh release create "v$v" --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" \
             "dist/stats-collector-$v.tar.gz" "dist/stats-collector-$v.tar.gz.sha256"
+
+  # Manual on GitHub Pages, one version per release (mike), with fresh screenshots.
+  docs:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - name: Start the app with example settings
+        run: |
+          pip install -q -e backend -r docs/requirements.txt
+          (cd frontend && npm ci --no-audit --no-fund && npm run build && npx playwright install --with-deps chromium)
+          export SC_CONFIG_FILE=/nonexistent SC_DATABASE_URL=sqlite:///$RUNNER_TEMP/shots.db SC_DATA_DIR=$RUNNER_TEMP/var
+          stats-collector migrate
+          echo "SETUP_LINK=$(SC_PUBLIC_URL=http://127.0.0.1:8080 stats-collector setup-link)" >> "$GITHUB_ENV"
+          nohup uvicorn stats_collector.main:app --app-dir backend --port 8080 > "$RUNNER_TEMP/app.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8080/api/health && break; sleep 1; done
+        env:
+          SC_CONFIG_FILE: /nonexistent
+      - name: Screenshots
+        working-directory: frontend
+        run: node scripts/screenshots.mjs http://127.0.0.1:8080 "$SETUP_LINK"
+      - name: Publish manual
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          v="${{ needs.release.outputs.version }}"
+          if [ "${{ needs.release.outputs.channel }}" = production ]; then
+            mike deploy --push --update-aliases "$v" latest && mike set-default --push latest
+          else
+            mike deploy --push --update-aliases "$v" test
+            git ls-remote --exit-code origin gh-pages >/dev/null && (mike list | grep -q latest || mike set-default --push test)
+          fi

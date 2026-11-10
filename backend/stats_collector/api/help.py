@@ -42,6 +42,17 @@ def _lang_dir(lang: str):
     return d if d.is_dir() else MANUAL / "en"
 
 
+def _pages_url(lang: str, slug: str) -> str:
+    """URL of the same page in the versioned manual on GitHub Pages (published by the release workflow)."""
+    owner, repo = get_settings().github_repo.split("/", 1)
+    info = build_info()
+    released = re.match(r"^\d+\.\d+\.\d+(-(rc|test)\.\d+)?$", info["version"] or "")
+    version = info["version"] if released else ("test" if get_settings().default_channel == "test" else "latest")
+    path = "" if slug == "README" else f"{slug}/"
+    prefix = "" if lang == "en" else f"{lang}/"
+    return f"https://{owner.lower()}.github.io/{repo.lower()}/{version}/{prefix}{path}"
+
+
 def _github_base() -> str:
     branch = "develop" if (build_info().get("channel") or get_settings().default_channel) == "test" else "main"
     return f"https://github.com/{get_settings().github_repo}/blob/{branch}/docs/manual"
@@ -52,7 +63,12 @@ def index(lang: str = "en") -> dict:
     d = _lang_dir(lang)
     files = sorted(d.glob("*.md"), key=lambda p: (ORDER.index(p.stem) if p.stem in ORDER else len(ORDER), p.stem))
     pages = [{"slug": p.stem, "title": _title(p)} for p in files]
-    return {"lang": d.name, "pages": pages, "github": f"{_github_base()}/{d.name}/README.md"}
+    return {
+        "lang": d.name,
+        "pages": pages,
+        "github": f"{_github_base()}/{d.name}/README.md",
+        "pages_url": _pages_url(d.name, "README"),
+    }
 
 
 @router.get("/{slug}")
@@ -68,4 +84,5 @@ def page(slug: str, lang: str = "en") -> dict:
         "title": _title(path),
         "markdown": path.read_text(encoding="utf-8"),
         "github": f"{_github_base()}/{d.name}/{slug}.md",
+        "pages_url": _pages_url(d.name, slug),
     }

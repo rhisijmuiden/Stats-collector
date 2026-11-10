@@ -13,7 +13,7 @@ export default function GeneralSettings() {
   const loaded = useLoad(() => api.get<General>("/api/settings/general"));
   const [cfg, setCfg] = useState<General | null>(null);
   useEffect(() => { if (loaded.data) setCfg(loaded.data); }, [loaded.data]);
-  if (!cfg) return <div className="page"><PageHead title={t("general.title")} /></div>;
+  if (!cfg) return <div className="page"><PageHead help="reverse-proxy" title={t("general.title")} /></div>;
   const zones = (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.("timeZone") ?? [cfg.timezone];
 
   const save = async (e: FormEvent) => {
@@ -24,7 +24,7 @@ export default function GeneralSettings() {
 
   return (
     <form className="page" onSubmit={save}>
-      <PageHead title={t("general.title")} subtitle={t("general.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
+      <PageHead help="reverse-proxy" title={t("general.title")} subtitle={t("general.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
       <Card>
         <div className="grid three">
           <Field label={t("general.organization")}><input value={cfg.organization} onChange={(e) => setCfg({ ...cfg, organization: e.target.value })} /></Field>

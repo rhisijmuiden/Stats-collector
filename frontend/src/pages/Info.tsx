@@ -23,25 +23,36 @@ interface ReleasesData {
   releases: Release[];
 }
 
-const SECTIONS: NoteSection[] = ["added", "changed", "removed", "fixed"];
+const SECTIONS: NoteSection[] = ["added", "changed", "fixed", "removed"];
+type NoteTab = "all" | NoteSection;
 
 function ReleaseNotes({ release }: { release: Release }) {
   const { t, i18n } = useTranslation();
   const notes = release.notes[i18n.language] ?? release.notes.en;
-  const available = SECTIONS.filter((s) => notes?.[s]?.length);
-  const [tab, setTab] = useState<NoteSection>(available[0] ?? "added");
-  if (!notes || available.length === 0) return <p className="muted small">{t("info.noNotes")}</p>;
+  const [tab, setTab] = useState<NoteTab>("all");
+  useEffect(() => setTab("all"), [release.tag]);
+  const total = SECTIONS.reduce((n, s) => n + (notes?.[s]?.length ?? 0), 0);
+  const items: [NoteSection, string][] = (tab === "all" ? SECTIONS : [tab]).flatMap((s) =>
+    (notes?.[s] ?? []).map((line) => [s, line] as [NoteSection, string]),
+  );
   return (
     <>
       <Tabs
-        tabs={SECTIONS.map((s) => ({ id: s, label: t(`info.sections.${s}`), count: notes[s]?.length ?? 0 }))}
+        tabs={[
+          { id: "all" as NoteTab, label: t("info.sections.all"), count: total },
+          ...SECTIONS.map((s) => ({ id: s as NoteTab, label: t(`info.sections.${s}`), count: notes?.[s]?.length ?? 0 })),
+        ]}
         value={tab}
         onChange={setTab}
       />
-      {notes[tab]?.length ? (
-        <ul>{notes[tab].map((line, i) => <li key={i}>{line}</li>)}</ul>
+      {items.length ? (
+        <ul className="notes-list">
+          {items.map(([kind, line], i) => (
+            <li key={i}><span className={`kind kind-${kind}`}>{t(`info.sections.${kind}`)}</span>{line}</li>
+          ))}
+        </ul>
       ) : (
-        <p className="muted small" style={{ marginTop: 10 }}>{t("info.nothingInSection")}</p>
+        <p className="muted small" style={{ marginTop: 10 }}>{total ? t("info.nothingInSection") : t("info.noNotes")}</p>
       )}
     </>
   );
@@ -103,6 +114,8 @@ export default function InfoPage() {
     () => (rel.data?.releases ?? []).filter((r) => filter === "all" || r.channel === filter),
     [rel.data, filter],
   );
+  const [sel, setSel] = useState<string | null>(null);
+  const selected = releases.find((r) => r.tag === sel) ?? releases.find((r) => r.version === current) ?? releases[0];
 
   const check = async () => {
     setChecking(true);
@@ -135,7 +148,7 @@ export default function InfoPage() {
   const latest = rel.data?.check.latest;
   return (
     <div className="page">
-      <PageHead
+      <PageHead help="updates"
         title={t("info.title")}
         subtitle={t("info.subtitle")}
         actions={
@@ -241,28 +254,45 @@ export default function InfoPage() {
           </div>
         }
       >
-        <div className="stack">
-          {rel.data && releases.length === 0 && <p className="muted">{t("info.noReleases")}</p>}
-          {releases.map((r) => (
-            <article key={r.tag} className={`release${r.version === current ? " current" : ""}`}>
-              <header>
-                <div className="row">
-                  <h3>{r.name}</h3>
-                  <span className={`badge ${r.channel}`}>{t(`info.channels.${r.channel}`)}</span>
-                  {r.version === current && <span className="badge accent">{t("info.installed")}</span>}
+        {rel.data && releases.length === 0 ? (
+          <p className="muted">{t("info.noReleases")}</p>
+        ) : (
+          <div className="relwrap">
+            <div className="rellist" role="listbox" aria-label={t("info.releases")}>
+              {releases.map((r) => (
+                <button key={r.tag} type="button" className="relitem" aria-current={selected?.tag === r.tag} onClick={() => setSel(r.tag)}>
+                  <b>{r.version}</b>
+                  <span className="row" style={{ gap: 6 }}>
+                    <span className={`badge ${r.channel}`}>{t(`info.channels.${r.channel}`)}</span>
+                    {r.version === current && <span className="badge accent">{t("info.installed")}</span>}
+                  </span>
                   <span className="muted small">{formatDate(r.published_at, i18n.language)}</span>
+                </button>
+              ))}
+            </div>
+            {selected && (
+              <article className="relbody">
+                <div className="row" style={{ justifyContent: "space-between" }}>
+                  <div>
+                    <h3>{selected.name}</h3>
+                    <div className="muted small">
+                      {t(`info.releaseOf.${selected.channel}`)} · {formatDate(selected.published_at, i18n.language)}
+                    </div>
+                  </div>
+                  <div className="row">
+                    <a className="btn ghost" href={selected.url} target="_blank" rel="noreferrer"><ExternalLink /> GitHub</a>
+                    {selected.version === current ? (
+                      <span className="badge accent">{t("info.running")}</span>
+                    ) : isAdmin && selected.asset_url ? (
+                      <button className="btn secondary" onClick={() => setConfirm(selected)}>{t("info.installVersion", { version: selected.version })}</button>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="row">
-                  <a className="btn ghost" href={r.url} target="_blank" rel="noreferrer"><ExternalLink /> GitHub</a>
-                  {isAdmin && r.version !== current && r.asset_url && (
-                    <button className="btn secondary" onClick={() => setConfirm(r)}>{t("info.install")}</button>
-                  )}
-                </div>
-              </header>
-              <div className="notes"><ReleaseNotes release={r} /></div>
-            </article>
-          ))}
-        </div>
+                <ReleaseNotes release={selected} />
+              </article>
+            )}
+          </div>
+        )}
       </Card>
 
       {isAdmin && info.data?.jobs && info.data.jobs.length > 0 && (

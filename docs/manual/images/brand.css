@@ -1,0 +1,16 @@
+/* Colours from branding/default/theme.json */
+:root, [data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0F1B2D;
+  --md-primary-fg-color--light: #1D2D47;
+  --md-primary-fg-color--dark: #070D18;
+  --md-accent-fg-color: #0E9F8E;
+  --md-typeset-a-color: #0E9F8E;
+}
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #070D18;
+  --md-accent-fg-color: #2CC4B0;
+  --md-typeset-a-color: #2CC4B0;
+  --md-default-bg-color: #0B1220;
+}
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-family: "Space Grotesk", Inter, sans-serif; }
+.md-typeset img { border: 1px solid rgba(127,127,127,.25); border-radius: 8px; }

@@ -54,7 +54,7 @@ export default function Users() {
 
   return (
     <div className="page">
-      <PageHead
+      <PageHead help="users-and-roles"
         title={t("users.title")}
         subtitle={t("users.subtitle")}
         actions={
