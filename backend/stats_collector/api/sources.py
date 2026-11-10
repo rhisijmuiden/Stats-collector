@@ -1,4 +1,4 @@
-"""Admin → Sources: configure Icecast and Owncast servers and WordPress sites (later YouTube, Meta)."""
+"""Admin → Sources: Icecast and Owncast servers, WordPress sites, YouTube channels, Facebook and Instagram."""
 
 from __future__ import annotations
 
@@ -19,13 +19,14 @@ from ..connectors.icecast import normalise_mounts
 from ..db import get_db
 from ..models import ContentItem, Source, User
 from ..security import encrypt_secret, new_token, require_admin
-from ..services import collect, wordpress
+from ..services import collect, meta, wordpress
 from .common import audit
 
 router = APIRouter(prefix="/api/sources", tags=["sources"])
 hooks = APIRouter(prefix="/api/hooks", tags=["hooks"])
 
-KINDS = ("icecast", "owncast", "wordpress", "youtube")
+KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram")
+OAUTH_KINDS = ("youtube", "facebook", "instagram")
 YT_KEEP = (
     "channel_id",
     "channel_title",
@@ -42,7 +43,7 @@ PLUGIN_DIR = APP_ROOT / "wordpress-plugin" / "stats-collector"
 
 
 class SourceIn(BaseModel):
-    kind: Literal["icecast", "owncast", "wordpress", "youtube"]
+    kind: Literal["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram"]
     name: str = Field(min_length=1, max_length=200)
     url: str = Field(default="", max_length=500)
     mounts: list[str] = Field(default_factory=list)
@@ -51,17 +52,25 @@ class SourceIn(BaseModel):
     verify_tls: bool = True
     poll_seconds: int = Field(default=30, ge=10, le=3600)
     enabled: bool = True
-    client_id: str = Field(default="", max_length=300)  # YouTube: Google OAuth client
+    client_id: str = Field(default="", max_length=300)  # YouTube: Google OAuth client; Meta: App ID
     client_secret: str | None = Field(default=None, max_length=300)  # None = keep
+    config_id: str = Field(default="", max_length=100)  # Meta: Facebook Login for Business configuration
+    graph_version: str = Field(default="", max_length=10, pattern=r"^(v?\d{1,3}\.\d{1,2})?$")
+    metric_overrides: dict[str, str] = Field(default_factory=dict)  # Meta: our metric -> Graph name
 
     @model_validator(mode="after")
     def _check(self):
         self.url = self.url.strip().rstrip("/")
-        if self.kind == "youtube":
+        if self.kind in OAUTH_KINDS:
             if not self.client_id.strip():
                 raise ValueError("client_id_required")
             self.client_id = self.client_id.strip()
             self.url = ""
+            self.metric_overrides = {
+                k: v.strip()
+                for k, v in self.metric_overrides.items()
+                if k in meta.ALL_METRIC_KEYS and v.strip() and len(v) <= 80 and v.replace("_", "").strip().isalnum()
+            }
         elif not self.url.startswith(("http://", "https://")) or len(self.url) < 8:
             raise ValueError("invalid_url")
         return self
@@ -77,6 +86,19 @@ def _config(body: SourceIn, old: dict | None = None) -> dict:
         if (old or {}).get("client_id") not in (None, body.client_id):
             keep = {}  # another Google app: the old connection no longer applies
         return {**keep, "client_id": body.client_id}
+    if body.kind in meta.KINDS:
+        old = old or {}
+        same_app = old.get("client_id") in (None, body.client_id)
+        keep = {k: v for k, v in old.items() if k not in meta.SETTINGS} if same_app else {}
+        if not same_app or old.get("graph_version", "") != body.graph_version:
+            keep.pop("metric_names", None)
+        return {
+            **keep,
+            "client_id": body.client_id,
+            "config_id": body.config_id.strip(),
+            "graph_version": body.graph_version.strip(),
+            "metric_overrides": body.metric_overrides,
+        }
     if body.kind == "wordpress":
         keep = {
             k: v for k, v in (old or {}).items() if k in ("site_name", "plugin_version", "wp_version", "site_timezone")
@@ -116,6 +138,32 @@ def youtube_out(s: Source, secrets: dict) -> dict:
     }
 
 
+def meta_out(s: Source, secrets: dict) -> dict:
+    cfg = s.config or {}
+    return {
+        "client_id": cfg.get("client_id", ""),
+        "client_secret_set": bool(secrets.get("client_secret")),
+        "config_id": cfg.get("config_id", ""),
+        "graph_version": cfg.get("graph_version", ""),
+        "graph_version_default": meta.GRAPH_VERSION,
+        "metric_overrides": cfg.get("metric_overrides") or {},
+        "metric_keys": [k for k in meta.ALL_METRIC_KEYS if k.startswith("fb_" if s.kind == "facebook" else "ig_")],
+        "unsupported_metrics": cfg.get("unsupported_metrics") or [],
+        "connected": bool(cfg.get("account_id") and secrets.get("page_token")),
+        "choices": (cfg.get("choices") or []) if secrets.get("candidates") else [],
+        "account_name": cfg.get("account_name"),
+        "account_url": cfg.get("account_url"),
+        "page_name": cfg.get("page_name"),
+        "followers": cfg.get("followers"),
+        "history_done": bool(cfg.get("history_done")),
+        "redirect_uri": meta_redirect_uri(),
+    }
+
+
+def meta_redirect_uri() -> str:
+    return f"{get_settings().public_url.rstrip('/')}/api/connectors/meta/callback"
+
+
 def youtube_redirect_uri() -> str:
     return f"{get_settings().public_url.rstrip('/')}/api/connectors/youtube/callback"
 
@@ -148,6 +196,7 @@ def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
             else {}
         ),
         **(youtube_out(s, secrets) if s.kind == "youtube" else {}),
+        **(meta_out(s, secrets) if s.kind in meta.KINDS else {}),
         "last_poll_at": s.last_poll_at.isoformat() if s.last_poll_at else None,
         "last_ok_at": s.last_ok_at.isoformat() if s.last_ok_at else None,
         "last_error": s.last_error,
@@ -161,15 +210,18 @@ def _apply(s: Source, body: SourceIn) -> None:
     s.config = _config(body, s.config)
     s.poll_seconds = body.poll_seconds
     s.enabled = body.enabled
-    if s.kind == "youtube":
+    if s.kind in OAUTH_KINDS:
         secrets = collect.source_secrets(s)
-        if s.config.get("channel_id") is None:
+        if s.kind == "youtube" and s.config.get("channel_id") is None:
             secrets.pop("refresh_token", None)
+        if s.kind in meta.KINDS and s.config.get("account_id") is None:
+            secrets.pop("page_token", None)
+            secrets.pop("candidates", None)
         if body.client_secret:
             secrets["client_secret"] = body.client_secret.strip()
         s.secret_enc = encrypt_secret(json.dumps(secrets)) if secrets else None
         s.poll_seconds = 3600
-    if body.admin_password is not None and s.kind not in ("wordpress", "youtube"):
+    if body.admin_password is not None and s.kind not in ("wordpress", *OAUTH_KINDS):
         secrets = collect.source_secrets(s)
         if body.admin_password:
             secrets["admin_password"] = body.admin_password
@@ -269,8 +321,8 @@ def plugin_zip(_: User = Depends(require_admin)) -> Response:
 def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(require_admin)) -> dict:
     if body.kind == "wordpress":
         raise HTTPException(400, "test_in_wordpress")
-    if body.kind == "youtube":
-        raise HTTPException(400, "test_youtube_connect")
+    if body.kind in OAUTH_KINDS:
+        raise HTTPException(400, "test_youtube_connect" if body.kind == "youtube" else "test_meta_connect")
     secrets: dict = {}
     if body.id is not None:
         secrets = collect.source_secrets(_get(db, body.id))
@@ -301,6 +353,13 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
         from ..worker import youtube_soon
 
         youtube_soon(s.id)
+        return source_out(db, s)
+    if s.kind in meta.KINDS:
+        if not (s.config or {}).get("account_id"):
+            raise HTTPException(400, "meta_not_connected")
+        from ..worker import meta_soon
+
+        meta_soon(s.id)
         return source_out(db, s)
     collect.poll_source(db, s)
     return source_out(db, s)

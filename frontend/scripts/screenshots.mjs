@@ -6,7 +6,7 @@ const [base = "http://127.0.0.1:8080", setupLink] = process.argv.slice(2);
 const out = new URL("../../docs/manual/images/", import.meta.url).pathname;
 const SCREENS = [
   ["/", "dashboard"], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/editors", "editors"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];
 

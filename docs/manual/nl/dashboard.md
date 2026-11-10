@@ -6,7 +6,7 @@ Het dashboard is het eerste scherm na het inloggen. Iedereen kan het openen, wel
 
 ## Website en video
 
-Is er een WordPress-site of YouTube-kanaal gekoppeld, dan begint het dashboard met de kaart **Website en video**: de weergaven van alle kanalen samen, een tegel per website (paginaweergaven en bezoekers) en per YouTube-kanaal (weergaven, bekeken minuten, abonnees en hoeveel erbij kwamen in de periode), en een grafiek met de weergaven per uur (24 uur) of per dag, gestapeld per kanaal. YouTube-cijfers komen een tot twee dagen later binnen, dus de laatste dagen van de grafiek vullen zich later aan. **Topcontent** opent de pagina [Content](content.md).
+Is er een WordPress-site, YouTube-kanaal, Facebook-pagina of Instagram-account gekoppeld, dan begint het dashboard met de kaart **Website en video**: de weergaven van alle kanalen samen met hun totale bereik, een tegel per website (paginaweergaven en bezoekers), per YouTube-kanaal (weergaven, bekeken minuten, abonnees en hoeveel erbij kwamen in de periode) en per Facebook-pagina of Instagram-account (weergaven, bereik, volgers en hoeveel erbij kwamen), en een grafiek met de weergaven per uur (24 uur) of per dag, gestapeld per kanaal. YouTube-cijfers komen een tot twee dagen later binnen, dus de laatste dagen van de grafiek vullen zich later aan. YouTube, Facebook en Instagram geven alleen hele dagen: in de weergave **24 uur** staat in hun tegel *alleen cijfers per dag* en ontbreken ze in de grafiek. **Topcontent** opent de pagina [Content](content.md).
 
 ## Nu live
 

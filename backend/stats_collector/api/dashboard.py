@@ -261,13 +261,19 @@ def summary(range: Range = "7d", db: Session = Depends(get_db), _: User = Depend
 
 # ----------------------------------------------------------------------------- website and video
 
-CHANNEL_KINDS = ("wordpress", "youtube")
-VIEW_METRICS = {"wordpress": "web_views", "youtube": "yt_views"}
+CHANNEL_KINDS = ("wordpress", "youtube", "facebook", "instagram")
+VIEW_METRICS = {"wordpress": "web_views", "youtube": "yt_views", "facebook": "fb_views", "instagram": "ig_views"}
+REACH_METRICS = {"wordpress": "web_visitors", "facebook": "fb_reach", "instagram": "ig_reach"}
+GAINED_METRICS = {"youtube": "yt_subs_gained", "facebook": "fb_follows", "instagram": "ig_follows"}
+DAILY_ONLY = ("youtube", "facebook", "instagram")
+FOLLOWER_CONFIG = {"youtube": "subscribers", "facebook": "followers", "instagram": "followers"}
 
 
 @router.get("/channels")
 def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depends(current_user)) -> dict:
-    """Views per website and YouTube channel: totals and a series per hour (24 h) or day."""
+    """Views per website, YouTube channel, Facebook Page and Instagram account, with a series per
+    hour (24 h) or day. Reach is unique visitors for a website and Meta's reach for social media;
+    summed over days it counts a person once per day."""
     from .content import period
 
     start, end, gran, buckets = period(db, range)
@@ -278,6 +284,7 @@ def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depen
     out = []
     for s in sources:
         views_metric = VIEW_METRICS[s.kind]
+        wanted = {views_metric, "yt_watch_minutes", REACH_METRICS.get(s.kind), GAINED_METRICS.get(s.kind)} - {None}
         totals = dict(
             db.execute(
                 select(MetricPoint.metric, func.sum(MetricPoint.value))
@@ -287,7 +294,7 @@ def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depen
                     MetricPoint.granularity == gran,
                     MetricPoint.bucket >= start,
                     MetricPoint.bucket < end,
-                    MetricPoint.metric.in_((views_metric, "web_visitors", "yt_watch_minutes", "yt_subs_gained")),
+                    MetricPoint.metric.in_(tuple(wanted)),
                 )
                 .group_by(MetricPoint.metric)
             ).all()
@@ -309,11 +316,14 @@ def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depen
         out.append(
             {
                 **_source_brief(s),
+                # YouTube and Meta only report whole days: no numbers per hour.
+                "daily_only": s.kind in DAILY_ONLY,
                 "views": round(totals.get(views_metric) or 0),
                 "visitors": round(totals.get("web_visitors") or 0),
+                "reach": round(totals.get(REACH_METRICS.get(s.kind, ""), 0) or 0),
                 "watch_minutes": round(totals.get("yt_watch_minutes") or 0),
-                "subscribers": (s.config or {}).get("subscribers") if s.kind == "youtube" else None,
-                "subscribers_gained": round(totals.get("yt_subs_gained") or 0),
+                "subscribers": (s.config or {}).get(FOLLOWER_CONFIG[s.kind]) if s.kind in FOLLOWER_CONFIG else None,
+                "subscribers_gained": round(totals.get(GAINED_METRICS.get(s.kind, ""), 0) or 0),
                 "values": values,
                 "last_ok_at": _aware(s.last_ok_at).isoformat() if s.last_ok_at else None,
             }
@@ -323,5 +333,6 @@ def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depen
         "granularity": gran,
         "buckets": [b.isoformat() for b in buckets],
         "total_views": sum(s["views"] for s in out),
+        "total_reach": sum(s["reach"] for s in out),
         "sources": out,
     }

@@ -10,7 +10,9 @@
 - **Sorteer** zet de lijst op volgorde van weergaven, bezoekers, leestijd, gelezen, gedeeld, reacties of luister-/kijkminuten, of toont de nieuwste items eerst.
 - Kolommen: **Weergaven**, **Bezoekers**, **Gem. leestijd** (leestijd gedeeld door weergaven), **Gelezen**, **Gedeeld** en **Luister-/kijkmin.** voor uitzendingen en mountpoints. Zie [WordPress](wordpress.md#wat-wordt-geteld) voor de betekenis van elk cijfer.
 
-Klik op een item voor de details: de cijfers over de periode, een grafiek per dag (per uur bij 24 uur), waar lezers vandaan kwamen en welke apparaten ze gebruikten.
+- Facebook- en Instagram-berichten en YouTube-video's staan in dezelfde lijst. Bij een bericht toont **Bezoekers / bereik** het bereik. Zie [Meta](meta.md) en [YouTube](youtube.md) voor hoe die cijfers verzameld worden.
+
+Klik op een item voor de details: de cijfers over de periode, een grafiek per dag (per uur bij 24 uur), en bij een artikel waar lezers vandaan kwamen en welke apparaten ze gebruikten. Een Facebook-bericht toont ook de reacties per soort (leuk, geweldig, wauw…); een Instagram-bericht hoe vaak het is opgeslagen.
 
 ![Details van een artikel](../images/nl-content-item.png)
 

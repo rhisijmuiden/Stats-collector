@@ -6,7 +6,7 @@ The dashboard is the first screen after signing in. Everyone can open it, whatev
 
 ## Website and video
 
-When a WordPress site or a YouTube channel is connected, the dashboard starts with the card **Website and video**: the views of all channels together, a tile per website (page views and visitors) and per YouTube channel (views, minutes watched, subscribers and how many were gained in the period), and a chart with the views per hour (24 hours) or per day, stacked per channel. YouTube numbers arrive one to two days late, so the last days of the chart fill in later. **Top content** opens the [Content](content.md) page.
+When a WordPress site, YouTube channel, Facebook Page or Instagram account is connected, the dashboard starts with the card **Website and video**: the views of all channels together with their total reach, a tile per website (page views and visitors), per YouTube channel (views, minutes watched, subscribers and how many were gained in the period) and per Facebook Page or Instagram account (views, reach, followers and how many were gained), and a chart with the views per hour (24 hours) or per day, stacked per channel. YouTube numbers arrive one to two days late, so the last days of the chart fill in later. YouTube, Facebook and Instagram only report whole days: in the **24 hours** view their tiles say *daily numbers only* and they are left out of the chart. **Top content** opens the [Content](content.md) page.
 
 ## Live now
 

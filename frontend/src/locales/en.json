@@ -125,11 +125,15 @@
     "item": "Broadcast or stream",
     "noData": "No data in this period yet.",
     "channelsTitle": "Website and video",
-    "channelsHint": "Page views and YouTube views. YouTube numbers arrive one to two days late.",
+    "channelsHint": "Views per website, YouTube channel, Facebook Page and Instagram account. YouTube numbers arrive one to two days late.",
     "toContent": "Top content",
     "totalViews": "Views, all channels",
     "ytSub": "{{minutes}} min watched · {{subscribers}} subscribers (+{{gained}})",
-    "webSub": "{{visitors}} visitors"
+    "webSub": "{{visitors}} visitors",
+    "totalReach": "reach {{reach}}",
+    "socialSub": "reach {{reach}} · {{followers}} followers (+{{gained}})",
+    "dailyOnly": "Daily numbers only: choose 7 days or more · {{followers}} followers",
+    "dailyOnlyYt": "Daily numbers only: choose 7 days or more · {{followers}} subscribers"
   },
   "info": {
     "title": "Info & updates",
@@ -509,7 +513,21 @@
     "yt_no_channel": "This Google account has no YouTube channel. Sign in with the account (or brand account) of the channel.",
     "yt_reconnect": "Access to YouTube has ended. Connect again (in testing mode Google ends it after 7 days).",
     "yt_quota": "The daily YouTube quota is used up; collecting continues tomorrow.",
-    "yt_forbidden": "YouTube refused access: check that both APIs are enabled in Google Cloud."
+    "yt_forbidden": "YouTube refused access: check that both APIs are enabled in Google Cloud.",
+    "test_meta_connect": "Use Connect with Facebook to test a Facebook or Instagram source.",
+    "meta_not_connected": "The account is not connected.",
+    "meta_app_missing": "Fill in the App ID and App secret and save first.",
+    "meta_state_invalid": "The sign-in with Facebook took too long or was opened twice. Try again.",
+    "meta_access_denied": "Access was not granted on the Facebook screen.",
+    "meta_failed": "Connecting with Facebook failed.",
+    "meta_token_failed": "Facebook did not accept the code: check the App ID, App secret and redirect address.",
+    "meta_no_pages": "This Facebook account manages no Page, or did not give access to one. Connect again and select the Page.",
+    "meta_no_instagram": "None of the Pages you gave access to has an Instagram professional account linked. Link it in the Instagram app or Meta Business Suite and connect again.",
+    "meta_choice_invalid": "That choice is no longer available. Connect again.",
+    "meta_reconnect": "Access to Facebook has ended (password changed, or access removed). Connect again.",
+    "meta_rate_limit": "Meta asks to slow down; collecting continues automatically in a while.",
+    "meta_permission": "Meta refused access: a permission is missing or the app is not live yet (see Help → Meta).",
+    "meta_metric_changed": "Meta changed a metric name. The names are looked up again at the next run."
   },
   "sources": {
     "title": "Sources",
@@ -525,13 +543,17 @@
       "icecast": "Icecast (radio)",
       "owncast": "Owncast (video)",
       "wordpress": "WordPress (website)",
-      "youtube": "YouTube (channel)"
+      "youtube": "YouTube (channel)",
+      "facebook": "Facebook (Page)",
+      "instagram": "Instagram (account)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
       "owncast": "The address of your Owncast server.",
       "wordpress": "The address of the website, e.g. https://www.example.org.",
-      "youtube": ""
+      "youtube": "",
+      "facebook": "",
+      "instagram": ""
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -589,7 +611,35 @@
     "ytStats": "{{subscribers}} subscribers · {{videos}} videos",
     "ytNotConnected": "Not connected",
     "ytHistoryBusy": "Importing history: back to {{date}} so far",
-    "ytHistoryDone": "Full history imported"
+    "ytHistoryDone": "Full history imported",
+    "metaSteps": "Create a Meta app of type Business (see Help), add Facebook Login for Business with the redirect address below, and paste the App ID and App secret here. Save, then click Connect with Facebook and sign in with an administrator of the Page. The same app serves Facebook and Instagram.",
+    "metaRedirect": "Redirect address for Facebook",
+    "metaRedirectHint": "Add this exact address under Facebook Login for Business → Settings → Valid OAuth Redirect URIs.",
+    "metaAppId": "App ID",
+    "metaAppSecret": "App secret",
+    "metaConfigId": "Configuration ID (optional)",
+    "metaConfigIdHint": "Only for Facebook Login for Business with a configuration: paste its ID. Leave empty to ask for the permissions directly.",
+    "metaAfterSave": "Save first; then you can connect with Facebook.",
+    "metaConnectHint": "Not connected yet. Click Connect with Facebook.",
+    "metaConnect": "Connect with Facebook",
+    "metaConnected": "Connected. The history is being imported now.",
+    "metaConnectedTo": "Connected to {{account}}",
+    "metaStats": "{{followers}} followers",
+    "metaViaPage": "via Page {{page}}",
+    "metaHistoryBusy": "Importing history…",
+    "metaHistoryDone": "History imported",
+    "metaChoose": "Choose which one to collect",
+    "metaChoosePage": "Which Page?",
+    "metaChooseAccount": "Which Instagram account?",
+    "metaChooseHint": "You manage more than one. Pick the one this source should measure; add another source for the others.",
+    "metaDisconnectConfirm": "Stop collecting from this account? The numbers collected so far are kept.",
+    "metaAdvanced": "Advanced: login configuration, Graph API version and metric names",
+    "metaGraphVersion": "Graph API version",
+    "metaGraphVersionHint": "Leave empty for the tested version ({{version}}).",
+    "metaMetricNames": "Metric names",
+    "metaMetricNamesHint": "Meta renames metrics now and then. Stats Collector tries the known names itself; fill in a name only when Meta announces a new one.",
+    "metaAutomatic": "automatic",
+    "metaUnsupported": "not available"
   },
   "content": {
     "title": "Content",
@@ -629,7 +679,8 @@
       "comments": "comments",
       "minutes": "listening/watching",
       "published": "newest",
-      "likes": "likes"
+      "likes": "likes",
+      "reach": "reach"
     },
     "device": {
       "mobile": "Mobile",
@@ -638,7 +689,20 @@
       "direct": "Direct / unknown"
     },
     "likes": "Likes",
-    "avgWatch": "Avg. view duration"
+    "avgWatch": "Avg. view duration",
+    "reach": "Reach",
+    "saves": "Saves",
+    "clicks": "Clicks",
+    "visitorsReach": "Visitors / reach",
+    "reactionsByType": "Reactions",
+    "reaction": {
+      "like": "👍 Like",
+      "love": "❤️ Love",
+      "wow": "😮 Wow",
+      "haha": "😆 Haha",
+      "sorry": "😢 Sad",
+      "anger": "😡 Angry"
+    }
   },
   "editors": {
     "title": "Editors",
@@ -652,5 +716,21 @@
     "noneTitle": "No editors yet",
     "noneText": "Editors appear when a WordPress site sends its first articles.",
     "noneOwn": "No articles are linked to you yet. Your WordPress account needs the same email address as your account here."
+  },
+  "metrics": {
+    "fb_views": "Views",
+    "fb_reach": "Reach",
+    "fb_engagements": "Post engagements",
+    "fb_clicks": "Clicks",
+    "fb_video_views": "Video views",
+    "fb_follows": "New followers",
+    "fb_unfollows": "Unfollows",
+    "ig_views": "Views",
+    "ig_reach": "Reach",
+    "ig_likes": "Likes",
+    "ig_comments": "Comments",
+    "ig_shares": "Shares",
+    "ig_saves": "Saves",
+    "ig_profile_views": "Profile visits"
   }
 }

@@ -225,10 +225,11 @@ def test_dashboard_channels_with_demo(admin):
         assert create_demo(db) > 0
     data = client.get("/api/dashboard/channels?range=30d").json()
     kinds = {s["kind"]: s for s in data["sources"]}
-    assert set(kinds) == {"wordpress", "youtube"}
+    assert set(kinds) == {"wordpress", "youtube", "facebook", "instagram"}
+    assert kinds["facebook"]["subscribers"] == 12840 and kinds["instagram"]["reach"] > 0
     assert kinds["youtube"]["views"] > 0 and kinds["youtube"]["subscribers"] == 4870
     assert kinds["wordpress"]["views"] > 0 and kinds["wordpress"]["visitors"] > 0
-    assert data["total_views"] == kinds["youtube"]["views"] + kinds["wordpress"]["views"]
+    assert data["total_views"] == sum(k["views"] for k in kinds.values())
     assert len(data["buckets"]) == len(kinds["youtube"]["values"])
     hourly = client.get("/api/dashboard/channels?range=24h").json()
     assert hourly["granularity"] == "hour" and len(hourly["buckets"]) == 24

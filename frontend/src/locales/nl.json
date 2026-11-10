@@ -125,11 +125,15 @@
     "item": "Uitzending of stream",
     "noData": "Nog geen gegevens in deze periode.",
     "channelsTitle": "Website en video",
-    "channelsHint": "Paginaweergaven en YouTube-weergaven. YouTube-cijfers komen een tot twee dagen later binnen.",
+    "channelsHint": "Weergaven per website, YouTube-kanaal, Facebook-pagina en Instagram-account. YouTube-cijfers komen een tot twee dagen later binnen.",
     "toContent": "Topcontent",
     "totalViews": "Weergaven, alle kanalen",
     "ytSub": "{{minutes}} min bekeken · {{subscribers}} abonnees (+{{gained}})",
-    "webSub": "{{visitors}} bezoekers"
+    "webSub": "{{visitors}} bezoekers",
+    "totalReach": "bereik {{reach}}",
+    "socialSub": "bereik {{reach}} · {{followers}} volgers (+{{gained}})",
+    "dailyOnly": "Alleen cijfers per dag: kies 7 dagen of meer · {{followers}} volgers",
+    "dailyOnlyYt": "Alleen cijfers per dag: kies 7 dagen of meer · {{followers}} abonnees"
   },
   "info": {
     "title": "Info & updates",
@@ -509,7 +513,21 @@
     "yt_no_channel": "Dit Google-account heeft geen YouTube-kanaal. Log in met het account (of merkaccount) van het kanaal.",
     "yt_reconnect": "De toegang tot YouTube is verlopen. Koppel opnieuw (in testmodus beëindigt Google die na 7 dagen).",
     "yt_quota": "Het dagelijkse YouTube-quotum is op; morgen gaat het ophalen verder.",
-    "yt_forbidden": "YouTube weigerde de toegang: controleer of beide API's aan staan in Google Cloud."
+    "yt_forbidden": "YouTube weigerde de toegang: controleer of beide API's aan staan in Google Cloud.",
+    "test_meta_connect": "Gebruik Koppelen met Facebook om een Facebook- of Instagram-bron te testen.",
+    "meta_not_connected": "Het account is niet gekoppeld.",
+    "meta_app_missing": "Vul de app-ID en het app-geheim in en sla eerst op.",
+    "meta_state_invalid": "Het inloggen bij Facebook duurde te lang of is twee keer geopend. Probeer het opnieuw.",
+    "meta_access_denied": "Op het Facebook-scherm is geen toegang gegeven.",
+    "meta_failed": "Koppelen met Facebook is mislukt.",
+    "meta_token_failed": "Facebook accepteerde de code niet: controleer de app-ID, het app-geheim en het doorstuuradres.",
+    "meta_no_pages": "Dit Facebook-account beheert geen pagina, of gaf er geen toegang toe. Koppel opnieuw en selecteer de pagina.",
+    "meta_no_instagram": "Geen van de pagina's waartoe je toegang gaf heeft een gekoppeld Instagram-bedrijfsaccount. Koppel het in de Instagram-app of Meta Business Suite en koppel opnieuw.",
+    "meta_choice_invalid": "Die keuze is niet meer beschikbaar. Koppel opnieuw.",
+    "meta_reconnect": "De toegang tot Facebook is beëindigd (wachtwoord gewijzigd of toegang ingetrokken). Koppel opnieuw.",
+    "meta_rate_limit": "Meta vraagt het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
+    "meta_permission": "Meta weigerde de toegang: er ontbreekt een recht of de app staat nog niet live (zie Help → Meta).",
+    "meta_metric_changed": "Meta heeft de naam van een metric gewijzigd. De namen worden bij de volgende ronde opnieuw opgezocht."
   },
   "sources": {
     "title": "Bronnen",
@@ -525,13 +543,17 @@
       "icecast": "Icecast (radio)",
       "owncast": "Owncast (video)",
       "wordpress": "WordPress (website)",
-      "youtube": "YouTube (kanaal)"
+      "youtube": "YouTube (kanaal)",
+      "facebook": "Facebook (pagina)",
+      "instagram": "Instagram (account)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
       "owncast": "Het adres van je Owncast-server.",
       "wordpress": "Het adres van de website, bijvoorbeeld https://www.example.org.",
-      "youtube": ""
+      "youtube": "",
+      "facebook": "",
+      "instagram": ""
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -589,7 +611,35 @@
     "ytStats": "{{subscribers}} abonnees · {{videos}} video's",
     "ytNotConnected": "Niet gekoppeld",
     "ytHistoryBusy": "Geschiedenis ophalen: tot nu toe terug tot {{date}}",
-    "ytHistoryDone": "Volledige geschiedenis opgehaald"
+    "ytHistoryDone": "Volledige geschiedenis opgehaald",
+    "metaSteps": "Maak een Meta-app van het type Bedrijf (zie Help), voeg Facebook Login for Business toe met het doorstuuradres hieronder, en plak hier de app-ID en het app-geheim. Sla op, klik dan op Koppelen met Facebook en log in met een beheerder van de pagina. Dezelfde app werkt voor Facebook en Instagram.",
+    "metaRedirect": "Doorstuuradres voor Facebook",
+    "metaRedirectHint": "Zet precies dit adres bij Facebook Login for Business → Instellingen → Geldige OAuth-omleidings-URI's.",
+    "metaAppId": "App-ID",
+    "metaAppSecret": "App-geheim",
+    "metaConfigId": "Configuratie-ID (optioneel)",
+    "metaConfigIdHint": "Alleen bij Facebook Login for Business met een configuratie: plak de ID. Laat leeg om de rechten rechtstreeks te vragen.",
+    "metaAfterSave": "Sla eerst op; daarna kun je koppelen met Facebook.",
+    "metaConnectHint": "Nog niet gekoppeld. Klik op Koppelen met Facebook.",
+    "metaConnect": "Koppelen met Facebook",
+    "metaConnected": "Gekoppeld. De historie wordt nu opgehaald.",
+    "metaConnectedTo": "Gekoppeld aan {{account}}",
+    "metaStats": "{{followers}} volgers",
+    "metaViaPage": "via pagina {{page}}",
+    "metaHistoryBusy": "Historie wordt opgehaald…",
+    "metaHistoryDone": "Historie opgehaald",
+    "metaChoose": "Kies welke je wilt meten",
+    "metaChoosePage": "Welke pagina?",
+    "metaChooseAccount": "Welk Instagram-account?",
+    "metaChooseHint": "Je beheert er meer dan één. Kies welke deze bron meet; maak voor de andere een extra bron aan.",
+    "metaDisconnectConfirm": "Stoppen met verzamelen van dit account? De cijfers tot nu toe blijven bewaard.",
+    "metaAdvanced": "Geavanceerd: inlogconfiguratie, Graph API-versie en namen van metrics",
+    "metaGraphVersion": "Graph API-versie",
+    "metaGraphVersionHint": "Laat leeg voor de geteste versie ({{version}}).",
+    "metaMetricNames": "Namen van metrics",
+    "metaMetricNamesHint": "Meta hernoemt af en toe metrics. Stats Collector probeert zelf de bekende namen; vul alleen een naam in als Meta een nieuwe aankondigt.",
+    "metaAutomatic": "automatisch",
+    "metaUnsupported": "niet beschikbaar"
   },
   "content": {
     "title": "Content",
@@ -629,7 +679,8 @@
       "comments": "reacties",
       "minutes": "luisteren/kijken",
       "published": "nieuwste",
-      "likes": "likes"
+      "likes": "likes",
+      "reach": "bereik"
     },
     "device": {
       "mobile": "Mobiel",
@@ -638,7 +689,20 @@
       "direct": "Direct / onbekend"
     },
     "likes": "Likes",
-    "avgWatch": "Gem. kijkduur"
+    "avgWatch": "Gem. kijkduur",
+    "reach": "Bereik",
+    "saves": "Opgeslagen",
+    "clicks": "Klikken",
+    "visitorsReach": "Bezoekers / bereik",
+    "reactionsByType": "Reacties",
+    "reaction": {
+      "like": "👍 Leuk",
+      "love": "❤️ Geweldig",
+      "wow": "😮 Wauw",
+      "haha": "😆 Haha",
+      "sorry": "😢 Verdrietig",
+      "anger": "😡 Boos"
+    }
   },
   "editors": {
     "title": "Redacteuren",
@@ -652,5 +716,21 @@
     "noneTitle": "Nog geen redacteuren",
     "noneText": "Redacteuren verschijnen zodra een WordPress-site de eerste artikelen stuurt.",
     "noneOwn": "Er zijn nog geen artikelen aan jou gekoppeld. Je WordPress-account moet hetzelfde e-mailadres hebben als je account hier."
+  },
+  "metrics": {
+    "fb_views": "Weergaven",
+    "fb_reach": "Bereik",
+    "fb_engagements": "Interacties",
+    "fb_clicks": "Klikken",
+    "fb_video_views": "Videoweergaven",
+    "fb_follows": "Nieuwe volgers",
+    "fb_unfollows": "Ontvolgd",
+    "ig_views": "Weergaven",
+    "ig_reach": "Bereik",
+    "ig_likes": "Likes",
+    "ig_comments": "Opmerkingen",
+    "ig_shares": "Keren gedeeld",
+    "ig_saves": "Opgeslagen",
+    "ig_profile_views": "Profielbezoeken"
   }
 }

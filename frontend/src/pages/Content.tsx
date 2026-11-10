@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, FileText, Globe, Radio, Search, Tv, Youtube } from "lucide-react";
+import { ExternalLink, Facebook, FileText, Globe, Instagram, Radio, Search, Tv, Youtube } from "lucide-react";
 import { api } from "../lib/api";
 import { useApp } from "../lib/app";
 import { Alert, Card, Modal, PageHead, useLoad } from "../components/ui";
@@ -10,12 +10,12 @@ import { formatDate } from "../lib/format";
 
 export type Range = "24h" | "7d" | "30d" | "90d" | "365d";
 export const RANGES: Range[] = ["24h", "7d", "30d", "90d", "365d"];
-export type MetricKey = "views" | "visitors" | "read_seconds" | "reads" | "shares" | "comments" | "likes" | "minutes" | "peak";
+export type MetricKey = "views" | "visitors" | "reach" | "read_seconds" | "reads" | "shares" | "comments" | "likes" | "saves" | "clicks" | "minutes" | "peak";
 
 export interface Item {
   id: number; title: string; kind: string; url: string | null; category: string | null; tags: string[];
   source: { id: number; name: string; kind: string } | null; published_at: string | null; ended_at: string | null;
-  metrics: Record<MetricKey, number>; avg_read_seconds: number; avg_watch_seconds: number; comments_total: number;
+  metrics: Record<MetricKey, number>; avg_read_seconds: number; avg_watch_seconds: number; comments_total: number; reactions?: Record<string, number> | null;
   authors?: { id: number; name: string; role: string }[];
 }
 interface Top { items: Item[]; start: string; end: string }
@@ -33,7 +33,8 @@ export const fmtSeconds = (s: number) => {
 };
 export const channel = (kind: string) => (kind === "wordpress" ? "website" : kind);
 export const kindIcon = (kind: string | undefined) =>
-  kind === "owncast" ? <Tv size={15} /> : kind === "icecast" ? <Radio size={15} /> : kind === "youtube" ? <Youtube size={15} /> : <Globe size={15} />;
+  kind === "owncast" ? <Tv size={15} /> : kind === "icecast" ? <Radio size={15} /> : kind === "youtube" ? <Youtube size={15} />
+    : kind === "facebook" ? <Facebook size={15} /> : kind === "instagram" ? <Instagram size={15} /> : <Globe size={15} />;
 
 export function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   const { t } = useTranslation();
@@ -100,6 +101,9 @@ export function ItemModal({ id, range, onClose }: { id: number; range: Range; on
   const it = d?.item;
   const web = it?.source?.kind === "wordpress";
   const video = it?.source?.kind === "youtube";
+  const social = it?.source?.kind === "facebook" || it?.source?.kind === "instagram";
+  const kpis: MetricKey[] = web ? ["views", "visitors", "reads", "shares"] : video ? ["views", "minutes", "likes", "comments", "shares"]
+    : social ? ["views", "reach", "likes", "comments", "shares", it?.source?.kind === "instagram" ? "saves" : "clicks"] : ["minutes", "peak"];
   return (
     <Modal title={it?.title ?? t("content.loading")} onClose={onClose}>
       {detail.error && <Alert kind="error">{errorText(detail.error)}</Alert>}
@@ -113,12 +117,15 @@ export function ItemModal({ id, range, onClose }: { id: number; range: Range; on
             {it.url && <a href={it.url} target="_blank" rel="noreferrer">{t("content.open")} <ExternalLink size={13} /></a>}
           </div>
           <div className="kpis">
-            {(web ? (["views", "visitors", "reads", "shares"] as const) : video ? (["views", "minutes", "likes", "comments", "shares"] as const) : (["minutes", "peak"] as const)).map((k) => (
+            {kpis.map((k) => (
               <div className="kpi" key={k}><div className="kpi-label">{t(`content.${k}`)}</div><div className="kpi-value">{fmt(it.metrics[k], i18n.language)}</div></div>
             ))}
             {web && <div className="kpi"><div className="kpi-label">{t("content.avgRead")}</div><div className="kpi-value">{fmtSeconds(it.avg_read_seconds)}</div></div>}
             {video && <div className="kpi"><div className="kpi-label">{t("content.avgWatch")}</div><div className="kpi-value">{fmtSeconds(it.avg_watch_seconds)}</div></div>}
           </div>
+          {it.reactions && Object.keys(it.reactions).length > 0 && (
+            <div className="muted small row">{t("content.reactionsByType")}: {Object.entries(it.reactions).sort((a, b) => b[1] - a[1]).map(([k, v]) => <span key={k} className="badge">{t(`content.reaction.${k}`, { defaultValue: k })} {fmt(v, i18n.language)}</span>)}</div>
+          )}
           <MetricsChart granularity={d.granularity} buckets={d.buckets} series={d.series} color={theme?.channels?.[channel(it.source?.kind ?? "")] ?? "#3E7BFA"} />
           {web && (
             <div className="grid two">
@@ -141,7 +148,7 @@ export function ItemsTable({ items, onOpen, showAuthors }: { items: Item[]; onOp
     <div className="table-wrap"><table>
       <thead><tr>
         <th>{t("content.title_")}</th>{showAuthors && <th>{t("content.authors")}</th>}<th>{t("content.published")}</th>
-        <th className="num">{t("content.views")}</th><th className="num">{t("content.visitors")}</th><th className="num">{t("content.avgRead")}</th>
+        <th className="num">{t("content.views")}</th><th className="num">{t("content.visitorsReach")}</th><th className="num">{t("content.avgRead")}</th>
         <th className="num">{t("content.reads")}</th><th className="num">{t("content.shares")}</th><th className="num">{t("content.minutes")}</th>
       </tr></thead>
       <tbody>
@@ -154,7 +161,7 @@ export function ItemsTable({ items, onOpen, showAuthors }: { items: Item[]; onOp
             {showAuthors && <td>{i.authors?.map((a) => a.name).join(", ") || "–"}</td>}
             <td className="nowrap">{i.published_at ? new Date(i.published_at).toLocaleDateString(lang, { day: "numeric", month: "short" }) : "–"}</td>
             <td className="num">{fmt(i.metrics.views, lang)}</td>
-            <td className="num">{fmt(i.metrics.visitors, lang)}</td>
+            <td className="num">{fmt(i.metrics.visitors || i.metrics.reach || 0, lang)}</td>
             <td className="num">{fmtSeconds(i.avg_read_seconds || i.avg_watch_seconds)}</td>
             <td className="num">{fmt(i.metrics.reads, lang)}</td>
             <td className="num">{fmt(i.metrics.shares, lang)}</td>
@@ -206,7 +213,7 @@ export default function Content() {
             </select>
           )}
           <select value={sort} onChange={(e) => setSort(e.target.value as MetricKey)} aria-label={t("content.sortBy")}>
-            {(["views", "visitors", "read_seconds", "reads", "shares", "comments", "likes", "minutes", "published"] as const).map((k) => <option key={k} value={k}>{t("content.sortBy")}: {t(`content.sort.${k}`)}</option>)}
+            {(["views", "visitors", "reach", "read_seconds", "reads", "shares", "comments", "likes", "minutes", "published"] as const).map((k) => <option key={k} value={k}>{t("content.sortBy")}: {t(`content.sort.${k}`)}</option>)}
           </select>
         </form>
         {top.error && <Alert kind="error">{errorText(top.error)}</Alert>}

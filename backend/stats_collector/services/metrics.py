@@ -53,6 +53,41 @@ YT_SUBS_LOST = "yt_subs_lost"
 YT_SUBSCRIBERS = "yt_subscribers"
 YT_DAY_METRICS = (YT_VIEWS, YT_WATCH_MINUTES, YT_LIKES, YT_COMMENTS, YT_SHARES, YT_SUBS_GAINED, YT_SUBS_LOST)
 
+# Facebook Page and Instagram professional account (Graph API, per day). Followers are gauges.
+FB_VIEWS = "fb_views"
+FB_REACH = "fb_reach"
+FB_ENGAGEMENTS = "fb_engagements"
+FB_REACTIONS = "fb_reactions"
+FB_COMMENTS = "fb_comments"
+FB_SHARES = "fb_shares"
+FB_CLICKS = "fb_clicks"
+FB_VIDEO_VIEWS = "fb_video_views"
+FB_FOLLOWS = "fb_follows"
+FB_UNFOLLOWS = "fb_unfollows"
+FB_FOLLOWERS = "fb_followers"
+FB_DAY_METRICS = (
+    FB_VIEWS,
+    FB_REACH,
+    FB_ENGAGEMENTS,
+    FB_REACTIONS,
+    FB_COMMENTS,
+    FB_SHARES,
+    FB_CLICKS,
+    FB_VIDEO_VIEWS,
+    FB_FOLLOWS,
+    FB_UNFOLLOWS,
+)
+IG_VIEWS = "ig_views"
+IG_REACH = "ig_reach"
+IG_LIKES = "ig_likes"
+IG_COMMENTS = "ig_comments"
+IG_SHARES = "ig_shares"
+IG_SAVES = "ig_saves"
+IG_PROFILE_VIEWS = "ig_profile_views"
+IG_FOLLOWS = "ig_follows"
+IG_FOLLOWERS = "ig_followers"
+IG_DAY_METRICS = (IG_VIEWS, IG_REACH, IG_LIKES, IG_COMMENTS, IG_SHARES, IG_SAVES, IG_PROFILE_VIEWS, IG_FOLLOWS)
+
 REGISTRY: tuple[Metric, ...] = (
     Metric("icecast", LIVE_AVG, "count", "avg", "live_audience", "Average listeners", "Gemiddeld aantal luisteraars"),
     Metric("icecast", LIVE_PEAK, "count", "max", "live_audience", "Peak listeners", "Piek luisteraars"),
@@ -74,6 +109,26 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("youtube", YT_SUBS_GAINED, "count", "sum", "followers", "Subscribers gained", "Nieuwe abonnees"),
     Metric("youtube", YT_SUBS_LOST, "count", "sum", "followers", "Subscribers lost", "Verloren abonnees"),
     Metric("youtube", YT_SUBSCRIBERS, "count", "gauge", "followers", "Subscribers", "Abonnees"),
+    Metric("facebook", FB_VIEWS, "count", "sum", "views", "Views", "Weergaven"),
+    Metric("facebook", FB_REACH, "count", "sum", "reach", "Reach", "Bereik"),
+    Metric("facebook", FB_ENGAGEMENTS, "count", "sum", "interactions", "Post engagements", "Interacties"),
+    Metric("facebook", FB_REACTIONS, "count", "sum", "interactions", "Reactions", "Reacties (emoji)"),
+    Metric("facebook", FB_COMMENTS, "count", "sum", "interactions", "Comments", "Opmerkingen"),
+    Metric("facebook", FB_SHARES, "count", "sum", "interactions", "Shares", "Keren gedeeld"),
+    Metric("facebook", FB_CLICKS, "count", "sum", "interactions", "Clicks", "Klikken"),
+    Metric("facebook", FB_VIDEO_VIEWS, "count", "sum", "views", "Video views", "Videoweergaven"),
+    Metric("facebook", FB_FOLLOWS, "count", "sum", "followers", "New followers", "Nieuwe volgers"),
+    Metric("facebook", FB_UNFOLLOWS, "count", "sum", "followers", "Unfollows", "Ontvolgd"),
+    Metric("facebook", FB_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
+    Metric("instagram", IG_VIEWS, "count", "sum", "views", "Views", "Weergaven"),
+    Metric("instagram", IG_REACH, "count", "sum", "reach", "Reach", "Bereik"),
+    Metric("instagram", IG_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
+    Metric("instagram", IG_COMMENTS, "count", "sum", "interactions", "Comments", "Opmerkingen"),
+    Metric("instagram", IG_SHARES, "count", "sum", "interactions", "Shares", "Keren gedeeld"),
+    Metric("instagram", IG_SAVES, "count", "sum", "interactions", "Saves", "Opgeslagen"),
+    Metric("instagram", IG_PROFILE_VIEWS, "count", "sum", "views", "Profile visits", "Profielbezoeken"),
+    Metric("instagram", IG_FOLLOWS, "count", "sum", "followers", "New followers", "Nieuwe volgers"),
+    Metric("instagram", IG_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
 )
 
 
