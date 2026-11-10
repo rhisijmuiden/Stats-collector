@@ -343,3 +343,18 @@ details.advanced[open] summary { margin-bottom: 12px; }
 details.advanced label { display: flex; flex-direction: column; gap: 4px; }
 .critical-text { color: var(--critical); }
 .seg { flex-wrap: wrap; }
+.goal-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.goal-card { text-align: left; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 10px; }
+.goal-card h2 { margin: 0; font-size: 16px; }
+.goal-card:hover { border-color: var(--accent); }
+.goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.goal-tile { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-card); color: inherit; text-decoration: none; }
+.goal-tile:hover { border-color: var(--accent); }
+.goal-name { font-weight: 600; font-size: 14px; }
+.goal-progress { display: flex; flex-direction: column; gap: 6px; }
+.progress { height: 8px; border-radius: 999px; background: var(--surface-2, var(--border)); overflow: hidden; }
+.progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .3s; }
+.progress.reached span { background: var(--good); }
+.progress.behind span { background: var(--warning); }
+.progress.missed span { background: var(--critical); }
+.row.between { justify-content: space-between; align-items: center; }

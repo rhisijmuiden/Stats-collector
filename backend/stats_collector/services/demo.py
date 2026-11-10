@@ -204,7 +204,13 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         "days": list(days_rows.values()),
     }
     result = ingest(db, site, payload, now=now)
-    return result["hours"] + result["days"] + create_demo_channel(db, now=now) + create_demo_social(db, now=now)
+    return (
+        result["hours"]
+        + result["days"]
+        + create_demo_channel(db, now=now)
+        + create_demo_social(db, now=now)
+        + create_demo_goals(db, now=now)
+    )
 
 
 VIDEOS = [
@@ -477,3 +483,55 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
         rebuild_gauge(db, source, f"{p}_followers", f"{p}_follows", lost, {today: followers}, today, tz)
     db.commit()
     return rows
+
+
+def create_demo_goals(db: Session, now: datetime | None = None) -> int:
+    """Three example goals, one of them with a changed target."""
+    from zoneinfo import ZoneInfo
+
+    from ..models import Goal, GoalRevision
+
+    tz = ZoneInfo("Europe/Amsterdam")
+    now = now or utcnow()
+    today = now.astimezone(tz).date()
+    fb = db.execute(select(Source).where(Source.name == "Demo Facebook")).scalar_one_or_none()
+    month_start = today.replace(day=1)
+    plans = [
+        (
+            "13,500 Facebook followers",
+            "followers",
+            [fb.id] if fb else [],
+            13500,
+            today - timedelta(days=45),
+            today + timedelta(days=50),
+            [14000, 13500],
+        ),
+        (
+            "Social reach this month",
+            "reach",
+            [],
+            60_000,
+            month_start,
+            (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1),
+            [60_000],
+        ),
+        (
+            "25,000 followers on all channels",
+            "followers",
+            [],
+            25000,
+            today - timedelta(days=50),
+            today + timedelta(days=120),
+            [25000],
+        ),
+    ]
+    for name, metric, ids, target, start, end, targets in plans:
+        goal = Goal(name=name, metric=metric, source_ids=ids, target=target, start_date=start, end_date=end)
+        db.add(goal)
+        db.flush()
+        for n, t in enumerate(targets):
+            when = datetime.combine(start + timedelta(days=n * 20), datetime.min.time(), tz).astimezone(UTC)
+            note = "" if n == 0 else "Adjusted after the summer"
+            db.add(GoalRevision(goal_id=goal.id, target=t, end_date=end, note=note, changed_at=when))
+    db.commit()
+    return len(plans)

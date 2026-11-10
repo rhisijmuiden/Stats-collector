@@ -20,6 +20,7 @@ The same manual opens inside the application through the **Help** button at the 
 
 - [Dashboard](dashboard.md)
 - [Content and editors](content.md)
+- [Followers and goals](followers-and-goals.md)
 
 ## Connecting platforms
 

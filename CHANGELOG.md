@@ -75,6 +75,12 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Namen van Meta-metrics die blijven werken als Meta ze hernoemt: bekende oude en nieuwe namen worden automatisch geprobeerd, en een beheerder kan bij Geavanceerd de Graph API-versie en eigen namen instellen.
 - Content page shows Facebook and Instagram posts with reach, likes or reactions per type, saves and clicks; the dashboard card shows them with total reach and followers.
   NL: De contentpagina toont Facebook- en Instagram-berichten met bereik, likes of reacties per soort, opgeslagen en klikken; de dashboardkaart toont ze met totaal bereik en volgers.
+- Followers page: YouTube subscribers and Facebook and Instagram followers per day, per channel and stacked, over 30 days, 90 days or 12 months.
+  NL: Pagina Volgers: YouTube-abonnees en Facebook- en Instagram-volgers per dag, per kanaal en gestapeld, over 30 dagen, 90 dagen of 12 maanden.
+- Goals on followers, views, reach, interactions or listening/watching minutes, for all or chosen channels, with progress, pace, forecast and a chart with the target as a dashed line; every change of the target is kept in its history.
+  NL: Doelen voor volgers, weergaven, bereik, interacties of luister-/kijkminuten, voor alle of gekozen kanalen, met voortgang, tempo, prognose en een grafiek met het doel als streepjeslijn; elke wijziging van het doel blijft bewaard in de historie.
+- Optional email when a goal is reached or falls behind (at most weekly), and a Goals card on the dashboard.
+  NL: Optionele mail als een doel gehaald is of achterloopt (hooguit wekelijks), en een kaart Doelen op het dashboard.
 
 ### Changed
 - Updates now also install the system services shipped with the new version and restart the worker.

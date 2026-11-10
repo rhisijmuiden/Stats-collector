@@ -29,7 +29,9 @@
     "logout": "Uitloggen",
     "sources": "Bronnen",
     "content": "Content",
-    "editors": "Redacteuren"
+    "editors": "Redacteuren",
+    "followers": "Volgers",
+    "goals": "Doelen"
   },
   "roles": {
     "admin": "Beheerder",
@@ -527,7 +529,9 @@
     "meta_reconnect": "De toegang tot Facebook is beëindigd (wachtwoord gewijzigd of toegang ingetrokken). Koppel opnieuw.",
     "meta_rate_limit": "Meta vraagt het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
     "meta_permission": "Meta weigerde de toegang: er ontbreekt een recht of de app staat nog niet live (zie Help → Meta).",
-    "meta_metric_changed": "Meta heeft de naam van een metric gewijzigd. De namen worden bij de volgende ronde opnieuw opgezocht."
+    "meta_metric_changed": "Meta heeft de naam van een metric gewijzigd. De namen worden bij de volgende ronde opnieuw opgezocht.",
+    "unknown_source": "Een van de gekozen kanalen bestaat niet meer.",
+    "end_before_start": "De einddatum moet na de startdatum liggen."
   },
   "sources": {
     "title": "Bronnen",
@@ -732,5 +736,84 @@
     "ig_shares": "Keren gedeeld",
     "ig_saves": "Opgeslagen",
     "ig_profile_views": "Profielbezoeken"
+  },
+  "followers": {
+    "title": "Volgers",
+    "subtitle": "Volgers en abonnees per kanaal, per dag.",
+    "range": {
+      "30d": "30 dagen",
+      "90d": "90 dagen",
+      "365d": "12 maanden"
+    },
+    "chartTitle": "Groei per kanaal",
+    "chartHint": "YouTube-abonnees en Facebook- en Instagram-volgers aan het eind van elke dag.",
+    "stacked": "Gestapeld",
+    "separate": "Los",
+    "total": "Alle kanalen",
+    "change": "{{change}} in {{period}}",
+    "sourceSub": "{{change}} · {{gained}} nieuw",
+    "noneTitle": "Nog geen sociale kanalen",
+    "noneText": "Koppel een YouTube-kanaal, Facebook-pagina of Instagram-account bij Bronnen om de groei te volgen."
+  },
+  "goals": {
+    "title": "Doelen",
+    "subtitle": "Doelen voor volgers, weergaven, bereik en meer, met voortgang en een prognose.",
+    "add": "Nieuw doel",
+    "edit": "Doel bewerken",
+    "all": "Alle doelen",
+    "active": "Actief",
+    "archived": "Gearchiveerd",
+    "name": "Naam",
+    "namePlaceholder": "bijv. 15.000 Facebook-volgers",
+    "metricLabel": "Meten",
+    "metric": {
+      "followers": "Volgers",
+      "views": "Weergaven",
+      "reach": "Bereik",
+      "interactions": "Interacties",
+      "watch_minutes": "Luister- en kijkminuten"
+    },
+    "metricHint": {
+      "followers": "Het aantal volgers en abonnees moet het doel halen.",
+      "views": "Pagina-, video- en berichtweergaven vanaf de startdatum, opgeteld.",
+      "reach": "Websitebezoekers en sociaal bereik per dag vanaf de startdatum, opgeteld.",
+      "interactions": "Likes, reacties, opmerkingen, keren gedeeld en opgeslagen vanaf de startdatum, opgeteld.",
+      "watch_minutes": "Live luister-/kijkminuten en YouTube-kijktijd vanaf de startdatum, opgeteld."
+    },
+    "target": "Doel",
+    "startDate": "Startdatum",
+    "endDate": "Einddatum",
+    "endHint": "Optioneel. Zonder einddatum is er geen prognose.",
+    "sources": "Kanalen",
+    "sourcesHint": "Niets gekozen: alle kanalen tellen mee.",
+    "allSources": "alle kanalen",
+    "note": "Reden van de wijziging",
+    "noteHint": "Wordt in de historie bewaard als het doel of de einddatum verandert.",
+    "notify": "Mail als het doel gehaald is of achterloopt",
+    "notifyEmails": "Versturen naar",
+    "notifyHint": "E-mailadressen gescheiden door komma's. Leeg: wie het doel maakte.",
+    "archive": "Dit doel archiveren",
+    "confirmDelete": "Het doel {{name}} en de historie verwijderen?",
+    "status": {
+      "reached": "Gehaald",
+      "on_track": "Op koers",
+      "behind": "Loopt achter",
+      "missed": "Niet gehaald"
+    },
+    "until": "tot {{date}}",
+    "noEnd": "geen einddatum",
+    "forecastShort": "trend: {{value}}",
+    "pace": "Huidig tempo",
+    "needed": "Nodig",
+    "perDay": "per dag",
+    "forecast": "Prognose",
+    "onDate": "op {{date}}",
+    "trend": "Trend",
+    "history": "Historie van het doel",
+    "changedAt": "Gewijzigd",
+    "changedBy": "Door",
+    "noneTitle": "Nog geen doelen",
+    "noneText": "Stel een doel voor volgers, weergaven, bereik of interacties, eventueel met een einddatum.",
+    "noneTextReader": "De hoofdredacteur of een beheerder kan hier doelen instellen."
   }
 }

@@ -8,7 +8,22 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import APP_ROOT, build_info
-from .api import auth, backup, content, dashboard, entra, help, ingest, meta, settings, sources, system, users, youtube
+from .api import (
+    auth,
+    backup,
+    content,
+    dashboard,
+    entra,
+    goals,
+    help,
+    ingest,
+    meta,
+    settings,
+    sources,
+    system,
+    users,
+    youtube,
+)
 from .config import get_settings
 from .proxy import ProxyHeadersMiddleware
 
@@ -70,6 +85,7 @@ def create_app() -> FastAPI:
         ingest,
         youtube,
         meta,
+        goals,
     ):
         app.include_router(module.router)
     app.include_router(settings.public_router)

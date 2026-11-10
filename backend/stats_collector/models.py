@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from sqlalchemy import (
     JSON,
     BigInteger,
     Boolean,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -311,3 +312,39 @@ class DimensionPoint(Base):
     key: Mapped[str] = mapped_column(String(255))
     bucket: Mapped[datetime] = mapped_column(DateTime(timezone=True))  # local day start, as UTC
     value: Mapped[float] = mapped_column(Float, default=0)
+
+
+class Goal(Base):
+    """A target on a metric, e.g. 5,000 Facebook followers or 1 million reach this quarter."""
+
+    __tablename__ = "goals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    metric: Mapped[str] = mapped_column(String(32))  # followers | views | reach | interactions | watch_minutes
+    source_ids: Mapped[Any] = mapped_column(JSON, default=list)  # empty = all sources
+    target: Mapped[float] = mapped_column(Float)
+    start_date: Mapped[date] = mapped_column(Date)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    notify: Mapped[bool] = mapped_column(Boolean, default=False)
+    notify_emails: Mapped[Any] = mapped_column(JSON, default=list)
+    reached_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    behind_notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class GoalRevision(Base):
+    """Every target a goal has had, so reports show what the target was at the time."""
+
+    __tablename__ = "goal_revisions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    goal_id: Mapped[int] = mapped_column(ForeignKey("goals.id", ondelete="CASCADE"), index=True)
+    target: Mapped[float] = mapped_column(Float)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    note: Mapped[str] = mapped_column(String(500), default="")
+    changed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

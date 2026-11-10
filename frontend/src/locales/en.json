@@ -29,7 +29,9 @@
     "logout": "Sign out",
     "sources": "Sources",
     "content": "Content",
-    "editors": "Editors"
+    "editors": "Editors",
+    "followers": "Followers",
+    "goals": "Goals"
   },
   "roles": {
     "admin": "Admin",
@@ -527,7 +529,9 @@
     "meta_reconnect": "Access to Facebook has ended (password changed, or access removed). Connect again.",
     "meta_rate_limit": "Meta asks to slow down; collecting continues automatically in a while.",
     "meta_permission": "Meta refused access: a permission is missing or the app is not live yet (see Help → Meta).",
-    "meta_metric_changed": "Meta changed a metric name. The names are looked up again at the next run."
+    "meta_metric_changed": "Meta changed a metric name. The names are looked up again at the next run.",
+    "unknown_source": "One of the chosen channels no longer exists.",
+    "end_before_start": "The end date must be after the start date."
   },
   "sources": {
     "title": "Sources",
@@ -732,5 +736,84 @@
     "ig_shares": "Shares",
     "ig_saves": "Saves",
     "ig_profile_views": "Profile visits"
+  },
+  "followers": {
+    "title": "Followers",
+    "subtitle": "Followers and subscribers per channel, per day.",
+    "range": {
+      "30d": "30 days",
+      "90d": "90 days",
+      "365d": "12 months"
+    },
+    "chartTitle": "Growth per channel",
+    "chartHint": "YouTube subscribers, Facebook and Instagram followers at the end of each day.",
+    "stacked": "Stacked",
+    "separate": "Separate",
+    "total": "All channels",
+    "change": "{{change}} in {{period}}",
+    "sourceSub": "{{change}} · {{gained}} new",
+    "noneTitle": "No social channels yet",
+    "noneText": "Connect a YouTube channel, Facebook Page or Instagram account under Sources to follow their growth."
+  },
+  "goals": {
+    "title": "Goals",
+    "subtitle": "Targets for followers, views, reach and more, with progress and a forecast.",
+    "add": "New goal",
+    "edit": "Edit goal",
+    "all": "All goals",
+    "active": "Active",
+    "archived": "Archived",
+    "name": "Name",
+    "namePlaceholder": "e.g. 15,000 Facebook followers",
+    "metricLabel": "Measure",
+    "metric": {
+      "followers": "Followers",
+      "views": "Views",
+      "reach": "Reach",
+      "interactions": "Interactions",
+      "watch_minutes": "Listening and watching minutes"
+    },
+    "metricHint": {
+      "followers": "The number of followers and subscribers must reach the target.",
+      "views": "Page, video and post views from the start date, added up.",
+      "reach": "Website visitors and social reach per day from the start date, added up.",
+      "interactions": "Likes, reactions, comments, shares and saves from the start date, added up.",
+      "watch_minutes": "Live listening/watching minutes and YouTube watch time from the start date, added up."
+    },
+    "target": "Target",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "endHint": "Optional. Without an end date there is no forecast.",
+    "sources": "Channels",
+    "sourcesHint": "None selected: all channels count.",
+    "allSources": "all channels",
+    "note": "Reason for the change",
+    "noteHint": "Saved in the history when the target or end date changes.",
+    "notify": "Email when the goal is reached or falls behind",
+    "notifyEmails": "Send to",
+    "notifyHint": "Email addresses separated by commas. Empty: whoever made the goal.",
+    "archive": "Archive this goal",
+    "confirmDelete": "Delete the goal {{name}} and its history?",
+    "status": {
+      "reached": "Reached",
+      "on_track": "On track",
+      "behind": "Behind",
+      "missed": "Not reached"
+    },
+    "until": "until {{date}}",
+    "noEnd": "no end date",
+    "forecastShort": "trend: {{value}}",
+    "pace": "Current pace",
+    "needed": "Needed",
+    "perDay": "per day",
+    "forecast": "Forecast",
+    "onDate": "on {{date}}",
+    "trend": "Trend",
+    "history": "Target history",
+    "changedAt": "Changed",
+    "changedBy": "By",
+    "noneTitle": "No goals yet",
+    "noneText": "Set a target on followers, views, reach or interactions, with an end date if you like.",
+    "noneTextReader": "The editor-in-chief or an administrator can set goals here."
   }
 }
