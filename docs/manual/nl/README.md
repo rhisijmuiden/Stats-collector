@@ -28,7 +28,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 | Inloggen met Microsoft 365 (Entra ID) | [Microsoft 365](microsoft-365.md) | Fase 1 (instellingen kun je nu al voorbereiden) |
 | Owncast en Icecast | [Owncast en Icecast](owncast-icecast.md) | Fase 1 |
 | WordPress (eigen plugin) | [WordPress](wordpress.md) | Beschikbaar |
-| YouTube | [YouTube](youtube.md) | Fase 2 (Google-verificatie nu al starten) |
+| YouTube | [YouTube](youtube.md) | Beschikbaar |
 | Facebook en Instagram | [Meta: Facebook en Instagram](meta.md) | Fase 3 (Meta App Review nu al starten) |
 
 ## Als er iets misgaat

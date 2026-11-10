@@ -123,7 +123,13 @@
     "topItems": "Best bekeken uitzendingen en streams",
     "topItemsHint": "Op minuten in deze periode.",
     "item": "Uitzending of stream",
-    "noData": "Nog geen gegevens in deze periode."
+    "noData": "Nog geen gegevens in deze periode.",
+    "channelsTitle": "Website en video",
+    "channelsHint": "Paginaweergaven en YouTube-weergaven. YouTube-cijfers komen een tot twee dagen later binnen.",
+    "toContent": "Topcontent",
+    "totalViews": "Weergaven, alle kanalen",
+    "ytSub": "{{minutes}} min bekeken · {{subscribers}} abonnees (+{{gained}})",
+    "webSub": "{{visitors}} bezoekers"
   },
   "info": {
     "title": "Info & updates",
@@ -489,7 +495,21 @@
     "test_in_wordpress": "Test de verbinding vanuit WordPress (Instellingen → Stats Collector).",
     "push_only": "Deze bron stuurt de cijfers zelf.",
     "no_site_key": "Deze bron heeft geen sitesleutel.",
-    "plugin_missing": "De plugin zit niet in deze installatie."
+    "plugin_missing": "De plugin zit niet in deze installatie.",
+    "client_id_required": "Vul de client-ID in.",
+    "test_youtube_connect": "Gebruik Koppelen met Google om een YouTube-kanaal te testen.",
+    "yt_not_connected": "Het YouTube-kanaal is niet gekoppeld.",
+    "yt_client_missing": "Vul eerst de client-ID en het geheim in en sla op.",
+    "yt_state_invalid": "Het inloggen bij Google duurde te lang of is twee keer geopend. Probeer het opnieuw.",
+    "yt_access_denied": "Op het scherm van Google is geen toegang gegeven.",
+    "yt_failed": "Koppelen met Google is mislukt.",
+    "yt_token_failed": "Google accepteerde de code niet: controleer de client-ID, het geheim en het doorstuuradres.",
+    "yt_scope_missing": "Niet alle rechten zijn gegeven. Koppel opnieuw en vink alles aan.",
+    "yt_no_refresh_token": "Google stuurde geen blijvende toegang. Verwijder Stats Collector onder myaccount.google.com → Beveiliging → Toegang door derden en koppel opnieuw.",
+    "yt_no_channel": "Dit Google-account heeft geen YouTube-kanaal. Log in met het account (of merkaccount) van het kanaal.",
+    "yt_reconnect": "De toegang tot YouTube is verlopen. Koppel opnieuw (in testmodus beëindigt Google die na 7 dagen).",
+    "yt_quota": "Het dagelijkse YouTube-quotum is op; morgen gaat het ophalen verder.",
+    "yt_forbidden": "YouTube weigerde de toegang: controleer of beide API's aan staan in Google Cloud."
   },
   "sources": {
     "title": "Bronnen",
@@ -504,12 +524,14 @@
     "kinds": {
       "icecast": "Icecast (radio)",
       "owncast": "Owncast (video)",
-      "wordpress": "WordPress (website)"
+      "wordpress": "WordPress (website)",
+      "youtube": "YouTube (kanaal)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
       "owncast": "Het adres van je Owncast-server.",
-      "wordpress": "Het adres van de website, bijvoorbeeld https://www.example.org."
+      "wordpress": "Het adres van de website, bijvoorbeeld https://www.example.org.",
+      "youtube": ""
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -551,7 +573,23 @@
     "renewKeyConfirm": "De plugin stopt met versturen tot je de nieuwe sleutel en het geheim in WordPress plakt. Doorgaan?",
     "wpSteps": "Installeer de plugin op de website (Plugins → Nieuwe plugin → Plugin uploaden) en plak deze drie waarden onder Instellingen → Stats Collector. Klik daarna op Verbinding testen.",
     "wpAfterSave": "Na het opslaan krijg je de sitesleutel en het geheim voor de plugin.",
-    "downloadPlugin": "WordPress-plugin downloaden"
+    "downloadPlugin": "WordPress-plugin downloaden",
+    "ytSteps": "Maak in Google Cloud een OAuth-client van het type Webapplicatie (zie Help), voeg daar het doorstuuradres hieronder aan toe en plak de client-ID en het geheim hier. Sla op, klik op Koppelen met Google en log in met het account dat het kanaal beheert.",
+    "ytRedirect": "Doorstuuradres voor Google",
+    "ytRedirectHint": "Voeg precies dit adres toe onder Geautoriseerde omleidings-URI's van de OAuth-client.",
+    "ytClientId": "Client-ID",
+    "ytClientSecret": "Clientgeheim",
+    "ytAfterSave": "Sla eerst op; daarna kun je het kanaal koppelen.",
+    "ytConnectHint": "Nog niet gekoppeld. Klik op Koppelen met Google.",
+    "ytConnect": "Koppelen met Google",
+    "ytDisconnect": "Ontkoppelen",
+    "ytDisconnectConfirm": "Stoppen met ophalen van dit kanaal? De cijfers die al zijn opgehaald blijven bewaard.",
+    "ytConnected": "YouTube-kanaal gekoppeld. De geschiedenis wordt nu opgehaald.",
+    "ytConnectedTo": "Gekoppeld aan {{channel}}",
+    "ytStats": "{{subscribers}} abonnees · {{videos}} video's",
+    "ytNotConnected": "Niet gekoppeld",
+    "ytHistoryBusy": "Geschiedenis ophalen: tot nu toe terug tot {{date}}",
+    "ytHistoryDone": "Volledige geschiedenis opgehaald"
   },
   "content": {
     "title": "Content",
@@ -569,7 +607,7 @@
     "published": "Gepubliceerd",
     "views": "Weergaven",
     "visitors": "Bezoekers",
-    "avgRead": "Gem. leestijd",
+    "avgRead": "Gem. lees-/kijkduur",
     "reads": "Gelezen",
     "shares": "Gedeeld",
     "comments": "Reacties",
@@ -590,14 +628,17 @@
       "shares": "gedeeld",
       "comments": "reacties",
       "minutes": "luisteren/kijken",
-      "published": "nieuwste"
+      "published": "nieuwste",
+      "likes": "likes"
     },
     "device": {
       "mobile": "Mobiel",
       "desktop": "Computer",
       "tablet": "Tablet",
       "direct": "Direct / onbekend"
-    }
+    },
+    "likes": "Likes",
+    "avgWatch": "Gem. kijkduur"
   },
   "editors": {
     "title": "Redacteuren",

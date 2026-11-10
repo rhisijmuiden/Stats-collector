@@ -61,6 +61,14 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Info toont het adres dat de app van jou ziet, om de reverse proxy en Cloudflare te controleren.
 - `stats-collector demo-data` also adds a demo website with a month of articles and editors.
   NL: `stats-collector demo-data` voegt ook een demowebsite met een maand aan artikelen en redacteuren toe.
+- YouTube channels: connect with Google (OAuth), the whole channel history is imported, then views, watch time, likes, comments, shares and subscribers per day for the channel and every video, updated every three hours.
+  NL: YouTube-kanalen: koppelen met Google (OAuth), de hele geschiedenis van het kanaal wordt opgehaald, daarna weergaven, kijktijd, likes, reacties, keren gedeeld en abonnees per dag voor het kanaal en elke video, elke drie uur bijgewerkt.
+- Subscribers per day for the past, worked back from today's count with the daily gains and losses.
+  NL: Abonnees per dag voor het verleden, teruggerekend vanaf het huidige aantal met de dagelijkse aanmeldingen en afmeldingen.
+- Dashboard card "Website and video" with views per website and YouTube channel, stacked per hour or day.
+  NL: Dashboardkaart "Website en video" met weergaven per website en YouTube-kanaal, gestapeld per uur of dag.
+- Content page shows YouTube videos with views, watch time and average view duration.
+  NL: De contentpagina toont YouTube-video's met weergaven, kijktijd en gemiddelde kijkduur.
 
 ### Changed
 - Updates now also install the system services shipped with the new version and restart the worker.

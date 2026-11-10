@@ -8,7 +8,7 @@ import zipfile
 from typing import Literal
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -25,28 +25,46 @@ from .common import audit
 router = APIRouter(prefix="/api/sources", tags=["sources"])
 hooks = APIRouter(prefix="/api/hooks", tags=["hooks"])
 
-KINDS = ("icecast", "owncast", "wordpress")
+KINDS = ("icecast", "owncast", "wordpress", "youtube")
+YT_KEEP = (
+    "channel_id",
+    "channel_title",
+    "channel_url",
+    "channel_started",
+    "subscribers",
+    "video_count",
+    "history_until",
+    "history_done",
+    "channel_history_done",
+    "last_full_list",
+)
 PLUGIN_DIR = APP_ROOT / "wordpress-plugin" / "stats-collector"
 
 
 class SourceIn(BaseModel):
-    kind: Literal["icecast", "owncast", "wordpress"]
+    kind: Literal["icecast", "owncast", "wordpress", "youtube"]
     name: str = Field(min_length=1, max_length=200)
-    url: str = Field(min_length=8, max_length=500)
+    url: str = Field(default="", max_length=500)
     mounts: list[str] = Field(default_factory=list)
     admin_user: str = Field(default="admin", max_length=100)
     admin_password: str | None = None  # None = keep, "" = remove
     verify_tls: bool = True
     poll_seconds: int = Field(default=30, ge=10, le=3600)
     enabled: bool = True
+    client_id: str = Field(default="", max_length=300)  # YouTube: Google OAuth client
+    client_secret: str | None = Field(default=None, max_length=300)  # None = keep
 
-    @field_validator("url")
-    @classmethod
-    def _url(cls, v: str) -> str:
-        v = v.strip().rstrip("/")
-        if not v.startswith(("http://", "https://")):
+    @model_validator(mode="after")
+    def _check(self):
+        self.url = self.url.strip().rstrip("/")
+        if self.kind == "youtube":
+            if not self.client_id.strip():
+                raise ValueError("client_id_required")
+            self.client_id = self.client_id.strip()
+            self.url = ""
+        elif not self.url.startswith(("http://", "https://")) or len(self.url) < 8:
             raise ValueError("invalid_url")
-        return v
+        return self
 
 
 class TestIn(SourceIn):
@@ -54,6 +72,11 @@ class TestIn(SourceIn):
 
 
 def _config(body: SourceIn, old: dict | None = None) -> dict:
+    if body.kind == "youtube":
+        keep = {k: v for k, v in (old or {}).items() if k in YT_KEEP}
+        if (old or {}).get("client_id") not in (None, body.client_id):
+            keep = {}  # another Google app: the old connection no longer applies
+        return {**keep, "client_id": body.client_id}
     if body.kind == "wordpress":
         keep = {
             k: v for k, v in (old or {}).items() if k in ("site_name", "plugin_version", "wp_version", "site_timezone")
@@ -74,6 +97,27 @@ def webhook_url(source: Source) -> str | None:
 
 def ingest_url() -> str:
     return f"{get_settings().public_url.rstrip('/')}/api/ingest/wordpress"
+
+
+def youtube_out(s: Source, secrets: dict) -> dict:
+    cfg = s.config or {}
+    return {
+        "client_id": cfg.get("client_id", ""),
+        "client_secret_set": bool(secrets.get("client_secret")),
+        "connected": bool(cfg.get("channel_id") and secrets.get("refresh_token")),
+        "channel_title": cfg.get("channel_title"),
+        "channel_url": cfg.get("channel_url"),
+        "subscribers": cfg.get("subscribers"),
+        "video_count": cfg.get("video_count"),
+        "channel_started": cfg.get("channel_started"),
+        "history_until": cfg.get("history_until"),
+        "history_done": bool(cfg.get("history_done")),
+        "redirect_uri": youtube_redirect_uri(),
+    }
+
+
+def youtube_redirect_uri() -> str:
+    return f"{get_settings().public_url.rstrip('/')}/api/connectors/youtube/callback"
 
 
 def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
@@ -103,6 +147,7 @@ def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
             if s.kind == "wordpress"
             else {}
         ),
+        **(youtube_out(s, secrets) if s.kind == "youtube" else {}),
         "last_poll_at": s.last_poll_at.isoformat() if s.last_poll_at else None,
         "last_ok_at": s.last_ok_at.isoformat() if s.last_ok_at else None,
         "last_error": s.last_error,
@@ -116,7 +161,15 @@ def _apply(s: Source, body: SourceIn) -> None:
     s.config = _config(body, s.config)
     s.poll_seconds = body.poll_seconds
     s.enabled = body.enabled
-    if body.admin_password is not None and s.kind != "wordpress":
+    if s.kind == "youtube":
+        secrets = collect.source_secrets(s)
+        if s.config.get("channel_id") is None:
+            secrets.pop("refresh_token", None)
+        if body.client_secret:
+            secrets["client_secret"] = body.client_secret.strip()
+        s.secret_enc = encrypt_secret(json.dumps(secrets)) if secrets else None
+        s.poll_seconds = 3600
+    if body.admin_password is not None and s.kind not in ("wordpress", "youtube"):
         secrets = collect.source_secrets(s)
         if body.admin_password:
             secrets["admin_password"] = body.admin_password
@@ -216,6 +269,8 @@ def plugin_zip(_: User = Depends(require_admin)) -> Response:
 def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(require_admin)) -> dict:
     if body.kind == "wordpress":
         raise HTTPException(400, "test_in_wordpress")
+    if body.kind == "youtube":
+        raise HTTPException(400, "test_youtube_connect")
     secrets: dict = {}
     if body.id is not None:
         secrets = collect.source_secrets(_get(db, body.id))
@@ -240,6 +295,13 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
     s = _get(db, source_id)
     if s.kind == "wordpress":
         raise HTTPException(400, "push_only")
+    if s.kind == "youtube":
+        if not (s.config or {}).get("channel_id"):
+            raise HTTPException(400, "yt_not_connected")
+        from ..worker import youtube_soon
+
+        youtube_soon(s.id)
+        return source_out(db, s)
     collect.poll_source(db, s)
     return source_out(db, s)
 

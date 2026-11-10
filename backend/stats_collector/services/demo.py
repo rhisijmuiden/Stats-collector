@@ -204,4 +204,126 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         "days": list(days_rows.values()),
     }
     result = ingest(db, site, payload, now=now)
-    return result["hours"] + result["days"]
+    return result["hours"] + result["days"] + create_demo_channel(db, now=now)
+
+
+VIDEOS = [
+    "Raadsvergadering in 3 minuten",
+    "Reportage: de nieuwe brug",
+    "Interview met de burgemeester",
+    "Kermis 2026: de beelden",
+    "Sportweekend samengevat",
+    "Achter de schermen bij de radio",
+    "Uitleg: het woningbouwplan",
+    "Jazz op het plein",
+]
+
+
+def create_demo_channel(db: Session, days: int = 60, now: datetime | None = None) -> int:
+    """A demo YouTube channel (never synced) with two months of daily numbers."""
+    import json
+    from zoneinfo import ZoneInfo
+
+    from ..models import MetricPoint
+    from ..security import encrypt_secret
+    from .youtube import _day_bucket, months_from_days, rebuild_subscribers
+
+    rnd = random.Random(11)
+    tz = ZoneInfo("Europe/Amsterdam")
+    now = now or utcnow()
+    today = now.astimezone(tz).date()
+    channel = Source(
+        kind="youtube",
+        name="Demo YouTube",
+        config={
+            "demo": True,
+            "client_id": "demo.apps.googleusercontent.com",
+            "channel_id": "UCdemo",
+            "channel_title": "Demo TV",
+            "channel_url": "https://www.youtube.com/@demo",
+            "subscribers": 4870,
+            "video_count": len(VIDEOS),
+            "history_done": True,
+        },
+        last_ok_at=now,
+        poll_seconds=3600,
+        secret_enc=encrypt_secret(json.dumps({"client_secret": "demo", "refresh_token": "demo"})),
+    )
+    db.add(channel)
+    db.flush()
+    rows = 0
+    first = today - timedelta(days=days - 1)
+    for n, title in enumerate(VIDEOS):
+        published = today - timedelta(days=rnd.randint(1, days - 1))
+        item = ContentItem(
+            source_id=channel.id,
+            kind="video",
+            external_id=f"demo{n}",
+            title=title,
+            url=f"https://www.youtube.com/watch?v=demo{n}",
+            published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC) + timedelta(hours=17),
+            meta={"duration": "PT4M"},
+        )
+        db.add(item)
+        db.flush()
+        pull = rnd.uniform(0.5, 3)
+        day = published
+        while day <= today - timedelta(days=1):  # Analytics lags a day
+            age = (day - published).days
+            views = round(400 * pull * math.exp(-age / 6) * rnd.uniform(0.8, 1.2)) + rnd.randint(0, 15)
+            values = {
+                "yt_views": views,
+                "yt_watch_minutes": round(views * rnd.uniform(1.2, 2.4)),
+                "yt_likes": round(views * 0.04),
+                "yt_comments": round(views * 0.005),
+                "yt_shares": round(views * 0.01),
+                "yt_subs_gained": round(views * 0.006),
+            }
+            for metric, value in values.items():
+                if value:
+                    db.add(
+                        MetricPoint(
+                            source_id=channel.id,
+                            item_id=item.id,
+                            metric=metric,
+                            granularity="day",
+                            bucket=_day_bucket(day, tz),
+                            value=value,
+                        )
+                    )
+                    rows += 1
+            day += timedelta(days=1)
+    db.flush()
+    # Channel totals per day: the sum of the videos plus some views on older videos.
+    from sqlalchemy import func
+
+    for bucket, metric, total in db.execute(
+        select(MetricPoint.bucket, MetricPoint.metric, func.sum(MetricPoint.value))
+        .where(MetricPoint.source_id == channel.id, MetricPoint.granularity == "day")
+        .group_by(MetricPoint.bucket, MetricPoint.metric)
+    ).all():
+        db.add(
+            MetricPoint(
+                source_id=channel.id,
+                item_id=None,
+                metric=metric,
+                granularity="day",
+                bucket=bucket,
+                value=round(total * 1.15),
+            )
+        )
+        if metric == "yt_subs_gained":
+            db.add(
+                MetricPoint(
+                    source_id=channel.id,
+                    metric="yt_subs_lost",
+                    granularity="day",
+                    bucket=bucket,
+                    value=round(total * 0.3),
+                )
+            )
+    db.flush()
+    months_from_days(db, channel, first, today, tz)
+    rebuild_subscribers(db, channel, 4870, today, tz)
+    db.commit()
+    return rows

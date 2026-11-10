@@ -123,7 +123,13 @@
     "topItems": "Top broadcasts and streams",
     "topItemsHint": "By minutes in this period.",
     "item": "Broadcast or stream",
-    "noData": "No data in this period yet."
+    "noData": "No data in this period yet.",
+    "channelsTitle": "Website and video",
+    "channelsHint": "Page views and YouTube views. YouTube numbers arrive one to two days late.",
+    "toContent": "Top content",
+    "totalViews": "Views, all channels",
+    "ytSub": "{{minutes}} min watched · {{subscribers}} subscribers (+{{gained}})",
+    "webSub": "{{visitors}} visitors"
   },
   "info": {
     "title": "Info & updates",
@@ -489,7 +495,21 @@
     "test_in_wordpress": "Test the connection from WordPress (Settings → Stats Collector).",
     "push_only": "This source sends its numbers itself.",
     "no_site_key": "This source has no site key.",
-    "plugin_missing": "The plugin is not included in this installation."
+    "plugin_missing": "The plugin is not included in this installation.",
+    "client_id_required": "Fill in the client ID.",
+    "test_youtube_connect": "Use Connect with Google to test a YouTube channel.",
+    "yt_not_connected": "The YouTube channel is not connected.",
+    "yt_client_missing": "Fill in the client ID and secret and save first.",
+    "yt_state_invalid": "The sign-in with Google took too long or was opened twice. Try again.",
+    "yt_access_denied": "Access was not granted on the Google screen.",
+    "yt_failed": "Connecting with Google failed.",
+    "yt_token_failed": "Google did not accept the code: check the client ID, secret and redirect address.",
+    "yt_scope_missing": "Not all permissions were granted. Connect again and tick every box.",
+    "yt_no_refresh_token": "Google sent no long-lived token. Remove Stats Collector under myaccount.google.com → Security → Third-party access and connect again.",
+    "yt_no_channel": "This Google account has no YouTube channel. Sign in with the account (or brand account) of the channel.",
+    "yt_reconnect": "Access to YouTube has ended. Connect again (in testing mode Google ends it after 7 days).",
+    "yt_quota": "The daily YouTube quota is used up; collecting continues tomorrow.",
+    "yt_forbidden": "YouTube refused access: check that both APIs are enabled in Google Cloud."
   },
   "sources": {
     "title": "Sources",
@@ -504,12 +524,14 @@
     "kinds": {
       "icecast": "Icecast (radio)",
       "owncast": "Owncast (video)",
-      "wordpress": "WordPress (website)"
+      "wordpress": "WordPress (website)",
+      "youtube": "YouTube (channel)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
       "owncast": "The address of your Owncast server.",
-      "wordpress": "The address of the website, e.g. https://www.example.org."
+      "wordpress": "The address of the website, e.g. https://www.example.org.",
+      "youtube": ""
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -551,7 +573,23 @@
     "renewKeyConfirm": "The plugin stops sending until you paste the new key and secret in WordPress. Continue?",
     "wpSteps": "Install the plugin on the website (Plugins → Add new → Upload plugin), then paste these three values under Settings → Stats Collector and click Test connection.",
     "wpAfterSave": "After saving you get the site key and secret for the plugin.",
-    "downloadPlugin": "Download WordPress plugin"
+    "downloadPlugin": "Download WordPress plugin",
+    "ytSteps": "Create an OAuth client of type Web application in Google Cloud (see Help), add the redirect address below to it, and paste its client ID and secret here. Save, then click Connect with Google and sign in with the account that manages the channel.",
+    "ytRedirect": "Redirect address for Google",
+    "ytRedirectHint": "Add this exact address under Authorised redirect URIs of the OAuth client.",
+    "ytClientId": "Client ID",
+    "ytClientSecret": "Client secret",
+    "ytAfterSave": "Save first; then you can connect the channel.",
+    "ytConnectHint": "Not connected yet. Click Connect with Google.",
+    "ytConnect": "Connect with Google",
+    "ytDisconnect": "Disconnect",
+    "ytDisconnectConfirm": "Stop collecting from this channel? The numbers collected so far are kept.",
+    "ytConnected": "YouTube channel connected. The history is being imported now.",
+    "ytConnectedTo": "Connected to {{channel}}",
+    "ytStats": "{{subscribers}} subscribers · {{videos}} videos",
+    "ytNotConnected": "Not connected",
+    "ytHistoryBusy": "Importing history: back to {{date}} so far",
+    "ytHistoryDone": "Full history imported"
   },
   "content": {
     "title": "Content",
@@ -569,7 +607,7 @@
     "published": "Published",
     "views": "Views",
     "visitors": "Visitors",
-    "avgRead": "Avg. reading time",
+    "avgRead": "Avg. reading/view time",
     "reads": "Read",
     "shares": "Shares",
     "comments": "Comments",
@@ -590,14 +628,17 @@
       "shares": "shares",
       "comments": "comments",
       "minutes": "listening/watching",
-      "published": "newest"
+      "published": "newest",
+      "likes": "likes"
     },
     "device": {
       "mobile": "Mobile",
       "desktop": "Desktop",
       "tablet": "Tablet",
       "direct": "Direct / unknown"
-    }
+    },
+    "likes": "Likes",
+    "avgWatch": "Avg. view duration"
   },
   "editors": {
     "title": "Editors",

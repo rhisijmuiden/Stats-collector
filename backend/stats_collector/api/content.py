@@ -26,24 +26,39 @@ from ..services.metrics import (
     WEB_SHARES,
     WEB_VIEWS,
     WEB_VISITORS,
+    YT_COMMENTS,
+    YT_LIKES,
+    YT_SHARES,
+    YT_VIEWS,
+    YT_WATCH_MINUTES,
 )
 from ..services.rollup import hour_floor, local_day_start, next_local_day, org_timezone
 
 router = APIRouter(prefix="/api", tags=["content"])
 
 Range = Literal["24h", "7d", "30d", "90d", "365d"]
-SortKey = Literal["views", "visitors", "read_seconds", "reads", "shares", "comments", "minutes", "peak", "published"]
-TOTALS = {
-    "views": WEB_VIEWS,
-    "visitors": WEB_VISITORS,
-    "read_seconds": WEB_READ_SECONDS,
-    "reads": WEB_READS,
-    "shares": WEB_SHARES,
-    "comments": WEB_COMMENTS,
-    "minutes": LIVE_MINUTES,
-    "peak": LIVE_PEAK,
+SortKey = Literal[
+    "views", "visitors", "read_seconds", "reads", "shares", "comments", "likes", "minutes", "peak", "published"
+]
+# Platform metrics shown under one common name: views are page views or video views, minutes are
+# listening, viewing (live) or YouTube watch minutes. An item belongs to one platform, so nothing
+# is counted twice.
+METRIC_NAMES = {
+    WEB_VIEWS: "views",
+    YT_VIEWS: "views",
+    WEB_VISITORS: "visitors",
+    WEB_READ_SECONDS: "read_seconds",
+    WEB_READS: "reads",
+    WEB_SHARES: "shares",
+    YT_SHARES: "shares",
+    WEB_COMMENTS: "comments",
+    YT_COMMENTS: "comments",
+    YT_LIKES: "likes",
+    LIVE_MINUTES: "minutes",
+    YT_WATCH_MINUTES: "minutes",
+    LIVE_PEAK: "peak",
 }
-METRIC_NAMES = {v: k for k, v in TOTALS.items()}
+TOTALS = tuple(dict.fromkeys(METRIC_NAMES.values()))
 SEES_ALL = ("admin", "editor_in_chief")
 
 
@@ -96,7 +111,7 @@ def _totals(db: Session, start: datetime, end: datetime, gran: str, item_ids=Non
             MetricPoint.granularity == gran,
             MetricPoint.bucket >= start,
             MetricPoint.bucket < end,
-            MetricPoint.metric.in_(tuple(TOTALS.values())),
+            MetricPoint.metric.in_(tuple(METRIC_NAMES)),
         )
         .group_by(MetricPoint.item_id, MetricPoint.metric)
     )
@@ -104,7 +119,9 @@ def _totals(db: Session, start: datetime, end: datetime, gran: str, item_ids=Non
         q = q.where(MetricPoint.item_id.in_(list(item_ids)))
     out: dict[int, dict] = defaultdict(dict)
     for item_id, metric, total, peak in db.execute(q).all():
-        out[item_id][METRIC_NAMES[metric]] = round(float(peak if metric == LIVE_PEAK else total or 0), 2)
+        name = METRIC_NAMES[metric]
+        value = float(peak if metric == LIVE_PEAK else total or 0)
+        out[item_id][name] = round(out[item_id].get(name, 0) + value, 2)
     return out
 
 
@@ -122,6 +139,10 @@ def _item_out(item: ContentItem, source: Source | None, metrics: dict, authors: 
         "ended_at": _aware(item.ended_at).isoformat() if item.ended_at else None,
         "metrics": {k: metrics.get(k, 0) for k in TOTALS},
         "avg_read_seconds": round(metrics.get("read_seconds", 0) / views, 1) if views else 0,
+        # YouTube: average view duration = watch time / views
+        "avg_watch_seconds": round(metrics.get("minutes", 0) * 60 / views, 1)
+        if views and source is not None and source.kind == "youtube"
+        else 0,
         "comments_total": int((item.meta or {}).get("comments", 0)),
     }
     if authors is not None:
@@ -220,7 +241,7 @@ def _series(db: Session, gran: str, buckets: list[datetime], where) -> dict[str,
             *where,
             MetricPoint.granularity == gran,
             MetricPoint.bucket >= buckets[0],
-            MetricPoint.metric.in_(tuple(TOTALS.values())),
+            MetricPoint.metric.in_(tuple(METRIC_NAMES)),
         )
         .group_by(MetricPoint.metric, MetricPoint.bucket)
     ).all()
@@ -229,7 +250,8 @@ def _series(db: Session, gran: str, buckets: list[datetime], where) -> dict[str,
         if n is None:
             continue
         name = METRIC_NAMES[metric]
-        out.setdefault(name, [0.0] * len(buckets))[n] = round(float(peak if metric == LIVE_PEAK else total or 0), 2)
+        series = out.setdefault(name, [0.0] * len(buckets))
+        series[n] = round(series[n] + float(peak if metric == LIVE_PEAK else total or 0), 2)
     return out
 
 
