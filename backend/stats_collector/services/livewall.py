@@ -21,7 +21,7 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
@@ -112,7 +112,12 @@ def _aware(dt: datetime) -> datetime:
 def _stream_bars(db: Session, source: Source, start: datetime, now: datetime) -> tuple[list[float], float, bool]:
     """Average audience per 5 minutes, the audience at the last poll and whether it is on air."""
     rows = db.execute(
-        select(StreamSample.ts, func.sum(StreamSample.value), func.max(StreamSample.online))
+        select(
+            StreamSample.ts,
+            func.sum(StreamSample.value),
+            # max() of a boolean does not exist in PostgreSQL; count as 0/1 instead.
+            func.max(case((StreamSample.online.is_(True), 1), else_=0)),
+        )
         .where(StreamSample.source_id == source.id, StreamSample.ts >= start, StreamSample.ts <= now)
         .group_by(StreamSample.ts)
         .order_by(StreamSample.ts)

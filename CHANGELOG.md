@@ -113,6 +113,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
 
 ### Fixed
+- New live walls with a stream channel (Icecast or Owncast) showed "This wall does not exist or was switched off" on PostgreSQL: the snapshot query used `max()` on a yes/no column, which PostgreSQL does not have. The tests now also run against PostgreSQL.
+  NL: Nieuwe livewalls met een streamkanaal (Icecast of Owncast) toonden "This wall does not exist or was switched off" op PostgreSQL: de snapshot-query gebruikte `max()` op een ja/nee-kolom, die PostgreSQL niet kent. De tests draaien nu ook tegen PostgreSQL.
 - The online manual is published again with every release: its screenshot run now also starts the live wall service.
   NL: De online handleiding wordt weer bij elke release gepubliceerd: de screenshotronde start nu ook de livewall-dienst.
 - Icecast servers without `status-json.xsl` (some hosting providers remove it): the numbers are now read from `admin/stats` with the admin user and password.
