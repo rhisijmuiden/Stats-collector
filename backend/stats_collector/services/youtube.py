@@ -377,75 +377,9 @@ def store_video_day(db: Session, source: Source, day: date, rows: list[dict], it
 
 def rebuild_subscribers(db: Session, source: Source, current: int, today: date, tz) -> None:
     """Subscriber count per day, worked back from today's count with the daily gains and losses."""
-    rows = db.execute(
-        select(MetricPoint.bucket, MetricPoint.metric, MetricPoint.value).where(
-            MetricPoint.source_id == source.id,
-            MetricPoint.item_id.is_(None),
-            MetricPoint.granularity == "day",
-            MetricPoint.metric.in_((YT_SUBS_GAINED, YT_SUBS_LOST)),
-        )
-    ).all()
-    net: dict[date, float] = {}
-    for bucket, metric, value in rows:
-        b = bucket if bucket.tzinfo else bucket.replace(tzinfo=UTC)
-        day = b.astimezone(tz).date()
-        net[day] = net.get(day, 0) + (value if metric == YT_SUBS_GAINED else -value)
-    db.execute(
-        delete(MetricPoint).where(
-            MetricPoint.source_id == source.id,
-            MetricPoint.item_id.is_(None),
-            MetricPoint.metric == YT_SUBSCRIBERS,
-        )
-    )
-    first = min(net, default=today)
-    count = float(current)
-    day = today
-    while day >= first:
-        db.add(
-            MetricPoint(
-                tenant_id=source.tenant_id,
-                source_id=source.id,
-                item_id=None,
-                metric=YT_SUBSCRIBERS,
-                granularity="day",
-                bucket=_day_bucket(day, tz),
-                value=max(count, 0),
-            )
-        )
-        count -= net.get(day, 0)  # count at the end of the previous day
-        day -= timedelta(days=1)
-    # Months: the count on the last day of each month.
-    month = local_month_start(_day_bucket(first, tz), tz)
-    end = _day_bucket(today, tz)
-    db.flush()
-    while month <= end:
-        nxt = next_local_month(month, tz)
-        last = db.execute(
-            select(MetricPoint.value)
-            .where(
-                MetricPoint.source_id == source.id,
-                MetricPoint.item_id.is_(None),
-                MetricPoint.metric == YT_SUBSCRIBERS,
-                MetricPoint.granularity == "day",
-                MetricPoint.bucket >= month,
-                MetricPoint.bucket < nxt,
-            )
-            .order_by(MetricPoint.bucket.desc())
-            .limit(1)
-        ).scalar_one_or_none()
-        if last is not None:
-            db.add(
-                MetricPoint(
-                    tenant_id=source.tenant_id,
-                    source_id=source.id,
-                    item_id=None,
-                    metric=YT_SUBSCRIBERS,
-                    granularity="month",
-                    bucket=month,
-                    value=last,
-                )
-            )
-        month = nxt
+    from .followers import rebuild_gauge
+
+    rebuild_gauge(db, source, YT_SUBSCRIBERS, YT_SUBS_GAINED, YT_SUBS_LOST, {today: current}, today, tz)
 
 
 def months_from_days(db: Session, source: Source, first: date, last: date, tz) -> None:

@@ -336,3 +336,10 @@ tr.clickable:hover td { background: var(--surface-2); }
 .meter { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
 .meter > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
 .modal:has(.chart) { width: min(920px, calc(100vw - 32px)); }
+.choice-list { display: flex; flex-wrap: wrap; gap: 8px; }
+details.advanced { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+details.advanced summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); }
+details.advanced[open] summary { margin-bottom: 12px; }
+details.advanced label { display: flex; flex-direction: column; gap: 4px; }
+.critical-text { color: var(--critical); }
+.seg { flex-wrap: wrap; }

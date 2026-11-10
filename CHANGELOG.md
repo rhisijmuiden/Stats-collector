@@ -69,6 +69,12 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Dashboardkaart "Website en video" met weergaven per website en YouTube-kanaal, gestapeld per uur of dag.
 - Content page shows YouTube videos with views, watch time and average view duration.
   NL: De contentpagina toont YouTube-video's met weergaven, kijktijd en gemiddelde kijkduur.
+- Facebook Pages and Instagram professional accounts: connect with Facebook (one Meta app for both, choose the Page or account when you manage several), two years of history, then views, reach, reactions, comments, shares, clicks, saves and followers per day for the account and every post, updated every hour.
+  NL: Facebook-pagina's en professionele Instagram-accounts: koppelen met Facebook (één Meta-app voor beide, kies de pagina of het account als je er meerdere beheert), twee jaar historie, daarna weergaven, bereik, reacties, opmerkingen, keren gedeeld, klikken, opgeslagen en volgers per dag voor het account en elk bericht, elk uur bijgewerkt.
+- Meta metric names that keep working when Meta renames them: known old and new names are tried automatically, and an administrator can set the Graph API version and their own names under Advanced.
+  NL: Namen van Meta-metrics die blijven werken als Meta ze hernoemt: bekende oude en nieuwe namen worden automatisch geprobeerd, en een beheerder kan bij Geavanceerd de Graph API-versie en eigen namen instellen.
+- Content page shows Facebook and Instagram posts with reach, likes or reactions per type, saves and clicks; the dashboard card shows them with total reach and followers.
+  NL: De contentpagina toont Facebook- en Instagram-berichten met bereik, likes of reacties per soort, opgeslagen en klikken; de dashboardkaart toont ze met totaal bereik en volgers.
 
 ### Changed
 - Updates now also install the system services shipped with the new version and restart the worker.

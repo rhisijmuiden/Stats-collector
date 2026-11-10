@@ -18,6 +18,18 @@ from ..db import get_db
 from ..models import ContentItem, DimensionPoint, ItemPerson, MetricPoint, Person, Source, User, utcnow
 from ..security import current_user
 from ..services.metrics import (
+    FB_CLICKS,
+    FB_COMMENTS,
+    FB_REACH,
+    FB_REACTIONS,
+    FB_SHARES,
+    FB_VIEWS,
+    IG_COMMENTS,
+    IG_LIKES,
+    IG_REACH,
+    IG_SAVES,
+    IG_SHARES,
+    IG_VIEWS,
     LIVE_MINUTES,
     LIVE_PEAK,
     WEB_COMMENTS,
@@ -38,22 +50,46 @@ router = APIRouter(prefix="/api", tags=["content"])
 
 Range = Literal["24h", "7d", "30d", "90d", "365d"]
 SortKey = Literal[
-    "views", "visitors", "read_seconds", "reads", "shares", "comments", "likes", "minutes", "peak", "published"
+    "views",
+    "visitors",
+    "reach",
+    "read_seconds",
+    "reads",
+    "shares",
+    "comments",
+    "likes",
+    "saves",
+    "clicks",
+    "minutes",
+    "peak",
+    "published",
 ]
-# Platform metrics shown under one common name: views are page views or video views, minutes are
-# listening, viewing (live) or YouTube watch minutes. An item belongs to one platform, so nothing
-# is counted twice.
+# Platform metrics shown under one common name: views are page, video or post views, minutes are
+# listening, viewing (live) or YouTube watch minutes, likes include Facebook reactions. An item
+# belongs to one platform, so nothing is counted twice.
 METRIC_NAMES = {
     WEB_VIEWS: "views",
     YT_VIEWS: "views",
+    FB_VIEWS: "views",
+    IG_VIEWS: "views",
     WEB_VISITORS: "visitors",
+    FB_REACH: "reach",
+    IG_REACH: "reach",
     WEB_READ_SECONDS: "read_seconds",
     WEB_READS: "reads",
     WEB_SHARES: "shares",
     YT_SHARES: "shares",
+    FB_SHARES: "shares",
+    IG_SHARES: "shares",
     WEB_COMMENTS: "comments",
     YT_COMMENTS: "comments",
+    FB_COMMENTS: "comments",
+    IG_COMMENTS: "comments",
     YT_LIKES: "likes",
+    FB_REACTIONS: "likes",
+    IG_LIKES: "likes",
+    IG_SAVES: "saves",
+    FB_CLICKS: "clicks",
     LIVE_MINUTES: "minutes",
     YT_WATCH_MINUTES: "minutes",
     LIVE_PEAK: "peak",
@@ -144,6 +180,7 @@ def _item_out(item: ContentItem, source: Source | None, metrics: dict, authors: 
         if views and source is not None and source.kind == "youtube"
         else 0,
         "comments_total": int((item.meta or {}).get("comments", 0)),
+        "reactions": (item.meta or {}).get("reactions") or None,  # Facebook: per type
     }
     if authors is not None:
         out["authors"] = authors

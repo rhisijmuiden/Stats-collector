@@ -29,7 +29,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 | Owncast en Icecast | [Owncast en Icecast](owncast-icecast.md) | Fase 1 |
 | WordPress (eigen plugin) | [WordPress](wordpress.md) | Beschikbaar |
 | YouTube | [YouTube](youtube.md) | Beschikbaar |
-| Facebook en Instagram | [Meta: Facebook en Instagram](meta.md) | Fase 3 (Meta App Review nu al starten) |
+| Facebook en Instagram | [Meta: Facebook en Instagram](meta.md) | Beschikbaar |
 
 ## Als er iets misgaat
 

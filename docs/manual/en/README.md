@@ -29,7 +29,7 @@ The same manual opens inside the application through the **Help** button at the 
 | Owncast and Icecast | [Owncast and Icecast](owncast-icecast.md) | Phase 1 |
 | WordPress (own plugin) | [WordPress](wordpress.md) | Available |
 | YouTube | [YouTube](youtube.md) | Available |
-| Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Phase 3 (start Meta App Review now) |
+| Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Available |
 
 ## When something goes wrong
 

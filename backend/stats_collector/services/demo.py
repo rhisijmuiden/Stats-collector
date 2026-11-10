@@ -204,7 +204,7 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         "days": list(days_rows.values()),
     }
     result = ingest(db, site, payload, now=now)
-    return result["hours"] + result["days"] + create_demo_channel(db, now=now)
+    return result["hours"] + result["days"] + create_demo_channel(db, now=now) + create_demo_social(db, now=now)
 
 
 VIDEOS = [
@@ -325,5 +325,155 @@ def create_demo_channel(db: Session, days: int = 60, now: datetime | None = None
     db.flush()
     months_from_days(db, channel, first, today, tz)
     rebuild_subscribers(db, channel, 4870, today, tz)
+    db.commit()
+    return rows
+
+
+POSTS = [
+    "New roundabout opens on Monday",
+    "Photos: the harbour festival in 20 pictures",
+    "Council approves budget for the new library",
+    "Live tonight: the election debate",
+    "Volunteers clean up the dunes",
+    "Behind the scenes at the radio studio",
+    "Local team wins the cup final",
+    "Road works: what changes for you",
+    "Market day in the old town",
+    "Interview with the new mayor",
+]
+
+
+def create_demo_social(db: Session, days: int = 60, now: datetime | None = None) -> int:
+    """A demo Facebook Page and Instagram account (never synced) with two months of daily numbers."""
+    import json
+    from zoneinfo import ZoneInfo
+
+    from sqlalchemy import func
+
+    from ..models import MetricPoint
+    from ..security import encrypt_secret
+    from .followers import day_bucket, rebuild_gauge
+    from .meta import months_from_days
+    from .metrics import FB_DAY_METRICS, IG_DAY_METRICS
+
+    rnd = random.Random(23)
+    tz = ZoneInfo("Europe/Amsterdam")
+    now = now or utcnow()
+    today = now.astimezone(tz).date()
+    first = today - timedelta(days=days - 1)
+    rows = 0
+    plans = [
+        ("facebook", "Demo Facebook", "Demo News", 12840, "fb", 900),
+        ("instagram", "Demo Instagram", "@demonews", 6310, "ig", 650),
+    ]
+    for kind, name, account, followers, p, base in plans:
+        source = Source(
+            kind=kind,
+            name=name,
+            config={
+                "demo": True,
+                "client_id": "123456789",
+                "account_id": f"demo-{kind}",
+                "account_name": account,
+                "account_url": f"https://www.{kind}.com/demonews",
+                "followers": followers,
+                "history_done": True,
+            },
+            last_ok_at=now,
+            poll_seconds=3600,
+            secret_enc=encrypt_secret(json.dumps({"client_secret": "demo", "page_token": "demo"})),
+        )
+        db.add(source)
+        db.flush()
+        for n, title in enumerate(rnd.sample(POSTS, 8)):
+            published = today - timedelta(days=rnd.randint(0, days - 1))
+            item = ContentItem(
+                source_id=source.id,
+                kind="post",
+                external_id=f"demo-{p}-{n}",
+                title=title,
+                url=f"https://www.{kind}.com/demonews/posts/{n}",
+                published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC)
+                + timedelta(hours=rnd.randint(7, 20)),
+                meta={"reactions": {"like": 0, "love": 0}} if kind == "facebook" else {"media_type": "REELS"},
+            )
+            db.add(item)
+            db.flush()
+            pull = rnd.uniform(0.6, 2.5)
+            day = published
+            total_likes = 0
+            while day <= today:
+                age = (day - published).days
+                views = round(base * 2 * pull * math.exp(-age / 2.5) * rnd.uniform(0.8, 1.2))
+                values = {
+                    f"{p}_views": views,
+                    f"{p}_reach": round(views * 0.7),
+                    f"{p}_comments": round(views * 0.006),
+                    f"{p}_shares": round(views * 0.008),
+                }
+                likes = round(views * (0.03 if kind == "facebook" else 0.07))
+                total_likes += likes
+                if kind == "facebook":
+                    values.update({"fb_reactions": likes, "fb_clicks": round(views * 0.02)})
+                else:
+                    values.update({"ig_likes": likes, "ig_saves": round(views * 0.01)})
+                for metric, value in values.items():
+                    if value:
+                        db.add(
+                            MetricPoint(
+                                source_id=source.id,
+                                item_id=item.id,
+                                metric=metric,
+                                granularity="day",
+                                bucket=day_bucket(day, tz),
+                                value=value,
+                            )
+                        )
+                        rows += 1
+                day += timedelta(days=1)
+            if kind == "facebook":
+                item.meta = {
+                    "reactions": {"like": round(total_likes * 0.8), "love": total_likes - round(total_likes * 0.8)}
+                }
+        db.flush()
+        # Account totals: the posts plus everything else people saw (older posts, the profile).
+        sums = {
+            (bucket, metric): total
+            for bucket, metric, total in db.execute(
+                select(MetricPoint.bucket, MetricPoint.metric, func.sum(MetricPoint.value))
+                .where(MetricPoint.source_id == source.id, MetricPoint.granularity == "day")
+                .group_by(MetricPoint.bucket, MetricPoint.metric)
+            ).all()
+        }
+        day = first
+        while day <= today:
+            bucket = day_bucket(day, tz)
+            extra = base * rnd.uniform(0.7, 1.3)
+            values = {
+                f"{p}_views": sums.get((bucket, f"{p}_views"), 0) + extra,
+                f"{p}_reach": sums.get((bucket, f"{p}_reach"), 0) + extra * 0.6,
+                f"{p}_follows": rnd.randint(4, 25),
+            }
+            for metric in ("comments", "shares", "reactions", "clicks", "likes", "saves"):
+                if (bucket, f"{p}_{metric}") in sums:
+                    values[f"{p}_{metric}"] = sums[(bucket, f"{p}_{metric}")]
+            if kind == "facebook":
+                values["fb_unfollows"] = rnd.randint(1, 8)
+                values["fb_engagements"] = sum(values.get(f"fb_{m}", 0) for m in ("reactions", "comments", "shares"))
+            else:
+                values["ig_profile_views"] = round(extra * 0.08)
+            for metric, value in values.items():
+                if value:
+                    db.add(
+                        MetricPoint(
+                            source_id=source.id, metric=metric, granularity="day", bucket=bucket, value=round(value)
+                        )
+                    )
+                    rows += 1
+            day += timedelta(days=1)
+        db.flush()
+        months_from_days(db, source, first, today, FB_DAY_METRICS if kind == "facebook" else IG_DAY_METRICS, tz)
+        lost = "fb_unfollows" if kind == "facebook" else None
+        rebuild_gauge(db, source, f"{p}_followers", f"{p}_follows", lost, {today: followers}, today, tz)
     db.commit()
     return rows
