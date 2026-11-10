@@ -26,7 +26,6 @@ theme:
       accent: custom
       toggle: { icon: material/weather-sunny, name: Light mode }
   features:
-    - navigation.instant
     - navigation.sections
     - navigation.top
     - search.highlight
