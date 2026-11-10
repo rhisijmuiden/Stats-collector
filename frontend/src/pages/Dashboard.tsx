@@ -7,6 +7,7 @@ import { useApp } from "../lib/app";
 import { Alert, Card, PageHead, useLoad } from "../components/ui";
 import Chart, { cssVar, shade } from "../components/Chart";
 import ChannelsCard, { type Channels } from "../components/ChannelsCard";
+import { GoalsCard } from "./Goals";
 import { errorText } from "../i18n";
 
 type Range = "24h" | "7d" | "30d" | "90d";
@@ -128,6 +129,7 @@ export default function Dashboard() {
       ) : (
         <>
           {hasChannels && <ChannelsCard data={channels.data!} rangeLabel={t(`dashboard.rangeLong.${range}`)} />}
+          <GoalsCard />
           {hasStreams && <>
           <div className="kpis">
             <div className="kpi">

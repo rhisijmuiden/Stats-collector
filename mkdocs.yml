@@ -62,6 +62,7 @@ nav:
   - README.md
   - dashboard.md
   - content.md
+  - followers-and-goals.md
   - installation.md
   - reverse-proxy.md
   - users-and-roles.md

@@ -38,6 +38,7 @@ celery_app.conf.update(
         "rollup": {"task": "stats_collector.rollup", "schedule": 300.0, "options": {"expires": 290}},
         "youtube": {"task": "stats_collector.youtube_due", "schedule": 900.0, "options": {"expires": 880}},
         "meta": {"task": "stats_collector.meta_due", "schedule": 900.0, "options": {"expires": 880}},
+        "goals": {"task": "stats_collector.goals", "schedule": crontab(minute=40), "options": {"expires": 3000}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
 )
@@ -161,6 +162,15 @@ def meta_soon(source_id: int) -> None:
         meta_sync.apply_async((source_id,), expires=600, retry=False)
     except Exception:  # noqa: BLE001 - Redis unreachable (development)
         log.warning("worker unreachable; Meta source %s syncs at the next scheduled run", source_id)
+
+
+@celery_app.task(name="stats_collector.goals")
+def check_goals() -> int:
+    """Goal emails: reached, or falling behind (at most once a week per goal)."""
+    from .services.goals import check
+
+    with session_factory()() as db:
+        return check(db)
 
 
 def poll_soon(source_id: int) -> None:

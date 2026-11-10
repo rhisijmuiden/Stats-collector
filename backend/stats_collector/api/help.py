@@ -16,6 +16,7 @@ ORDER = [
     "README",
     "dashboard",
     "content",
+    "followers-and-goals",
     "installation",
     "reverse-proxy",
     "users-and-roles",
