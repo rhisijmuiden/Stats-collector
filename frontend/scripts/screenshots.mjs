@@ -6,7 +6,7 @@ const [base = "http://127.0.0.1:8080", setupLink] = process.argv.slice(2);
 const out = new URL("../../docs/manual/images/", import.meta.url).pathname;
 const SCREENS = [["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"]];
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2 });
 const page = await ctx.newPage();
 const password = "screenshot-password-123";
