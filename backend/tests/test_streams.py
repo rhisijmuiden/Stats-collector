@@ -64,8 +64,16 @@ def test_owncast_poll(monkeypatch):
     def handler(req: httpx.Request):
         if req.url.path == "/api/status":
             if state["online"]:
-                return httpx.Response(200, json={"online": True, "viewerCount": 7, "streamTitle": "Ochtendshow",
-                                                 "lastConnectTime": "2026-11-10T07:00:00Z", "versionNumber": "0.2.0"})
+                return httpx.Response(
+                    200,
+                    json={
+                        "online": True,
+                        "viewerCount": 7,
+                        "streamTitle": "Ochtendshow",
+                        "lastConnectTime": "2026-11-10T07:00:00Z",
+                        "versionNumber": "0.2.0",
+                    },
+                )
             return httpx.Response(200, json={"online": False, "viewerCount": 0, "lastConnectTime": None})
         if req.url.path == "/api/config":
             return httpx.Response(200, json={"name": "TV"})
@@ -88,9 +96,10 @@ class FakeConnector:
         self.values = {"/live": 10.0, "/jazz": 2.0}
 
     def poll(self, config, secrets):
-        return PollResult(online=True, observations=[
-            Observation(external_id=k, kind="mount", title=k, value=v) for k, v in self.values.items()
-        ])
+        return PollResult(
+            online=True,
+            observations=[Observation(external_id=k, kind="mount", title=k, value=v) for k, v in self.values.items()],
+        )
 
 
 def test_collect_and_rollup(app_env, monkeypatch):
@@ -188,8 +197,13 @@ def test_sources_api_and_dashboard(admin, monkeypatch):
     client, csrf = admin
     fake = FakeConnector()
     monkeypatch.setattr(collect, "get_connector", lambda kind: fake)
-    body = {"kind": "icecast", "name": "Radio", "url": "http://radio.local:8000/", "mounts": ["live"],
-            "admin_password": "secret"}
+    body = {
+        "kind": "icecast",
+        "name": "Radio",
+        "url": "http://radio.local:8000/",
+        "mounts": ["live"],
+        "admin_password": "secret",
+    }
     r = client.post("/api/sources", json=body, headers=csrf)
     assert r.status_code == 200, r.text
     src = r.json()
@@ -231,8 +245,11 @@ def test_owncast_webhook(admin, monkeypatch):
 
 def test_staff_cannot_manage_sources(admin):
     client, csrf = admin
-    client.post("/api/users", json={"email": "s@example.org", "display_name": "S", "role": "staff",
-                                    "password": "correct horse battery"}, headers=csrf)
+    client.post(
+        "/api/users",
+        json={"email": "s@example.org", "display_name": "S", "role": "staff", "password": "correct horse battery"},
+        headers=csrf,
+    )
     client.post("/api/auth/logout", headers=csrf)
     r = client.post("/api/auth/login", json={"email": "s@example.org", "password": "correct horse battery"})
     assert r.status_code == 200

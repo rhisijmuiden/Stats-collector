@@ -37,7 +37,7 @@ def _trusted(ip: str, nets) -> bool:
 def _valid_ip(value: str) -> str | None:
     value = value.strip().strip('"')
     if value.startswith("[") and "]" in value:
-        value = value[1:value.index("]")]
+        value = value[1 : value.index("]")]
     try:
         return str(ipaddress.ip_address(value))
     except ValueError:

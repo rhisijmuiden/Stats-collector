@@ -79,8 +79,9 @@ def summarise(points: list[tuple[datetime, float]], start: datetime, end: dateti
     return {LIVE_MINUTES: round(minutes, 2), LIVE_PEAK: peak, LIVE_AVG: round(minutes / span_min, 3) if span_min else 0}
 
 
-def _replace_points(db: Session, source: Source, granularity: str, bucket: datetime,
-                    values: dict[int | None, dict[str, float]]) -> None:
+def _replace_points(
+    db: Session, source: Source, granularity: str, bucket: datetime, values: dict[int | None, dict[str, float]]
+) -> None:
     db.execute(
         delete(MetricPoint).where(
             MetricPoint.source_id == source.id, MetricPoint.granularity == granularity, MetricPoint.bucket == bucket
@@ -88,8 +89,17 @@ def _replace_points(db: Session, source: Source, granularity: str, bucket: datet
     )
     for item_id, metrics in values.items():
         for metric, value in metrics.items():
-            db.add(MetricPoint(tenant_id=source.tenant_id, source_id=source.id, item_id=item_id, metric=metric,
-                               granularity=granularity, bucket=bucket, value=value))
+            db.add(
+                MetricPoint(
+                    tenant_id=source.tenant_id,
+                    source_id=source.id,
+                    item_id=item_id,
+                    metric=metric,
+                    granularity=granularity,
+                    bucket=bucket,
+                    value=value,
+                )
+            )
 
 
 def rollup_hour(db: Session, source: Source, hour: datetime) -> None:

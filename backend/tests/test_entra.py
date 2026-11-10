@@ -29,8 +29,20 @@ def fake_entra(monkeypatch):
     def exchange(cfg, secret, code, verifier, redirect_uri):
         assert secret == "s3cret" and code == "the-code" and verifier
         now = int(time.time())
-        token = jwt.encode({"iss": ISSUER, "aud": CLIENT, "sub": "sub-1", "tid": TENANT, "iat": now,
-                            "exp": now + 600, "nonce": seen["nonce"], **claims}, KEY, algorithm="RS256")
+        token = jwt.encode(
+            {
+                "iss": ISSUER,
+                "aud": CLIENT,
+                "sub": "sub-1",
+                "tid": TENANT,
+                "iat": now,
+                "exp": now + 600,
+                "nonce": seen["nonce"],
+                **claims,
+            },
+            KEY,
+            algorithm="RS256",
+        )
         return {"id_token": token, "access_token": "at"}
 
     monkeypatch.setattr(entra, "exchange_code", exchange)
@@ -38,9 +50,15 @@ def fake_entra(monkeypatch):
 
 
 def configure(client, csrf, **over):
-    body = {"enabled": True, "tenant_id": TENANT, "client_id": CLIENT, "client_secret": "s3cret",
-            "allow_local_login": True, "default_role": "staff",
-            "group_roles": {"admin": "g-admins", "editor_in_chief": "", "editor": "g-editors", "staff": ""}}
+    body = {
+        "enabled": True,
+        "tenant_id": TENANT,
+        "client_id": CLIENT,
+        "client_secret": "s3cret",
+        "allow_local_login": True,
+        "default_role": "staff",
+        "group_roles": {"admin": "g-admins", "editor_in_chief": "", "editor": "g-editors", "staff": ""},
+    }
     body.update(over)
     r = client.put("/api/settings/sso", json=body, headers=csrf)
     assert r.status_code == 200, r.text
@@ -125,13 +143,20 @@ def test_proxy_headers():
 
     def run(peer, headers, **kw):
         mw = ProxyHeadersMiddleware(app, **kw)
-        scope = {"type": "http", "client": (peer, 1), "scheme": "http",
-                 "headers": [(k.encode(), v.encode()) for k, v in headers.items()]}
+        scope = {
+            "type": "http",
+            "client": (peer, 1),
+            "scheme": "http",
+            "headers": [(k.encode(), v.encode()) for k, v in headers.items()],
+        }
         asyncio.run(mw(scope, None, None))
         return seen["client"], seen["scheme"]
 
-    hdrs = {"x-forwarded-for": "203.0.113.9, 104.23.172.14", "x-forwarded-proto": "https",
-            "cf-connecting-ip": "198.51.100.7"}
+    hdrs = {
+        "x-forwarded-for": "203.0.113.9, 104.23.172.14",
+        "x-forwarded-proto": "https",
+        "cf-connecting-ip": "198.51.100.7",
+    }
     assert run("10.40.3.1", hdrs, trusted="127.0.0.1,10.40.3.0/24") == ("104.23.172.14", "https")
     assert run("10.40.3.1", hdrs, trusted="10.40.3.1", client_ip_header="CF-Connecting-IP") == ("198.51.100.7", "https")
     # not from a trusted proxy: headers are ignored

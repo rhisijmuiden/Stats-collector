@@ -99,8 +99,13 @@ def _upsert_user(db: Session, cfg: dict, ident: dict, role: str) -> tuple[User |
 
 
 @router.get("/callback")
-def callback(request: Request, code: str | None = None, state: str | None = None, error: str | None = None,
-             db: Session = Depends(get_db)):
+def callback(
+    request: Request,
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+):
     if error:
         return _fail(f"sso_{error}")
     raw = decrypt_secret(request.cookies.get(STATE_COOKIE))

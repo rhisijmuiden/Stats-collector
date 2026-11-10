@@ -64,8 +64,7 @@ def poll_source(db: Session, source: Source, now: datetime | None = None) -> Pol
         return None
 
     items = {
-        i.external_id: i
-        for i in db.execute(select(ContentItem).where(ContentItem.source_id == source.id)).scalars()
+        i.external_id: i for i in db.execute(select(ContentItem).where(ContentItem.source_id == source.id)).scalars()
     }
     seen_ids = set()
     for obs in result.observations:
@@ -102,8 +101,11 @@ def poll_source(db: Session, source: Source, now: datetime | None = None) -> Pol
         )
     if not result.observations:
         # Offline source: one zero sample so charts show the gap as zero, not as missing data.
-        db.add(StreamSample(tenant_id=source.tenant_id, source_id=source.id, item_id=None, ts=now, online=False,
-                            value=0, extra={}))
+        db.add(
+            StreamSample(
+                tenant_id=source.tenant_id, source_id=source.id, item_id=None, ts=now, online=False, value=0, extra={}
+            )
+        )
     # Broadcasts that are no longer reported have ended.
     for item in items.values():
         if item.kind == "broadcast" and item.ended_at is None and item.external_id not in seen_ids:

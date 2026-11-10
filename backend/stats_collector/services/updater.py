@@ -45,6 +45,8 @@ def install_units(ctx: JobContext, root: Path) -> list[str]:
         if name in names:
             ctx.run(["systemctl", "enable", name], check=False)
     return [svc for svc in SERVICES if f"{svc}.service" in names] or ["stats-collector-web"]
+
+
 KEEP_RELEASES = 3
 
 

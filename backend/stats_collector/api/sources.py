@@ -127,8 +127,9 @@ def _get(db: Session, source_id: int) -> Source:
 
 
 @router.put("/{source_id}")
-def update_source(source_id: int, body: SourceIn, db: Session = Depends(get_db),
-                  admin: User = Depends(require_admin)) -> dict:
+def update_source(
+    source_id: int, body: SourceIn, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> dict:
     s = _get(db, source_id)
     if body.kind != s.kind:
         raise HTTPException(400, "kind_cannot_change")
@@ -173,8 +174,9 @@ def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(r
         "ok": True,
         "online": result.online,
         "info": result.info,
-        "items": [{"id": o.external_id, "title": o.title, "value": o.value, "online": o.online}
-                  for o in result.observations],
+        "items": [
+            {"id": o.external_id, "title": o.title, "value": o.value, "online": o.online} for o in result.observations
+        ],
     }
 
 
@@ -186,8 +188,9 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
 
 
 @hooks.post("/owncast/{token}")
-async def owncast_webhook(token: str, request: Request, background: BackgroundTasks,
-                          db: Session = Depends(get_db)) -> dict:
+async def owncast_webhook(
+    token: str, request: Request, background: BackgroundTasks, db: Session = Depends(get_db)
+) -> dict:
     """Owncast → Integrations → Webhooks: "Stream started" and "Stream stopped" trigger a poll at once."""
     s = db.execute(select(Source).where(Source.kind == "owncast", Source.webhook_token == token)).scalar_one_or_none()
     if s is None or not s.enabled or len(token) < 20:

@@ -31,10 +31,23 @@ def normalise_mounts(value) -> list[str]:
 
 def _agent_family(agent: str) -> str:
     a = agent.lower()
-    for key, name in (("vlc", "VLC"), ("itunes", "iTunes"), ("winamp", "Winamp"), ("foobar", "foobar2000"),
-                      ("sonos", "Sonos"), ("alexa", "Alexa"), ("android", "Android"), ("iphone", "iOS"),
-                      ("ipad", "iOS"), ("firefox", "Firefox"), ("edg/", "Edge"), ("chrome", "Chrome"),
-                      ("safari", "Safari"), ("mpv", "mpv"), ("lavf", "ffmpeg")):
+    for key, name in (
+        ("vlc", "VLC"),
+        ("itunes", "iTunes"),
+        ("winamp", "Winamp"),
+        ("foobar", "foobar2000"),
+        ("sonos", "Sonos"),
+        ("alexa", "Alexa"),
+        ("android", "Android"),
+        ("iphone", "iOS"),
+        ("ipad", "iOS"),
+        ("firefox", "Firefox"),
+        ("edg/", "Edge"),
+        ("chrome", "Chrome"),
+        ("safari", "Safari"),
+        ("mpv", "mpv"),
+        ("lavf", "ffmpeg"),
+    ):
         if key in a:
             return name
     return "Other"
