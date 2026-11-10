@@ -12,6 +12,22 @@ from ..config import get_settings
 router = APIRouter(prefix="/api/help", tags=["help"])
 MANUAL = APP_ROOT / "docs" / "manual"
 SLUG = re.compile(r"^[A-Za-z0-9-]+$")
+ORDER = [
+    "README",
+    "installation",
+    "reverse-proxy",
+    "users-and-roles",
+    "branding",
+    "email",
+    "backup",
+    "updates",
+    "microsoft-365",
+    "owncast-icecast",
+    "wordpress",
+    "youtube",
+    "meta",
+    "troubleshooting",
+]
 
 
 def _title(path) -> str:
@@ -34,7 +50,8 @@ def _github_base() -> str:
 @router.get("")
 def index(lang: str = "en") -> dict:
     d = _lang_dir(lang)
-    pages = [{"slug": p.stem, "title": _title(p)} for p in sorted(d.glob("*.md"))]
+    files = sorted(d.glob("*.md"), key=lambda p: (ORDER.index(p.stem) if p.stem in ORDER else len(ORDER), p.stem))
+    pages = [{"slug": p.stem, "title": _title(p)} for p in files]
     return {"lang": d.name, "pages": pages, "github": f"{_github_base()}/{d.name}/README.md"}
 
 
