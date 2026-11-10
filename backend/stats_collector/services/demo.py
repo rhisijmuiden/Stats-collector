@@ -16,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import ContentItem, Source, StreamSample, utcnow
+from .links import auto_link
 from .rollup import rollup
 from .wordpress import ingest
 
@@ -210,9 +211,11 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         + create_demo_channel(db, now=now)
         + create_demo_social(db, now=now)
         + create_demo_goals(db, now=now)
+        + auto_link(db)["added"]
     )
 
 
+VIDEO_ARTICLES = {1: 1000, 3: 1009}  # video → the article it belongs to
 VIDEOS = [
     "Raadsvergadering in 3 minuten",
     "Reportage: de nieuwe brug",
@@ -268,7 +271,10 @@ def create_demo_channel(db: Session, days: int = 60, now: datetime | None = None
             title=title,
             url=f"https://www.youtube.com/watch?v=demo{n}",
             published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC) + timedelta(hours=17),
-            meta={"duration": "PT4M"},
+            meta={
+                "duration": "PT4M",
+                "links": [f"https://news.example.org/{VIDEO_ARTICLES[n]}"] if n in VIDEO_ARTICLES else [],
+            },
         )
         db.add(item)
         db.flush()
@@ -393,6 +399,11 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
         db.flush()
         for n, title in enumerate(rnd.sample(POSTS, 8)):
             published = today - timedelta(days=rnd.randint(0, days - 1))
+            meta = {"reactions": {"like": 0, "love": 0}} if kind == "facebook" else {"media_type": "REELS"}
+            if kind == "facebook" and n < 6:  # shares an article: links to it (see services/links.py)
+                article = 1000 + n * 3
+                title = TITLES[n * 3]
+                meta["links"] = [f"https://news.example.org/{article}?utm_source=facebook&fbclid=demo"]
             item = ContentItem(
                 source_id=source.id,
                 kind="post",
@@ -401,7 +412,7 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
                 url=f"https://www.{kind}.com/demonews/posts/{n}",
                 published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC)
                 + timedelta(hours=rnd.randint(7, 20)),
-                meta={"reactions": {"like": 0, "love": 0}} if kind == "facebook" else {"media_type": "REELS"},
+                meta=meta,
             )
             db.add(item)
             db.flush()
@@ -439,7 +450,8 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
                 day += timedelta(days=1)
             if kind == "facebook":
                 item.meta = {
-                    "reactions": {"like": round(total_likes * 0.8), "love": total_likes - round(total_likes * 0.8)}
+                    **meta,
+                    "reactions": {"like": round(total_likes * 0.8), "love": total_likes - round(total_likes * 0.8)},
                 }
         db.flush()
         # Account totals: the posts plus everything else people saw (older posts, the profile).

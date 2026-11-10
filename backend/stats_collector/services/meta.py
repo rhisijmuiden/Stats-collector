@@ -44,6 +44,7 @@ from ..models import ContentItem, MetricPoint, Source, utcnow
 from ..security import encrypt_secret
 from .collect import source_secrets
 from .followers import day_bucket, log_count, rebuild_gauge
+from .links import extract_urls
 from .metrics import (
     FB_CLICKS,
     FB_COMMENTS,
@@ -506,6 +507,18 @@ def _title(text: Any, fallback: str) -> str:
     return (line[:117] + "…" if len(line) > 120 else line) or fallback
 
 
+def _post_links(post: dict, fb: bool) -> list[str]:
+    """Web addresses a post points to: the attached link (Facebook) and links in its text."""
+    attached = []
+    if fb:
+        for a in (post.get("attachments") or {}).get("data") or []:
+            url = a.get("unshimmed_url") or a.get("url")
+            if isinstance(url, str) and url.startswith(("http://", "https://")):
+                attached.append(url)
+    found = extract_urls(post.get("message") if fb else post.get("caption"))
+    return list(dict.fromkeys(attached + found))[:20]
+
+
 def store_post(db: Session, source: Source, post: dict, totals: dict[str, float], extra: dict, today: date, tz) -> set:
     """Create or update a post and store what it gained; returns the days that changed."""
     fb = source.kind == "facebook"
@@ -518,6 +531,7 @@ def store_post(db: Session, source: Source, post: dict, totals: dict[str, float]
         **(item.meta or {}),
         "thumbnail": post.get("full_picture") if fb else post.get("thumbnail_url") or post.get("media_url"),
         "media_type": post.get("status_type") if fb else post.get("media_product_type") or post.get("media_type"),
+        "links": _post_links(post, fb),
         **extra,
     }
     db.flush()
@@ -769,7 +783,7 @@ def _sync_facebook(db: Session, source: Source, cfg: dict, api: Graph, now: date
 
     # Posts: lifetime totals, turned into what each post gained per day.
     fields = (
-        "id,message,created_time,permalink_url,full_picture,status_type,shares,"
+        "id,message,created_time,permalink_url,full_picture,status_type,shares,attachments{unshimmed_url,url},"
         "comments.summary(true).limit(0),reactions.summary(true).limit(0)"
     )
     post_names: dict[str, str] | None = None

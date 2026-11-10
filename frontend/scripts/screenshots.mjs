@@ -4,8 +4,27 @@ import { chromium } from "playwright";
 
 const [base = "http://127.0.0.1:8080", setupLink] = process.argv.slice(2);
 const out = new URL("../../docs/manual/images/", import.meta.url).pathname;
+// Steps for screens that need more than one click: an article with linked posts, an editor's social numbers.
+async function openLinkedArticle(page) {
+  await page.locator(".seg button").nth(3).click(); // 90 days
+  await page.locator(".filters select").first().selectOption({ label: "Demo Website" });
+  await page.locator(".filters select").last().selectOption("published");
+  await page.locator(".filters .search input").fill("brug");
+  await page.locator(".filters .search input").press("Enter");
+  await page.waitForLoadState("networkidle");
+  await page.locator("table .link-btn").first().click();
+  await page.waitForLoadState("networkidle");
+  await page.locator(".links-box").scrollIntoViewIfNeeded();
+}
+async function openEditorSocial(page) {
+  await page.locator('table .link-btn:has-text("Anne")').first().click();
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(300);
+  await page.locator(".modal .kpis").last().scrollIntoViewIfNeeded();
+}
+
 const SCREENS = [
-  ["/", "dashboard"], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/editors", "editors"], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
+  ["/", "dashboard"], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
   ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];
@@ -43,7 +62,8 @@ for (const lang of ["en", "nl"]) {
   for (const [path, name, click] of SCREENS) {
     await page.goto(base + path);
     await page.waitForLoadState("networkidle");
-    if (click) {
+    if (typeof click === "function") await click(page);
+    else if (click) {
       await page.locator(click).first().click();
       await page.waitForLoadState("networkidle");
     }

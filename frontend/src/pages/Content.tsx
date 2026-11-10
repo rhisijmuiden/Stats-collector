@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, Facebook, FileText, Globe, Instagram, Radio, Search, Tv, Youtube } from "lucide-react";
-import { api } from "../lib/api";
+import { ExternalLink, Facebook, FileText, Globe, Instagram, Link2, Plus, Radio, Search, Tv, Unlink, Youtube } from "lucide-react";
+import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
 import { Alert, Card, Modal, PageHead, useLoad } from "../components/ui";
 import Chart, { cssVar } from "../components/Chart";
@@ -23,7 +23,9 @@ interface Filters { sources: { id: number; name: string; kind: string }[]; categ
 export interface Detail {
   granularity: "hour" | "day"; buckets: string[]; item: Item;
   series: Partial<Record<MetricKey, number[]>>; dimensions: { referrer?: { key: string; value: number }[]; device?: { key: string; value: number }[] };
+  links?: (Item & { method: "url" | "manual" | "tracking" })[]; can_link?: boolean;
 }
+interface Found { id: number; title: string; url: string | null; published_at: string | null; source: { id: number; name: string; kind: string } | null }
 
 export const fmt = (n: number, lang: string, digits = 0) => new Intl.NumberFormat(lang, { maximumFractionDigits: digits }).format(n);
 export const fmtSeconds = (s: number) => {
@@ -93,9 +95,71 @@ function Breakdown({ title, rows }: { title: string; rows?: { key: string; value
   );
 }
 
-export function ItemModal({ id, range, onClose }: { id: number; range: Range; onClose: () => void }) {
+/** Posts and videos linked to an article, or the article a post links to, with a way to add or remove links. */
+function Links({ detail, onOpen, onChange }: { detail: Detail; onOpen: (id: number) => void; onChange: () => void }) {
+  const { t, i18n } = useTranslation();
+  const { toast } = useApp();
+  const lang = i18n.language;
+  const it = detail.item;
+  const article = it.source?.kind === "wordpress";
+  const links = detail.links ?? [];
+  const [adding, setAdding] = useState(false);
+  const [q, setQ] = useState("");
+  const found = useLoad(() => (adding ? api.get<Found[]>(`/api/content/find?side=${article ? "social" : "article"}&q=${encodeURIComponent(q)}`) : Promise.resolve([])), [adding, q]);
+  const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
+  const link = async (other: number) => {
+    try { await api.post(`/api/content/${it.id}/links`, { item_id: other }); setAdding(false); setQ(""); onChange(); } catch (e) { fail(e); }
+  };
+  const unlink = async (other: number) => {
+    if (!window.confirm(t("links.confirmRemove"))) return;
+    try { await api.del(`/api/content/${it.id}/links/${other}`); onChange(); } catch (e) { fail(e); }
+  };
+  if (!links.length && !detail.can_link) return null;
+  const linkedIds = new Set(links.map((l) => l.id));
+  return (
+    <div className="links-box">
+      <div className="row between">
+        <h3 className="small-title"><Link2 size={15} /> {t(article ? "links.titleArticle" : "links.titlePost")}</h3>
+        {detail.can_link && <button type="button" className="btn ghost small" onClick={() => setAdding((v) => !v)}><Plus size={14} /> {t("links.add")}</button>}
+      </div>
+      {adding && (
+        <div className="link-picker">
+          <label className="search"><Search size={15} /><input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={t(article ? "links.searchPosts" : "links.searchArticles")} aria-label={t("links.add")} /></label>
+          <ul>
+            {(found.data ?? []).filter((f) => !linkedIds.has(f.id)).map((f) => (
+              <li key={f.id}><button type="button" className="link-btn" onClick={() => link(f.id)}>{kindIcon(f.source?.kind)} {f.title}</button>
+                <span className="muted small">{f.source?.name}{f.published_at ? ` · ${new Date(f.published_at).toLocaleDateString(lang, { day: "numeric", month: "short" })}` : ""}</span></li>
+            ))}
+            {found.data && !found.data.length && <li className="muted small">{t("links.nothingFound")}</li>}
+          </ul>
+        </div>
+      )}
+      {links.length ? (
+        <div className="table-wrap"><table>
+          <thead><tr><th>{t("content.title_")}</th><th className="num">{t("content.views")}</th><th className="num">{t("content.visitorsReach")}</th><th className="num">{t("content.likes")}</th><th className="num">{t("content.shares")}</th><th /></tr></thead>
+          <tbody>
+            {links.map((l) => (
+              <tr key={l.id}>
+                <td><button type="button" className="link-btn" onClick={() => onOpen(l.id)}>{l.title}</button>
+                  <div className="muted small source-kind">{kindIcon(l.source?.kind)} {l.source?.name} <span className="badge">{t(`links.method.${l.method}`)}</span></div></td>
+                <td className="num">{fmt(l.metrics.views, lang)}</td>
+                <td className="num">{l.metrics.visitors || l.metrics.reach ? fmt(l.metrics.visitors || l.metrics.reach, lang) : "–"}</td>
+                <td className="num">{fmt(l.metrics.likes, lang)}</td>
+                <td className="num">{fmt(l.metrics.shares, lang)}</td>
+                <td className="num">{detail.can_link && <button type="button" className="btn ghost small" aria-label={t("links.remove")} title={t("links.remove")} onClick={() => unlink(l.id)}><Unlink size={14} /></button>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+      ) : <p className="muted small">{t(article ? "links.noneArticle" : "links.nonePost")}</p>}
+    </div>
+  );
+}
+
+export function ItemModal({ id: first, range, onClose }: { id: number; range: Range; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const { theme } = useApp();
+  const [id, setId] = useState(first);
   const detail = useLoad(() => api.get<Detail>(`/api/content/${id}?range=${range === "24h" ? "7d" : range}`), [id, range]);
   const d = detail.data;
   const it = d?.item;
@@ -121,6 +185,7 @@ export function ItemModal({ id, range, onClose }: { id: number; range: Range; on
               <div className="kpi" key={k}><div className="kpi-label">{t(`content.${k}`)}</div><div className="kpi-value">{fmt(it.metrics[k], i18n.language)}</div></div>
             ))}
             {web && <div className="kpi"><div className="kpi-label">{t("content.avgRead")}</div><div className="kpi-value">{fmtSeconds(it.avg_read_seconds)}</div></div>}
+            {web && !!d.links?.length && <div className="kpi"><div className="kpi-label">{t("links.socialViews")}</div><div className="kpi-value">{fmt(d.links.reduce((a, l) => a + l.metrics.views, 0), i18n.language)}</div></div>}
             {video && <div className="kpi"><div className="kpi-label">{t("content.avgWatch")}</div><div className="kpi-value">{fmtSeconds(it.avg_watch_seconds)}</div></div>}
           </div>
           {it.reactions && Object.keys(it.reactions).length > 0 && (
@@ -133,6 +198,7 @@ export function ItemModal({ id, range, onClose }: { id: number; range: Range; on
               <Breakdown title={t("content.devices")} rows={d.dimensions.device} />
             </div>
           )}
+          <Links detail={d} onOpen={setId} onChange={detail.reload} />
           <div className="row end"><button className="btn secondary" onClick={onClose}>{t("common.close")}</button></div>
         </div>
       )}

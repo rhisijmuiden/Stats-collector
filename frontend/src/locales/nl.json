@@ -531,7 +531,8 @@
     "meta_permission": "Meta weigerde de toegang: er ontbreekt een recht of de app staat nog niet live (zie Help → Meta).",
     "meta_metric_changed": "Meta heeft de naam van een metric gewijzigd. De namen worden bij de volgende ronde opnieuw opgezocht.",
     "unknown_source": "Een van de gekozen kanalen bestaat niet meer.",
-    "end_before_start": "De einddatum moet na de startdatum liggen."
+    "end_before_start": "De einddatum moet na de startdatum liggen.",
+    "link_kinds": "Alleen een bericht of video kan aan een artikel gekoppeld worden."
   },
   "sources": {
     "title": "Bronnen",
@@ -710,7 +711,7 @@
   },
   "editors": {
     "title": "Redacteuren",
-    "subtitle": "Websitecijfers per redacteur: hun artikelen, lezers en leestijd.",
+    "subtitle": "Cijfers per redacteur: hun artikelen, lezers en leestijd, en de sociale berichten die ernaar linken.",
     "subtitleOwn": "Je eigen websitecijfers.",
     "ownOnly": "Je ziet alleen je eigen cijfers. De cijfers van collega's zijn zichtbaar voor de hoofdredactie en beheerders.",
     "name": "Redacteur",
@@ -719,7 +720,20 @@
     "topArticles": "Best gelezen artikelen",
     "noneTitle": "Nog geen redacteuren",
     "noneText": "Redacteuren verschijnen zodra een WordPress-site de eerste artikelen stuurt.",
-    "noneOwn": "Er zijn nog geen artikelen aan jou gekoppeld. Je WordPress-account moet hetzelfde e-mailadres hebben als je account hier."
+    "noneOwn": "Er zijn nog geen artikelen aan jou gekoppeld. Je WordPress-account moet hetzelfde e-mailadres hebben als je account hier.",
+    "social": "Sociale media",
+    "socialHint": "Berichten en video's die naar de artikelen van deze redacteur linken.",
+    "socialViews": "Sociale weergaven",
+    "socialPosts": "{{count}} gekoppelde berichten en video's",
+    "socialNone": "Geen gekoppelde berichten of video's in deze periode.",
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
+    },
+    "socialSub_one": "{{count}} bericht · {{likes}} likes",
+    "socialSub_other": "{{count}} berichten · {{likes}} likes",
+    "socialReach": "bereik {{reach}}"
   },
   "metrics": {
     "fb_views": "Weergaven",
@@ -815,5 +829,23 @@
     "noneTitle": "Nog geen doelen",
     "noneText": "Stel een doel voor volgers, weergaven, bereik of interacties, eventueel met een einddatum.",
     "noneTextReader": "De hoofdredacteur of een beheerder kan hier doelen instellen."
+  },
+  "links": {
+    "titleArticle": "Gedeeld op sociale media",
+    "titlePost": "Gekoppeld artikel",
+    "add": "Koppeling toevoegen",
+    "remove": "Koppeling verwijderen",
+    "confirmRemove": "Deze koppeling verwijderen? Een automatische koppeling blijft dan weg.",
+    "searchPosts": "Zoek berichten en video's",
+    "searchArticles": "Zoek artikelen op titel of adres",
+    "nothingFound": "Niets gevonden.",
+    "noneArticle": "Er linken nog geen berichten of video's naar dit artikel.",
+    "nonePost": "Dit bericht is niet aan een artikel gekoppeld.",
+    "socialViews": "Sociale weergaven",
+    "method": {
+      "url": "automatisch",
+      "manual": "handmatig",
+      "tracking": "tracking"
+    }
   }
 }

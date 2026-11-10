@@ -18,11 +18,34 @@ Click an item for its details: the numbers for the period, a chart per day (per 
 
 ## Editors
 
-**Analytics → Editors** shows the website numbers per editor: how many of their articles were published in the period, and the views, visitors, reading time, reads, shares and comments of all their articles in that period. An article with two authors counts for both.
+**Analytics → Editors** shows the numbers per editor: how many of their articles were published in the period, and the views, visitors, reading time, reads, shares and comments of all their articles in that period. An article with two authors counts for both.
 
 ![Editors](../images/en-editors.png)
 
-Click an editor for a chart and their best-read articles.
+The **Social views** column adds up the views of the Facebook and Instagram posts and YouTube videos that link to the editor's articles (see [Posts linked to articles](#posts-linked-to-articles)). Click an editor for a chart, their best-read articles and their social numbers per platform, with the linked posts.
+
+![Social numbers of an editor](../images/en-editor-social.png)
+
+## Posts linked to articles
+
+A Facebook post, Instagram post or YouTube video is linked to an article automatically when it points to the article's address:
+
+- **Facebook**: the link attached to the post, or a link in its text.
+- **Instagram**: a link in the caption (Instagram links usually sit in the bio, so link these by hand when needed).
+- **YouTube**: a link in the video description.
+
+Addresses are compared without `https://`, `www.` or a trailing `/`, and without tracking parameters such as `utm_source` or `fbclid`; Facebook's redirect links are followed to the real address. The short link `?p=123` of a WordPress post works too. Links are checked every 15 minutes, after new posts have been collected.
+
+Open an article to see the posts and videos that link to it under **Shared on social media**, with their views, reach, likes and shares, and the total as **Social views**. A post shows its **Linked article**. Click a title to open that item.
+
+![An article with its linked posts](../images/en-content-links.png)
+
+Admins, editors-in-chief and editors can change links:
+
+- **Add link** searches articles (from a post) or posts and videos (from an article) by title or address; click a result to link it. The link is marked *by hand*.
+- The unlink button removes a link. A removed automatic link stays removed, also when the post is collected again; adding it by hand brings it back.
+
+An editor's social numbers include every post linked to one of their articles. A post linked to an article with two authors counts for both.
 
 ## Who sees what
 

@@ -531,7 +531,8 @@
     "meta_permission": "Meta refused access: a permission is missing or the app is not live yet (see Help → Meta).",
     "meta_metric_changed": "Meta changed a metric name. The names are looked up again at the next run.",
     "unknown_source": "One of the chosen channels no longer exists.",
-    "end_before_start": "The end date must be after the start date."
+    "end_before_start": "The end date must be after the start date.",
+    "link_kinds": "Only a post or video can be linked to an article."
   },
   "sources": {
     "title": "Sources",
@@ -710,7 +711,7 @@
   },
   "editors": {
     "title": "Editors",
-    "subtitle": "Website numbers per editor: their articles, readers and reading time.",
+    "subtitle": "Numbers per editor: their articles, readers and reading time, and the social posts that link to them.",
     "subtitleOwn": "Your own website numbers.",
     "ownOnly": "You see only your own numbers. Colleagues' numbers are visible to the editor-in-chief and admins.",
     "name": "Editor",
@@ -719,7 +720,20 @@
     "topArticles": "Best read articles",
     "noneTitle": "No editors yet",
     "noneText": "Editors appear when a WordPress site sends its first articles.",
-    "noneOwn": "No articles are linked to you yet. Your WordPress account needs the same email address as your account here."
+    "noneOwn": "No articles are linked to you yet. Your WordPress account needs the same email address as your account here.",
+    "social": "Social media",
+    "socialHint": "Posts and videos that link to this editor's articles.",
+    "socialViews": "Social views",
+    "socialPosts": "{{count}} linked posts and videos",
+    "socialNone": "No linked posts or videos in this period.",
+    "platform": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
+    },
+    "socialSub_one": "{{count}} post · {{likes}} likes",
+    "socialSub_other": "{{count}} posts · {{likes}} likes",
+    "socialReach": "reach {{reach}}"
   },
   "metrics": {
     "fb_views": "Views",
@@ -815,5 +829,23 @@
     "noneTitle": "No goals yet",
     "noneText": "Set a target on followers, views, reach or interactions, with an end date if you like.",
     "noneTextReader": "The editor-in-chief or an administrator can set goals here."
+  },
+  "links": {
+    "titleArticle": "Shared on social media",
+    "titlePost": "Linked article",
+    "add": "Add link",
+    "remove": "Remove link",
+    "confirmRemove": "Remove this link? An automatic link stays removed.",
+    "searchPosts": "Search posts and videos",
+    "searchArticles": "Search articles by title or address",
+    "nothingFound": "Nothing found.",
+    "noneArticle": "No posts or videos link to this article yet.",
+    "nonePost": "This post is not linked to an article.",
+    "socialViews": "Social views",
+    "method": {
+      "url": "automatic",
+      "manual": "by hand",
+      "tracking": "tracking"
+    }
   }
 }

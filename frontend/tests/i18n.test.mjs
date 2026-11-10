@@ -28,7 +28,7 @@ test("every static translation key exists", () => {
   const missing = [];
   for (const file of files(new URL("../src", import.meta.url).pathname)) {
     const src = readFileSync(file, "utf8");
-    for (const m of src.matchAll(/\bt\(["']([a-zA-Z0-9_.]+)["']/g)) if (!en.has(m[1])) missing.push(`${file}: ${m[1]}`);
+    for (const m of src.matchAll(/\bt\(["']([a-zA-Z0-9_.]+)["']/g)) if (!en.has(m[1]) && !en.has(`${m[1]}_other`)) missing.push(`${file}: ${m[1]}`);
     // template keys like t(`roles.${r}`): check the prefix exists
     for (const m of src.matchAll(/\bt\(`([a-zA-Z0-9_.]+)\$\{/g)) {
       const prefix = m[1];

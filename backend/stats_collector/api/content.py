@@ -11,12 +11,14 @@ from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from pydantic import BaseModel
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import ContentItem, DimensionPoint, ItemPerson, MetricPoint, Person, Source, User, utcnow
-from ..security import current_user
+from ..models import ContentItem, DimensionPoint, ItemLink, ItemPerson, MetricPoint, Person, Source, User, utcnow
+from ..security import current_user, require_role
+from ..services import links as link_svc
 from ..services.metrics import (
     FB_CLICKS,
     FB_COMMENTS,
@@ -45,6 +47,7 @@ from ..services.metrics import (
     YT_WATCH_MINUTES,
 )
 from ..services.rollup import hour_floor, local_day_start, next_local_day, org_timezone
+from .common import audit
 
 router = APIRouter(prefix="/api", tags=["content"])
 
@@ -96,6 +99,8 @@ METRIC_NAMES = {
 }
 TOTALS = tuple(dict.fromkeys(METRIC_NAMES.values()))
 SEES_ALL = ("admin", "editor_in_chief")
+can_link = require_role("admin", "editor_in_chief", "editor")
+SOCIAL_SOURCES = ("facebook", "instagram", "youtube")
 
 
 def _aware(dt: datetime) -> datetime:
@@ -225,6 +230,7 @@ def top(
     kind: str | None = Query(default=None, max_length=32),
     category: str | None = Query(default=None, max_length=200),
     person: int | None = None,
+    via: Literal["own", "social"] = "own",
     q: str | None = Query(default=None, max_length=200),
     limit: int = Query(default=50, ge=1, le=200),
     db: Session = Depends(get_db),
@@ -243,7 +249,10 @@ def top(
     if q:
         stmt = stmt.where(ContentItem.title.ilike(f"%{q.strip()}%"))
     if person is not None:
-        stmt = stmt.where(ContentItem.id.in_(select(ItemPerson.item_id).where(ItemPerson.person_id == person)))
+        own = select(ItemPerson.item_id).where(ItemPerson.person_id == person)
+        if via == "social":  # the posts and videos that link to this editor's articles
+            own = select(ItemLink.from_item_id).where(ItemLink.to_item_id.in_(own))
+        stmt = stmt.where(ContentItem.id.in_(own))
     items = {i.id: i for i in db.execute(stmt).scalars()}
     totals = _totals(db, start, end, gran, items.keys())
     if sort == "published":
@@ -305,6 +314,53 @@ def _dims(db: Session, start: datetime, end: datetime, where) -> dict[str, list[
     return dict(out)
 
 
+def _linked(db: Session, item: ContentItem, start: datetime, end: datetime, gran: str) -> list[dict]:
+    """Items linked to this one, either way round (a post and its article), with their numbers."""
+    rows = db.execute(
+        select(ItemLink).where(or_(ItemLink.from_item_id == item.id, ItemLink.to_item_id == item.id))
+    ).scalars()
+    method = {(link.to_item_id if link.from_item_id == item.id else link.from_item_id): link.method for link in rows}
+    if not method:
+        return []
+    others = list(db.execute(select(ContentItem).where(ContentItem.id.in_(list(method)))).scalars())
+    totals = _totals(db, start, end, gran, list(method))
+    sources = {s.id: s for s in db.execute(select(Source)).scalars()}
+    out = [
+        {**_item_out(o, sources.get(o.source_id), totals.get(o.id, {}), None), "method": method[o.id]} for o in others
+    ]
+    out.sort(key=lambda r: r["published_at"] or "", reverse=True)
+    return out
+
+
+@router.get("/content/find")
+def find_items(
+    q: str = Query(default="", max_length=200),
+    side: Literal["article", "social"] = "article",
+    db: Session = Depends(get_db),
+    _: User = Depends(current_user),
+) -> list[dict]:
+    """Search by title or address, for picking an item to link to."""
+    kinds = link_svc.ARTICLE_KINDS if side == "article" else link_svc.SOCIAL_KINDS
+    stmt = select(ContentItem).where(ContentItem.kind.in_(kinds))
+    if q.strip():
+        term = f"%{q.strip()}%"
+        stmt = stmt.where(or_(ContentItem.title.ilike(term), ContentItem.url.ilike(term)))
+    rows = db.execute(stmt.order_by(ContentItem.published_at.desc()).limit(20)).scalars()
+    sources = {s.id: s for s in db.execute(select(Source)).scalars()}
+    return [
+        {
+            "id": i.id,
+            "title": i.title,
+            "url": i.url,
+            "published_at": _aware(i.published_at).isoformat() if i.published_at else None,
+            "source": {"id": i.source_id, "name": sources[i.source_id].name, "kind": sources[i.source_id].kind}
+            if i.source_id in sources
+            else None,
+        }
+        for i in rows
+    ]
+
+
 @router.get("/content/{item_id}")
 def item_detail(
     item_id: int, range: Range = "30d", db: Session = Depends(get_db), user: User = Depends(current_user)
@@ -323,7 +379,43 @@ def item_detail(
         "item": _item_out(item, db.get(Source, item.source_id), totals, authors),
         "series": _series(db, gran, buckets, [MetricPoint.item_id == item.id]),
         "dimensions": _dims(db, start, end, [DimensionPoint.item_id == item.id]),
+        "links": _linked(db, item, start, end, gran),
+        "can_link": user.role in ("admin", "editor_in_chief", "editor")
+        and item.kind in (*link_svc.ARTICLE_KINDS, *link_svc.SOCIAL_KINDS),
     }
+
+
+class LinkIn(BaseModel):
+    item_id: int
+
+
+def _pair(db: Session, a: int, b: int) -> tuple[ContentItem, ContentItem]:
+    """(social item, article) for two item ids given in either order."""
+    one, two = db.get(ContentItem, a), db.get(ContentItem, b)
+    if one is None or two is None:
+        raise HTTPException(404, "not_found")
+    if one.kind in link_svc.ARTICLE_KINDS and two.kind in link_svc.SOCIAL_KINDS:
+        one, two = two, one
+    if one.kind not in link_svc.SOCIAL_KINDS or two.kind not in link_svc.ARTICLE_KINDS:
+        raise HTTPException(400, "link_kinds")
+    return one, two
+
+
+@router.post("/content/{item_id}/links")
+def add_link(item_id: int, body: LinkIn, db: Session = Depends(get_db), user: User = Depends(can_link)) -> dict:
+    social, article = _pair(db, item_id, body.item_id)
+    link_svc.add(db, social, article)
+    audit(db, user, "content.link", {"from": social.id, "to": article.id})
+    return {"ok": True}
+
+
+@router.delete("/content/{item_id}/links/{other_id}")
+def remove_link(item_id: int, other_id: int, db: Session = Depends(get_db), user: User = Depends(can_link)) -> dict:
+    social, article = _pair(db, item_id, other_id)
+    if not link_svc.remove(db, social, article):
+        raise HTTPException(404, "not_found")
+    audit(db, user, "content.unlink", {"from": social.id, "to": article.id})
+    return {"ok": True}
 
 
 # ----------------------------------------------------------------------------- editors
@@ -348,6 +440,21 @@ def _editor_rows(db: Session, start: datetime, end: datetime, gran: str, person_
         ).scalars()
     }
     people = {p.id: p for p in db.execute(select(Person).where(Person.id.in_(list(by_person)))).scalars()}
+    # Social posts and videos that link to the editors' articles.
+    social_of: dict[int, set[int]] = defaultdict(set)
+    for from_id, to_id in db.execute(
+        select(ItemLink.from_item_id, ItemLink.to_item_id).where(ItemLink.to_item_id.in_(list(all_items)))
+    ).all():
+        social_of[to_id].add(from_id)
+    social_ids = {i for s in social_of.values() for i in s}
+    social_totals = _totals(db, start, end, gran, social_ids)
+    social_kind = dict(
+        db.execute(
+            select(ContentItem.id, Source.kind)
+            .join(Source, Source.id == ContentItem.source_id)
+            .where(ContentItem.id.in_(list(social_ids)))
+        ).all()
+    )
     rows = []
     for pid, item_ids in by_person.items():
         p = people.get(pid)
@@ -368,10 +475,31 @@ def _editor_rows(db: Session, start: datetime, end: datetime, gran: str, person_
                 "published": len(item_ids & published),
                 "metrics": {k: round(sums.get(k, 0), 2) for k in TOTALS if k != "peak"},
                 "avg_read_seconds": round(sums.get("read_seconds", 0) / views, 1) if views else 0,
+                "social": _social_sums({s for i in item_ids for s in social_of.get(i, ())}, social_totals, social_kind),
             }
         )
     rows.sort(key=lambda r: -r["metrics"]["views"])
     return rows
+
+
+SOCIAL_KEYS = ("views", "reach", "likes", "comments", "shares")
+
+
+def _social_sums(ids: set[int], totals: dict[int, dict], kinds: dict[int, str]) -> dict:
+    """Totals over linked posts and videos, overall and per platform."""
+    out: dict = {"posts": len(ids), **dict.fromkeys(SOCIAL_KEYS, 0.0), "by_kind": {}}
+    for i in ids:
+        kind = kinds.get(i, "other")
+        per = out["by_kind"].setdefault(kind, {"posts": 0, **dict.fromkeys(SOCIAL_KEYS, 0.0)})
+        per["posts"] += 1
+        for k in SOCIAL_KEYS:
+            v = totals.get(i, {}).get(k, 0)
+            out[k] += v
+            per[k] += v
+    for d in (out, *out["by_kind"].values()):
+        for k in SOCIAL_KEYS:
+            d[k] = round(d[k], 2)
+    return out
 
 
 @router.get("/editors")
