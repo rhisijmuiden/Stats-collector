@@ -212,7 +212,16 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         + create_demo_social(db, now=now)
         + create_demo_goals(db, now=now)
         + auto_link(db)["added"]
+        + create_demo_dashboard(db)
     )
+
+
+def create_demo_dashboard(db: Session) -> int:
+    from ..api.dashboards import example
+
+    db.add(example("Overview", None, shared=True))
+    db.commit()
+    return 1
 
 
 VIDEO_ARTICLES = {1: 1000, 3: 1009}  # video → the article it belongs to

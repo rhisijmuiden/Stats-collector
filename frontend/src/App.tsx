@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import FollowersPage from "./pages/Followers";
 import GoalsPage from "./pages/Goals";
+import DashboardsPage from "./pages/Dashboards";
 import { useApp } from "./lib/app";
 import Layout from "./components/Layout";
 import { Login, Setup } from "./pages/Login";
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="editors" element={<EditorsOnly><EditorsPage /></EditorsOnly>} />
         <Route path="followers" element={<FollowersPage />} />
         <Route path="goals" element={<GoalsPage />} />
+        <Route path="dashboards" element={<DashboardsPage />} />
         <Route path="info" element={<InfoPage />} />
         <Route path="help" element={<Help />} />
         <Route path="help/:slug" element={<Help />} />

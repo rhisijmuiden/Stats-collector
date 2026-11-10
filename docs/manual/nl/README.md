@@ -20,6 +20,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 
 - [Dashboard](dashboard.md)
 - [Content en redacteuren](content.md)
+- [Mijn dashboards](dashboards.md)
 - [Volgers en doelen](followers-and-goals.md)
 
 ## Platforms koppelen
