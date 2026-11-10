@@ -226,6 +226,7 @@ class Person(Base):
 
 class ItemPerson(Base):
     __tablename__ = "item_people"
+    __table_args__ = (Index("ix_item_people_person", "person_id"),)
 
     item_id: Mapped[int] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), primary_key=True)
     person_id: Mapped[int] = mapped_column(ForeignKey("people.id", ondelete="CASCADE"), primary_key=True)
@@ -280,6 +281,7 @@ class MetricPoint(Base):
     __table_args__ = (
         Index("ix_points_lookup", "tenant_id", "metric", "granularity", "bucket"),
         Index("ix_points_source", "source_id", "granularity", "bucket"),
+        Index("ix_points_item", "item_id", "granularity", "bucket"),
     )
 
     id: Mapped[int] = mapped_column(BIGID, primary_key=True)
@@ -289,4 +291,23 @@ class MetricPoint(Base):
     metric: Mapped[str] = mapped_column(String(100))
     granularity: Mapped[str] = mapped_column(String(8))  # hour | day | month
     bucket: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    value: Mapped[float] = mapped_column(Float, default=0)
+
+
+class DimensionPoint(Base):
+    """Daily breakdowns that do not fit one number: referrer domains, device types.
+
+    One row per source, item (None = whole site), day, dimension and key.
+    """
+
+    __tablename__ = "dimension_points"
+    __table_args__ = (Index("ix_dims_lookup", "source_id", "dimension", "bucket"),)
+
+    id: Mapped[int] = mapped_column(BIGID, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), default=DEFAULT_TENANT_ID)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), nullable=True)
+    dimension: Mapped[str] = mapped_column(String(32))  # referrer | device
+    key: Mapped[str] = mapped_column(String(255))
+    bucket: Mapped[datetime] = mapped_column(DateTime(timezone=True))  # local day start, as UTC
     value: Mapped[float] = mapped_column(Float, default=0)

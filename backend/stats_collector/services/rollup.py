@@ -8,6 +8,9 @@ Per bucket and per source (and per item):
                 counts as one interval, so an outage of the collector is not filled in)
   live_avg      live_minutes spread over the whole bucket (offline time counts as zero)
   live_peak     highest audience seen in one poll
+
+Website sources (WordPress) send hourly numbers themselves; their days and months are sums of
+the hours, except unique visitors per day, which the plugin counts (a month adds up the days).
 """
 
 from __future__ import annotations
@@ -16,12 +19,12 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from ..models import MetricPoint, Source, StreamSample, utcnow
 from . import settings_store
-from .metrics import LIVE_AVG, LIVE_MINUTES, LIVE_PEAK
+from .metrics import LIVE_AVG, LIVE_METRICS, LIVE_MINUTES, LIVE_PEAK, WEB_HOUR_METRICS, WEB_SUM_FROM_HOURS
 
 RAW_RETENTION_DAYS = 365
 
@@ -80,11 +83,20 @@ def summarise(points: list[tuple[datetime, float]], start: datetime, end: dateti
 
 
 def _replace_points(
-    db: Session, source: Source, granularity: str, bucket: datetime, values: dict[int | None, dict[str, float]]
+    db: Session,
+    source: Source,
+    granularity: str,
+    bucket: datetime,
+    values: dict[int | None, dict[str, float]],
+    metrics: tuple[str, ...],
 ) -> None:
+    """Replace the given metrics of one bucket (all items) with `values`."""
     db.execute(
         delete(MetricPoint).where(
-            MetricPoint.source_id == source.id, MetricPoint.granularity == granularity, MetricPoint.bucket == bucket
+            MetricPoint.source_id == source.id,
+            MetricPoint.granularity == granularity,
+            MetricPoint.bucket == bucket,
+            MetricPoint.metric.in_(metrics),
         )
     )
     for item_id, metrics in values.items():
@@ -124,7 +136,7 @@ def rollup_hour(db: Session, source: Source, hour: datetime) -> None:
     for item_id, pts in per_item.items():
         if any(v for _, v in pts):
             values[item_id] = summarise(pts, start, end, poll_s)
-    _replace_points(db, source, "hour", start, values)
+    _replace_points(db, source, "hour", start, values, LIVE_METRICS)
 
 
 def _rollup_from(db: Session, source: Source, src_gran: str, dst_gran: str, start: datetime, end: datetime) -> None:
@@ -148,7 +160,40 @@ def _rollup_from(db: Session, source: Source, src_gran: str, dst_gran: str, star
     for metrics in acc.values():
         metrics[LIVE_MINUTES] = round(metrics[LIVE_MINUTES], 2)
         metrics[LIVE_AVG] = round(metrics[LIVE_MINUTES] / span_min, 3)
-    _replace_points(db, source, dst_gran, start, dict(acc))
+    _replace_points(db, source, dst_gran, start, dict(acc), LIVE_METRICS)
+
+
+def _sum_from(
+    db: Session, source: Source, src_gran: str, dst_gran: str, start: datetime, end: datetime, metrics: tuple[str, ...]
+) -> None:
+    rows = db.execute(
+        select(MetricPoint.item_id, MetricPoint.metric, func.sum(MetricPoint.value))
+        .where(
+            MetricPoint.source_id == source.id,
+            MetricPoint.granularity == src_gran,
+            MetricPoint.bucket >= start,
+            MetricPoint.bucket < end,
+            MetricPoint.metric.in_(metrics),
+        )
+        .group_by(MetricPoint.item_id, MetricPoint.metric)
+    ).all()
+    acc: dict[int | None, dict[str, float]] = defaultdict(dict)
+    for item_id, metric, total in rows:
+        acc[item_id][metric] = round(float(total or 0), 3)
+    _replace_points(db, source, dst_gran, start, dict(acc), metrics)
+
+
+def rollup_web(db: Session, source: Source, since: datetime, until: datetime, tz: ZoneInfo | None = None) -> None:
+    """Days and months of a website source between `since` and `until` (both inclusive)."""
+    tz = tz or org_timezone(db)
+    day = local_day_start(since, tz)
+    while day <= until:
+        _sum_from(db, source, "hour", "day", day, next_local_day(day, tz), WEB_SUM_FROM_HOURS)
+        day = next_local_day(day, tz)
+    month = local_month_start(since, tz)
+    while month <= until:
+        _sum_from(db, source, "day", "month", month, next_local_month(month, tz), WEB_HOUR_METRICS)
+        month = next_local_month(month, tz)
 
 
 def rollup(db: Session, since: datetime | None = None, now: datetime | None = None) -> int:

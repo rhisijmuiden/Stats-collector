@@ -14,6 +14,7 @@ interface InfoData {
   database?: string | null;
   os?: string;
   disk?: { total: number; free: number } | null;
+  client_ip?: string | null;
   jobs?: Job[];
 }
 
@@ -181,6 +182,8 @@ export default function InfoPage() {
                   <dd>{info.data.os}</dd>
                   <dt>{t("info.disk")}</dt>
                   <dd>{info.data.disk ? t("info.diskFree", { free: formatBytes(info.data.disk.free), total: formatBytes(info.data.disk.total) }) : "–"}</dd>
+                  <dt>{t("info.yourIp")}</dt>
+                  <dd title={t("info.yourIpHint")}><code>{info.data.client_ip ?? "–"}</code> <span className="muted small">{t("info.yourIpHint")}</span></dd>
                 </>
               )}
             </dl>

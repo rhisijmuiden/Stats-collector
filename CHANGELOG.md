@@ -47,6 +47,20 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Instelling voor de header met het echte IP-adres van de bezoeker achter Cloudflare (`SC_CLIENT_IP_HEADER`, bijv. `CF-Connecting-IP`).
 - `stats-collector demo-data` adds demo sources with a week of numbers to try out the dashboard.
   NL: `stats-collector demo-data` voegt demobronnen met een week aan cijfers toe om het dashboard uit te proberen.
+- WordPress plugin (Settings → Stats Collector): counts page views, unique visitors, reading time, read articles, share clicks, referrers and devices per article without cookies, and sends them every minute, signed with the site's secret. Download it under Sources.
+  NL: WordPress-plugin (Instellingen → Stats Collector): telt zonder cookies paginaweergaven, unieke bezoekers, leestijd, gelezen artikelen, deelkliks, verwijzers en apparaten per artikel, en stuurt ze elke minuut ondertekend met het geheim van de site. Te downloaden onder Bronnen.
+- Sources: WordPress sites with a site key and secret for the plugin.
+  NL: Bronnen: WordPress-sites met een sitesleutel en geheim voor de plugin.
+- Content page: top articles, broadcasts and streams per period, with filters for source, category and editor, and per item a chart, where readers came from and their devices.
+  NL: Contentpagina: top artikelen, uitzendingen en streams per periode, met filters op bron, categorie en redacteur, en per item een grafiek, waar lezers vandaan kwamen en hun apparaten.
+- Editors page: website numbers per editor. Admins and the editor-in-chief see everyone, an editor only their own numbers, staff no editor names at all (removed on the server).
+  NL: Redacteurenpagina: websitecijfers per redacteur. Beheerders en de hoofdredactie zien iedereen, een redacteur alleen de eigen cijfers, medewerkers helemaal geen namen van redacteuren (op de server verwijderd).
+- Authors are linked to their Stats Collector account by email address.
+  NL: Auteurs worden via hun e-mailadres aan hun Stats Collector-account gekoppeld.
+- Info shows the address the app sees for you, to check the reverse proxy and Cloudflare setup.
+  NL: Info toont het adres dat de app van jou ziet, om de reverse proxy en Cloudflare te controleren.
+- `stats-collector demo-data` also adds a demo website with a month of articles and editors.
+  NL: `stats-collector demo-data` voegt ook een demowebsite met een maand aan artikelen en redacteuren toe.
 
 ### Changed
 - Updates now also install the system services shipped with the new version and restart the worker.

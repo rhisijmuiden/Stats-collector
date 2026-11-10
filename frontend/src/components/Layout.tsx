@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  Archive, BookOpen, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, Users,
+  Archive, BookOpen, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users,
 } from "lucide-react";
 import { useApp } from "../lib/app";
 import { api, type User } from "../lib/api";
@@ -88,6 +88,8 @@ export default function Layout() {
         <Brand />
         <div className="nav-label">{t("nav.analytics")}</div>
         {item("/", LayoutDashboard, t("nav.dashboard"))}
+        {item("/content", FileText, t("nav.content"))}
+        {user.role !== "staff" && item("/editors", UserCheck, t("nav.editors"))}
         {isAdmin && (
           <>
             <div className="nav-label">{t("nav.administration")}</div>

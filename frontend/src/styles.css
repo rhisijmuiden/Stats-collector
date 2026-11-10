@@ -313,3 +313,26 @@ a.btn { text-decoration: none; justify-content: center; }
 .copy-field { display: flex; gap: 6px; }
 .copy-field input { flex: 1; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Content and editors */
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.filters select { width: auto; min-width: 150px; max-width: 100%; }
+.filters .search { flex: 1 1 220px; max-width: 360px; }
+.filters .search input { width: 100%; min-width: 0; }
+.search { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: var(--radius-control, 8px); padding: 0 10px; background: var(--surface); color: var(--muted); }
+.search input { border: 0; outline: 0; background: none; padding: 8px 0; min-width: 160px; color: var(--text); font: inherit; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: var(--surface-2); }
+.link-btn { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--text); text-align: left; cursor: pointer; }
+.link-btn:hover { color: var(--accent); text-decoration: underline; }
+.nowrap { white-space: nowrap; }
+.small-title { font-size: 14px; margin: 4px 0 8px; }
+.bars-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.bars-list li { position: relative; display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; border-radius: 6px; font-size: 13px; overflow: hidden; }
+.bars-list li > * { position: relative; }
+.bars-list .bar { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.meter-cell > div { display: flex; align-items: center; gap: 8px; min-width: 160px; }
+.meter-cell b { font-variant-numeric: tabular-nums; }
+.meter { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.modal:has(.chart) { width: min(920px, calc(100vw - 32px)); }

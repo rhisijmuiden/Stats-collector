@@ -6,7 +6,7 @@ import shutil
 from typing import Literal
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -56,7 +56,7 @@ def _disk() -> dict | None:
 
 
 @router.get("/info")
-def info(db: Session = Depends(get_db), user: User = Depends(current_user)) -> dict:
+def info(request: Request, db: Session = Depends(get_db), user: User = Depends(current_user)) -> dict:
     channel = settings_store.get_section(db, "updates")["channel"]
     data = {
         "build": build_info(),
@@ -69,6 +69,8 @@ def info(db: Session = Depends(get_db), user: User = Depends(current_user)) -> d
                 "database": _db_version(db),
                 "os": platform.platform(),
                 "disk": _disk(),
+                # The address the app sees for you, after the trusted-proxy rules: checks the proxy setup.
+                "client_ip": request.client.host if request.client else None,
                 "jobs": [job_out(j) for j in db.execute(select(OpsJob).order_by(OpsJob.id.desc()).limit(5)).scalars()],
             }
         )

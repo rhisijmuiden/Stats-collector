@@ -15,6 +15,7 @@ SLUG = re.compile(r"^[A-Za-z0-9-]+$")
 ORDER = [
     "README",
     "dashboard",
+    "content",
     "installation",
     "reverse-proxy",
     "users-and-roles",

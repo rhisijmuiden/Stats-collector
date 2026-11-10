@@ -56,3 +56,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: shellcheck -S warning install.sh scripts/*.sh
+
+  wordpress-plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax (PHP 8.1, the oldest supported)
+        run: |
+          docker run --rm -v "$PWD/wordpress-plugin:/p" -w /p php:8.1-cli sh -c 'for f in $(find . -name "*.php"); do php -l "$f" || exit 1; done'
+      - run: node --check wordpress-plugin/stats-collector/assets/tracker.js

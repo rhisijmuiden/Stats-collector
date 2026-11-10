@@ -16,13 +16,18 @@ The same manual opens inside the application through the **Help** button at the 
 6. [Backup and restore](backup.md)
 7. [Info, updates and the production/test channel](updates.md)
 
+## Using it
+
+- [Dashboard](dashboard.md)
+- [Content and editors](content.md)
+
 ## Connecting platforms
 
 | Platform | Page | Available from |
 | --- | --- | --- |
 | Microsoft 365 sign-in (Entra ID) | [Microsoft 365](microsoft-365.md) | Phase 1 (settings can be prepared now) |
 | Owncast and Icecast | [Owncast and Icecast](owncast-icecast.md) | Phase 1 |
-| WordPress (own plugin) | [WordPress](wordpress.md) | Phase 2 |
+| WordPress (own plugin) | [WordPress](wordpress.md) | Available |
 | YouTube | [YouTube](youtube.md) | Phase 2 (start Google verification now) |
 | Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Phase 3 (start Meta App Review now) |
 

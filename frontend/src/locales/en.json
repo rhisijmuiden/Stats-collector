@@ -27,7 +27,9 @@
     "info": "Info & updates",
     "profile": "My profile",
     "logout": "Sign out",
-    "sources": "Sources"
+    "sources": "Sources",
+    "content": "Content",
+    "editors": "Editors"
   },
   "roles": {
     "admin": "Admin",
@@ -75,13 +77,15 @@
       "24h": "24 hours",
       "7d": "7 days",
       "30d": "30 days",
-      "90d": "90 days"
+      "90d": "90 days",
+      "365d": "12 months"
     },
     "rangeLong": {
       "24h": "last 24 hours",
       "7d": "last 7 days",
       "30d": "last 30 days",
-      "90d": "last 90 days"
+      "90d": "last 90 days",
+      "365d": "last 12 months"
     },
     "noSourcesTitle": "No sources connected yet",
     "noSourcesText": "Add your Icecast and Owncast servers to see live listeners and viewers here. Website, YouTube and social media follow in the next phases.",
@@ -173,7 +177,9 @@
       "test": "Test release"
     },
     "running": "This version is running",
-    "installVersion": "Install {{version}}"
+    "installVersion": "Install {{version}}",
+    "yourIp": "Your address as seen by the app",
+    "yourIpHint": "Should be your own public IP address. If it is the proxy's address, check the trusted proxies."
   },
   "jobs": {
     "recent": "Recent tasks",
@@ -479,7 +485,11 @@
     "internal_error": "Unexpected error while collecting.",
     "unsupported_kind": "This kind of source is not supported yet.",
     "kind_cannot_change": "The kind of a source cannot be changed. Add a new source instead.",
-    "no_webhook": "This source has no webhook."
+    "no_webhook": "This source has no webhook.",
+    "test_in_wordpress": "Test the connection from WordPress (Settings → Stats Collector).",
+    "push_only": "This source sends its numbers itself.",
+    "no_site_key": "This source has no site key.",
+    "plugin_missing": "The plugin is not included in this installation."
   },
   "sources": {
     "title": "Sources",
@@ -490,14 +500,16 @@
     "kind": "Kind",
     "url": "Server address",
     "status": "Status",
-    "items": "Streams & broadcasts",
+    "items": "Items",
     "kinds": {
       "icecast": "Icecast (radio)",
-      "owncast": "Owncast (video)"
+      "owncast": "Owncast (video)",
+      "wordpress": "WordPress (website)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
-      "owncast": "The address of your Owncast server."
+      "owncast": "The address of your Owncast server.",
+      "wordpress": "The address of the website, e.g. https://www.example.org."
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -512,10 +524,10 @@
     "enabled": "Collect from this source",
     "disabled": "Paused",
     "ok": "Working",
-    "waiting": "Waiting for first poll",
+    "waiting": "Waiting for first data",
     "pollNow": "Poll now",
     "confirmDelete": "Delete {{name}} and all its numbers?",
-    "none": "No sources yet. Add an Icecast or Owncast server to start collecting.",
+    "none": "No sources yet. Add an Icecast or Owncast server or a WordPress site to start collecting.",
     "webhook": "Webhook for Owncast",
     "webhookHint": "In Owncast go to Integrations → Webhooks, add this URL and select Stream started and Stream stopped. Broadcasts then start and end on the minute.",
     "webhookAfterSave": "Shown after saving.",
@@ -528,6 +540,76 @@
     "testFailed": "Connection failed",
     "mountsFound": "Mounts on this server",
     "renew": "Renew",
-    "renewConfirm": "The old webhook URL stops working. Continue?"
+    "renewConfirm": "The old webhook URL stops working. Continue?",
+    "pluginVersion": "Plugin {{version}}",
+    "ingestUrl": "Stats Collector address for the plugin",
+    "siteKey": "Site key",
+    "siteSecret": "Secret",
+    "secretOnce": "Copy it now: it is shown only once. Paste it in WordPress under Settings → Stats Collector.",
+    "secretHidden": "The secret is stored encrypted and cannot be shown again. Lost it? Make a new key and paste both in WordPress.",
+    "renewKey": "New key and secret",
+    "renewKeyConfirm": "The plugin stops sending until you paste the new key and secret in WordPress. Continue?",
+    "wpSteps": "Install the plugin on the website (Plugins → Add new → Upload plugin), then paste these three values under Settings → Stats Collector and click Test connection.",
+    "wpAfterSave": "After saving you get the site key and secret for the plugin.",
+    "downloadPlugin": "Download WordPress plugin"
+  },
+  "content": {
+    "title": "Content",
+    "subtitle": "Top articles, broadcasts and streams for the chosen period.",
+    "search": "Search titles",
+    "source": "Source",
+    "allSources": "All sources",
+    "category": "Category",
+    "allCategories": "All categories",
+    "editor": "Editor",
+    "allEditors": "All editors",
+    "sortBy": "Sort",
+    "title_": "Title",
+    "authors": "Editors",
+    "published": "Published",
+    "views": "Views",
+    "visitors": "Visitors",
+    "avgRead": "Avg. reading time",
+    "reads": "Read",
+    "shares": "Shares",
+    "comments": "Comments",
+    "minutes": "Listen/watch min.",
+    "peak": "Peak",
+    "referrers": "Where visitors came from",
+    "devices": "Devices",
+    "noBreakdown": "No data in this period.",
+    "open": "Open",
+    "loading": "Loading…",
+    "noneTitle": "Nothing in this period",
+    "noneText": "No item has numbers for this period and filter. Connect a WordPress site under Sources, or choose a longer period.",
+    "sort": {
+      "views": "views",
+      "visitors": "visitors",
+      "read_seconds": "reading time",
+      "reads": "read",
+      "shares": "shares",
+      "comments": "comments",
+      "minutes": "listening/watching",
+      "published": "newest"
+    },
+    "device": {
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "direct": "Direct / unknown"
+    }
+  },
+  "editors": {
+    "title": "Editors",
+    "subtitle": "Website numbers per editor: their articles, readers and reading time.",
+    "subtitleOwn": "Your own website numbers.",
+    "ownOnly": "You see only your own numbers. Colleagues' numbers are visible to the editor-in-chief and admins.",
+    "name": "Editor",
+    "published": "Published",
+    "notLinked": "Not linked to a user",
+    "topArticles": "Best read articles",
+    "noneTitle": "No editors yet",
+    "noneText": "Editors appear when a WordPress site sends its first articles.",
+    "noneOwn": "No articles are linked to you yet. Your WordPress account needs the same email address as your account here."
   }
 }

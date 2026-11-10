@@ -5,12 +5,13 @@ import { chromium } from "playwright";
 const [base = "http://127.0.0.1:8080", setupLink] = process.argv.slice(2);
 const out = new URL("../../docs/manual/images/", import.meta.url).pathname;
 const SCREENS = [
-  ["/", "dashboard"], ["/admin/sources", "sources"], ["/admin/sso", "sso"],
+  ["/", "dashboard"], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/editors", "editors"],
+  ["/admin/sources", "sources"], ["/admin/sso", "sso"],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2 });
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2, timezoneId: "Europe/Amsterdam", locale: "en-GB" });
 const page = await ctx.newPage();
 const password = "screenshot-password-123";
 
@@ -39,9 +40,13 @@ for (const lang of ["en", "nl"]) {
       body: JSON.stringify({ language, theme: "light" }),
     });
   }, lang);
-  for (const [path, name] of SCREENS) {
+  for (const [path, name, click] of SCREENS) {
     await page.goto(base + path);
     await page.waitForLoadState("networkidle");
+    if (click) {
+      await page.locator(click).first().click();
+      await page.waitForLoadState("networkidle");
+    }
     await page.waitForTimeout(500);
     await page.screenshot({ path: `${out}${lang}-${name}.png` });
     console.log(`${lang}-${name}.png`);
