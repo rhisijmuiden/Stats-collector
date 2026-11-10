@@ -10,7 +10,7 @@ Group=statscollector
 EnvironmentFile=/etc/stats-collector/config.env
 Environment=SC_CONFIG_FILE=/etc/stats-collector/config.env
 WorkingDirectory=/opt/stats-collector/current
-ExecStart=/bin/sh -c 'exec /opt/stats-collector/current/venv/bin/uvicorn stats_collector.main:app --host "$SC_HOST" --port "$SC_PORT" --workers 2 --proxy-headers --forwarded-allow-ips "$SC_TRUSTED_PROXIES" --no-server-header'
+ExecStart=/bin/sh -c 'exec /opt/stats-collector/current/venv/bin/uvicorn stats_collector.main:app --host "$SC_HOST" --port "$SC_PORT" --workers 2 --no-proxy-headers --no-server-header'
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=yes

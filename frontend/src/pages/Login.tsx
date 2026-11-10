@@ -9,7 +9,10 @@ import { Brand, LanguageToggle } from "../components/Layout";
 
 export function Login() {
   const { t } = useTranslation();
-  const { user, setSession, needsSetup } = useApp();
+  const { user, setSession, needsSetup, sso } = useApp();
+  const [params] = useSearchParams();
+  const ssoError = params.get("sso_error");
+  const next = params.get("next") ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
@@ -50,6 +53,14 @@ export function Login() {
         </div>
         {needsSetup && <Alert kind="warning">{t("auth.needsSetup")}</Alert>}
         {error && <Alert kind="error">{error}</Alert>}
+        {ssoError && <Alert kind="error">{errorText(ssoError)}</Alert>}
+        {sso.enabled && (
+          <a className="btn" href={`/api/auth/entra/start?next=${encodeURIComponent(next)}`}>
+            <MicrosoftLogo /> {t("auth.signInMicrosoft")}
+          </a>
+        )}
+        {sso.enabled && sso.localLogin && <div className="divider-text">{t("auth.orLocal")}</div>}
+        {sso.enabled && !sso.localLogin && <p className="muted small">{t("auth.localAdminsOnly")}</p>}
         <Field label={t("auth.email")}>
           <input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
@@ -63,13 +74,19 @@ export function Login() {
               onChange={(e) => setTotp(e.target.value)} />
           </Field>
         )}
-        <button className="btn" disabled={busy}>{t("auth.signIn")}</button>
-        <button type="button" className="btn secondary" disabled title={t("auth.ssoSoon")}>
-          {t("auth.signInMicrosoft")}
-        </button>
+        <button className={sso.enabled ? "btn secondary" : "btn"} disabled={busy}>{t("auth.signIn")}</button>
       </form>
       <Toasts />
     </div>
+  );
+}
+
+function MicrosoftLogo() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 21 21" aria-hidden="true">
+      <rect x="1" y="1" width="9" height="9" fill="#f25022" /><rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+      <rect x="1" y="11" width="9" height="9" fill="#00a4ef" /><rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+    </svg>
   );
 }
 

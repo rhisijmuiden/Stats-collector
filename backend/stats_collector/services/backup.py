@@ -33,7 +33,7 @@ from . import settings_store
 from .ops import JobContext, JobFailed
 
 DEFAULT_PORTS = {"ftp": 21, "ftps": 21, "sftp": 22}
-APP_SERVICES = ("stats-collector-web",)
+APP_SERVICES = ("stats-collector-web", "stats-collector-worker")
 
 
 # --- rclone configuration ------------------------------------------------------------------------------

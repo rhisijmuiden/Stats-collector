@@ -18,7 +18,35 @@ from .ops import JobContext, JobFailed
 from .updates import fetch_releases, parse_version
 
 APP_USER = "statscollector"
-SERVICES = ("stats-collector-web",)
+SERVICES = ("stats-collector-web", "stats-collector-worker")
+UNIT_DIR = Path("/etc/systemd/system")
+UNIT_SUFFIXES = (".service", ".path", ".timer")
+OPTIONAL_UNITS = ("stats-collector-worker.service",)  # not present in every release
+
+
+def install_units(ctx: JobContext, root: Path) -> list[str]:
+    """Install the systemd units shipped with a release; returns the app services to (re)start."""
+    src = root / "deploy" / "systemd"
+    names = sorted(f.name for f in src.glob("*") if f.suffix in UNIT_SUFFIXES) if src.is_dir() else []
+    for name in names:
+        dest = UNIT_DIR / name
+        data = (src / name).read_bytes()
+        if not dest.exists() or dest.read_bytes() != data:
+            dest.write_bytes(data)
+            os.chmod(dest, 0o644)
+            ctx.log(f"installed unit {name}")
+    for name in OPTIONAL_UNITS:
+        if name not in names and (UNIT_DIR / name).exists():
+            ctx.run(["systemctl", "disable", "--now", name], check=False)
+            (UNIT_DIR / name).unlink(missing_ok=True)
+            ctx.log(f"removed unit {name}")
+    ctx.run(["systemctl", "daemon-reload"], check=False)
+    for name in OPTIONAL_UNITS:
+        if name in names:
+            ctx.run(["systemctl", "enable", name], check=False)
+    return [svc for svc in SERVICES if f"{svc}.service" in names] or ["stats-collector-web"]
+
+
 KEEP_RELEASES = 3
 
 
@@ -156,7 +184,8 @@ def run_update(ctx: JobContext, params: dict) -> dict:
         else:
             ctx.run([str(target / "venv/bin/stats-collector"), "migrate"], as_user=APP_USER)
         previous = switch_current(target)
-        for svc in SERVICES:
+        services = install_units(ctx, target)
+        for svc in services:
             ctx.run(["systemctl", "restart", svc])
         if not _health(settings.port, version):
             raise JobFailed("new version did not become healthy")
@@ -164,14 +193,16 @@ def run_update(ctx: JobContext, params: dict) -> dict:
         ctx.log(f"update failed ({exc}); rolling back")
         for svc in SERVICES:
             ctx.run(["systemctl", "stop", svc], check=False)
+        services = list(SERVICES)
         if old_root is not None:
             switch_current(old_root)
+            services = install_units(ctx, old_root)
         ctx.run(
             ["pg_restore", "--clean", "--if-exists", "--single-transaction", "-d", _db_name(), str(dump)],
             as_user="postgres",
             check=False,
         )
-        for svc in SERVICES:
+        for svc in services:
             ctx.run(["systemctl", "restart", svc], check=False)
         raise
     prune_releases({target.resolve(), *([previous] if previous else [])})

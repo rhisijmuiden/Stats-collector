@@ -8,6 +8,7 @@ import SsoPage from "./pages/Sso";
 import Branding from "./pages/Branding";
 import Email from "./pages/Email";
 import Backup from "./pages/Backup";
+import Sources from "./pages/Sources";
 import GeneralSettings from "./pages/GeneralSettings";
 import InfoPage from "./pages/Info";
 import Help from "./pages/Help";
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="help" element={<Help />} />
         <Route path="help/:slug" element={<Help />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="admin/sources" element={<AdminOnly><Sources /></AdminOnly>} />
         <Route path="admin/users" element={<AdminOnly><Users /></AdminOnly>} />
         <Route path="admin/sso" element={<AdminOnly><SsoPage /></AdminOnly>} />
         <Route path="admin/branding" element={<AdminOnly><Branding /></AdminOnly>} />

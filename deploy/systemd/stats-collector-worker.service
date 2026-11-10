@@ -1,0 +1,30 @@
+[Unit]
+Description=Stats Collector worker and scheduler (polls sources, rollups)
+After=network-online.target postgresql.service redis-server.service
+Wants=network-online.target redis-server.service
+
+[Service]
+Type=simple
+User=statscollector
+Group=statscollector
+EnvironmentFile=/etc/stats-collector/config.env
+Environment=SC_CONFIG_FILE=/etc/stats-collector/config.env
+WorkingDirectory=/var/lib/stats-collector
+ExecStart=/opt/stats-collector/current/venv/bin/celery -A stats_collector.worker worker --beat --concurrency 4 --loglevel INFO --without-gossip --without-mingle
+Restart=on-failure
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=30
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/stats-collector /var/log/stats-collector
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

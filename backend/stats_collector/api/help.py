@@ -14,6 +14,7 @@ MANUAL = APP_ROOT / "docs" / "manual"
 SLUG = re.compile(r"^[A-Za-z0-9-]+$")
 ORDER = [
     "README",
+    "dashboard",
     "installation",
     "reverse-proxy",
     "users-and-roles",

@@ -5,7 +5,19 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import JSON, BigInteger, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -144,3 +156,137 @@ class BackupRecord(Base):
     targets: Mapped[Any] = mapped_column(JSON, default=list)
     app_version: Mapped[str] = mapped_column(String(64), default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# --- Data collection (phase 1) -------------------------------------------------------------
+
+BIGID = BigInteger().with_variant(Integer, "sqlite")
+
+SOURCE_KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram")
+
+# Canonical categories every platform metric is mapped to, so channels can be stacked.
+CATEGORIES = ("live_audience", "reach", "views", "interactions", "watch_time", "followers")
+
+
+class Source(Base):
+    """A configured connector instance, e.g. one Icecast server or one Owncast server."""
+
+    __tablename__ = "sources"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    kind: Mapped[str] = mapped_column(String(32))
+    name: Mapped[str] = mapped_column(String(200))
+    config: Mapped[Any] = mapped_column(JSON, default=dict)  # url, mounts, ...
+    secret_enc: Mapped[str | None] = mapped_column(Text, nullable=True)  # encrypted JSON with passwords/tokens
+    webhook_token: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    poll_seconds: Mapped[int] = mapped_column(Integer, default=30)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_poll_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_ok_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ContentItem(Base):
+    """Something numbers belong to: a mount, a broadcast, a post, a video or an article."""
+
+    __tablename__ = "content_items"
+    __table_args__ = (UniqueConstraint("source_id", "external_id", name="uq_items_source_external"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(32))  # mount | broadcast | post | video | article
+    external_id: Mapped[str] = mapped_column(String(255))
+    title: Mapped[str] = mapped_column(String(500), default="")
+    url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    tags: Mapped[Any] = mapped_column(JSON, default=list)
+    meta: Mapped[Any] = mapped_column(JSON, default=dict)
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Person(Base):
+    """An editor or creator; linked to a WordPress user and optionally an app user."""
+
+    __tablename__ = "people"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    display_name: Mapped[str] = mapped_column(String(200))
+    email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    external_ids: Mapped[Any] = mapped_column(JSON, default=dict)  # e.g. {"wordpress:3": 12}
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ItemPerson(Base):
+    __tablename__ = "item_people"
+
+    item_id: Mapped[int] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), primary_key=True)
+    person_id: Mapped[int] = mapped_column(ForeignKey("people.id", ondelete="CASCADE"), primary_key=True)
+    role: Mapped[str] = mapped_column(String(32), primary_key=True, default="author")  # author | coauthor | presenter
+
+
+class ItemLink(Base):
+    """Links items across platforms, e.g. a Facebook post pointing to an article."""
+
+    __tablename__ = "item_links"
+
+    from_item_id: Mapped[int] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), primary_key=True)
+    to_item_id: Mapped[int] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), primary_key=True)
+    method: Mapped[str] = mapped_column(String(16), default="url")  # url | tracking | manual
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class MetricDefinition(Base):
+    __tablename__ = "metric_definitions"
+    __table_args__ = (UniqueConstraint("platform", "key", name="uq_metric_platform_key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    platform: Mapped[str] = mapped_column(String(32))
+    key: Mapped[str] = mapped_column(String(100))
+    unit: Mapped[str] = mapped_column(String(16), default="count")  # count | minutes | seconds
+    aggregation: Mapped[str] = mapped_column(String(8), default="sum")  # sum | avg | max | gauge
+    category: Mapped[str] = mapped_column(String(32))
+    label_en: Mapped[str] = mapped_column(String(200))
+    label_nl: Mapped[str] = mapped_column(String(200))
+
+
+class StreamSample(Base):
+    """Raw Owncast/Icecast sample (every poll, ~30 s). Kept for one year."""
+
+    __tablename__ = "stream_samples"
+    __table_args__ = (Index("ix_samples_source_ts", "source_id", "ts"),)
+
+    id: Mapped[int] = mapped_column(BIGID, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), default=DEFAULT_TENANT_ID)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("content_items.id", ondelete="SET NULL"), nullable=True)
+    ts: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    online: Mapped[bool] = mapped_column(Boolean, default=True)
+    value: Mapped[float] = mapped_column(Float, default=0)  # listeners or viewers at ts
+    extra: Mapped[Any] = mapped_column(JSON, default=dict)
+
+
+class MetricPoint(Base):
+    """Aggregated values per time bucket (hour/day/month). Kept forever."""
+
+    __tablename__ = "metric_points"
+    __table_args__ = (
+        Index("ix_points_lookup", "tenant_id", "metric", "granularity", "bucket"),
+        Index("ix_points_source", "source_id", "granularity", "bucket"),
+    )
+
+    id: Mapped[int] = mapped_column(BIGID, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), default=DEFAULT_TENANT_ID)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), nullable=True)
+    metric: Mapped[str] = mapped_column(String(100))
+    granularity: Mapped[str] = mapped_column(String(8))  # hour | day | month
+    bucket: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    value: Mapped[float] = mapped_column(Float, default=0)

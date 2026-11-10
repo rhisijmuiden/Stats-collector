@@ -23,6 +23,16 @@ Check it: open `https://stats.example.org`. Under **Info & updates** the page lo
 
 The app only believes the `X-Forwarded-For` and `X-Forwarded-Proto` headers when they come from an IP in `SC_TRUSTED_PROXIES`. Anyone else could otherwise pretend to be another IP address, for example to dodge the login rate limit.
 
+### Cloudflare in front of the proxy: the real visitor IP
+
+When the public address goes through Cloudflare, `X-Forwarded-For` holds a Cloudflare address instead of the visitor's. Cloudflare sends the real address in the `CF-Connecting-IP` header. Tell Stats Collector to use it by adding this line to `/etc/stats-collector/config.env` (or run the installer with `--client-ip-header CF-Connecting-IP`):
+
+```
+SC_CLIENT_IP_HEADER=CF-Connecting-IP
+```
+
+and run `systemctl restart stats-collector-web`. The header is only read on requests from a trusted proxy, so it cannot be faked from outside. The audit log and the login rate limit then see the real visitor addresses.
+
 ### Firewall
 
 When Zoraxy runs on another machine, only Zoraxy needs to reach port 8080. Run the installer again with `--firewall` to have nftables enforce this.

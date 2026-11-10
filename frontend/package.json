@@ -12,6 +12,7 @@
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource-variable/space-grotesk": "^5.1.0",
+    "echarts": "^5.5.1",
     "i18next": "^23.16.0",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
