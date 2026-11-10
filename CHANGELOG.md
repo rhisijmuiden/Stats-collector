@@ -39,3 +39,5 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ### Changed
 - Releases are built by pushing a version tag (`vX.Y.Z-rc.N` for a test build, `vX.Y.Z` for production).
   NL: Releases worden gebouwd door een versietag te pushen (`vX.Y.Z-rc.N` voor een testversie, `vX.Y.Z` voor productie).
+- A release created by hand on GitHub (Releases → Draft a new release) is filled in automatically with notes and the package.
+  NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
