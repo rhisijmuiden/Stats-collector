@@ -37,6 +37,9 @@ TARBALL=""
 FIREWALL=0
 YES=0
 
+# A UTF-8 locale for everything we start (PostgreSQL clusters created under LANG=C would be SQL_ASCII).
+export LANG=C.UTF-8 LC_ALL=C.UTF-8
+
 c_ok=$'\e[32m'; c_warn=$'\e[33m'; c_err=$'\e[31m'; c_b=$'\e[1m'; c_0=$'\e[0m'
 step() { echo; echo "${c_b}==> $*${c_0}"; }
 ok() { echo "${c_ok}✓${c_0} $*"; }
@@ -170,9 +173,17 @@ for _ in $(seq 1 30); do runuser -u postgres -- pg_isready -q && break; sleep 1;
 runuser -u postgres -- psql -qtAc "SELECT 1 FROM pg_roles WHERE rolname='$DB_USER'" | grep -q 1 \
   || runuser -u postgres -- psql -qc "CREATE ROLE $DB_USER LOGIN"
 runuser -u postgres -- psql -qc "ALTER ROLE $DB_USER WITH PASSWORD '$DB_PASS'"
-runuser -u postgres -- psql -qtAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1 \
-  || runuser -u postgres -- createdb -O "$DB_USER" "$DB_NAME"
-ok "PostgreSQL database $DB_NAME"
+ENC="$(runuser -u postgres -- psql -qtAc "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname='$DB_NAME'")"
+if [ -n "$ENC" ] && [ "$ENC" != UTF8 ]; then
+  # Happens when PostgreSQL was installed under a non-UTF-8 locale. Recreate the database if it is still empty.
+  TABLES="$(runuser -u postgres -- psql -qtAc "SELECT count(*) FROM pg_tables WHERE schemaname='public'" -d "$DB_NAME")"
+  [ "$TABLES" = 0 ] || die "Database $DB_NAME uses encoding $ENC instead of UTF8 and already contains data. Convert it manually."
+  warn "Database $DB_NAME was created as $ENC; recreating it as UTF-8."
+  runuser -u postgres -- dropdb "$DB_NAME"
+  ENC=""
+fi
+[ -n "$ENC" ] || runuser -u postgres -- createdb -O "$DB_USER" -E UTF8 --locale=C.UTF-8 -T template0 "$DB_NAME"
+ok "PostgreSQL database $DB_NAME (UTF-8)"
 
 step "Backups (pgBackRest)"
 PG_DATA="/var/lib/postgresql/$PG_VER/main"
