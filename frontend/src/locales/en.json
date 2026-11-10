@@ -51,7 +51,9 @@
     "instagram": "Instagram",
     "youtube": "YouTube",
     "owncast": "Owncast",
-    "icecast": "Icecast"
+    "icecast": "Icecast",
+    "bluesky": "Bluesky",
+    "mastodon": "Mastodon"
   },
   "auth": {
     "signIn": "Sign in",
@@ -536,7 +538,13 @@
     "end_before_start": "The end date must be after the start date.",
     "link_kinds": "Only a post or video can be linked to an article.",
     "icecast_no_status": "This server has no public status page (status-json.xsl). Enter the Icecast admin user and password, then the numbers are read from admin/stats.",
-    "invalid_ip": "Enter IP addresses or networks, separated by commas."
+    "invalid_ip": "Enter IP addresses or networks, separated by commas.",
+    "invalid_handle": "Enter a Bluesky handle such as @name.bsky.social.",
+    "invalid_account": "Enter a Mastodon account such as @name@mastodon.social.",
+    "masto_token_needed": "This Mastodon server only answers with an access token. Add one under Access token.",
+    "social_account_not_found": "The account was not found. Check the handle or the server.",
+    "social_forbidden": "The platform refused the request.",
+    "social_rate_limit": "The platform asks us to slow down; the next sync tries again."
   },
   "sources": {
     "title": "Sources",
@@ -554,7 +562,9 @@
       "wordpress": "WordPress (website)",
       "youtube": "YouTube (channel)",
       "facebook": "Facebook (Page)",
-      "instagram": "Instagram (account)"
+      "instagram": "Instagram (account)",
+      "bluesky": "Bluesky (account)",
+      "mastodon": "Mastodon (account)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
@@ -562,7 +572,9 @@
       "wordpress": "The address of the website, e.g. https://www.example.org.",
       "youtube": "",
       "facebook": "",
-      "instagram": ""
+      "instagram": "",
+      "bluesky": "",
+      "mastodon": "The Mastodon server, e.g. https://mastodon.social. Filled in for you when you enter @name@server."
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -648,7 +660,21 @@
     "metaMetricNames": "Metric names",
     "metaMetricNamesHint": "Meta renames metrics now and then. Stats Collector tries the known names itself; fill in a name only when Meta announces a new one.",
     "metaAutomatic": "automatic",
-    "metaUnsupported": "not available"
+    "metaUnsupported": "not available",
+    "bskyHandle": "Bluesky handle",
+    "bskyHandleHint": "For example @ournews.bsky.social, your own domain, or the profile link. No login or app needed.",
+    "mastoAccount": "Mastodon account",
+    "mastoAccountHint": "For example @ournews@mastodon.social or the profile link.",
+    "mastoServer": "Server",
+    "mastoToken": "Access token (optional)",
+    "mastoTokenHint": "Only needed when the server does not show the account publicly. Make one under Preferences → Development → New application, with only the read scope.",
+    "socialInfo": "Bluesky and Mastodon do not report views or reach. You get likes, reposts or boosts, replies and the number of followers, per post and per day.",
+    "socialConnected": "Reading {{account}}",
+    "socialStats": "{{followers}} followers",
+    "socialHistoryDone": "Posts of the past year are in; new numbers every hour.",
+    "socialHistoryBusy": "Reading older posts (up to one year back)…",
+    "socialAfterSave": "After saving, the first numbers come in within a few minutes.",
+    "testFollowers": "{{followers}} followers"
   },
   "content": {
     "title": "Content",
@@ -733,7 +759,9 @@
     "platform": {
       "facebook": "Facebook",
       "instagram": "Instagram",
-      "youtube": "YouTube"
+      "youtube": "YouTube",
+      "bluesky": "Bluesky",
+      "mastodon": "Mastodon"
     },
     "socialSub_one": "{{count}} post · {{likes}} likes",
     "socialSub_other": "{{count}} posts · {{likes}} likes",
@@ -753,7 +781,18 @@
     "ig_comments": "Comments",
     "ig_shares": "Shares",
     "ig_saves": "Saves",
-    "ig_profile_views": "Profile visits"
+    "ig_profile_views": "Profile visits",
+    "bsky_likes": "Likes",
+    "bsky_reposts": "Reposts",
+    "bsky_replies": "Replies",
+    "bsky_quotes": "Quotes",
+    "bsky_follows": "New followers (net)",
+    "bsky_followers": "Followers",
+    "masto_favourites": "Favourites",
+    "masto_boosts": "Boosts",
+    "masto_replies": "Replies",
+    "masto_follows": "New followers (net)",
+    "masto_followers": "Followers"
   },
   "followers": {
     "title": "Followers",
@@ -924,7 +963,9 @@
       "youtube": "YouTube",
       "owncast": "Owncast",
       "icecast": "Icecast",
-      "total": "Total"
+      "total": "Total",
+      "bluesky": "Bluesky",
+      "mastodon": "Mastodon"
     },
     "splits": {
       "platform": "Platform",

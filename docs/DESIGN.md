@@ -5,7 +5,7 @@ The living (Dutch) version of this document, with architecture and roadmap diagr
 
 ## Summary
 
-Stats Collector is a self-hosted web application for Debian 13 (Trixie). It collects reach, engagement and audience numbers from WordPress, Facebook, Instagram, YouTube, Owncast and Icecast, normalises them, and combines them in one BI dashboard with stacked, overlaid or separate charts. Reports are composed in the app and sent on demand or on a schedule through Microsoft 365.
+Stats Collector is a self-hosted web application for Debian 13 (Trixie). It collects reach, engagement and audience numbers from WordPress, Facebook, Instagram, YouTube, X, LinkedIn, TikTok, Threads, Bluesky, Mastodon, Owncast and Icecast, normalises them, and combines them in one BI dashboard with stacked, overlaid or separate charts. Reports are composed in the app and sent on demand or on a schedule through Microsoft 365.
 
 Key decisions:
 
@@ -18,7 +18,7 @@ Key decisions:
 ## Architecture
 
 ```
- WordPress   Facebook   Instagram   YouTube   Owncast   Icecast
+ WordPress   Facebook   Instagram   YouTube   Owncast   Icecast    (+ X, LinkedIn, TikTok, Threads, Bluesky, Mastodon: pull)
   (push)      (pull)     (pull)     (pull)    (pull)    (pull)
      \__________|__________|__________|_________|_________/
                               |
@@ -57,7 +57,13 @@ Every source is a backend connector with the same shape: settings, a "test conne
 | Instagram | Graph API via the same Meta app (business account) | Followers, profile visits, reach, likes, comments, shares, saves, views (incl. reels, stories) | Per post | Ships with Facebook in phase 3 |
 | YouTube | Data API v3 + Analytics API (channel owner OAuth) | Subscribers gained/lost, views, watch time, avg view duration, likes, comments, shares | Per video | Daily quota; Analytics lags 1 to 2 days |
 | Owncast (2 to 5) | Admin API polled every 30 s + webhooks for stream start/stop | Live viewers, peak, viewer minutes, session duration | Per broadcast | Each broadcast becomes an item |
-| Icecast (2 to 5 mounts) | `status-json.xsl` every 30 s + `admin/listclients` | Listeners per mount, peak, listener minutes, avg listening time, user agents | Per mount | Admin password needed for per-client duration |
+| Icecast (2 to 5 mounts) | `status-json.xsl` every 30 s + `admin/listclients`; `admin/stats` when the host removed `status-json.xsl` | Listeners per mount, peak, listener minutes, avg listening time, user agents | Per mount | Admin password needed for per-client duration (and for `admin/stats`) |
+| Threads | Threads API via the same Meta app (`threads_basic`, `threads_manage_insights`) | Followers, views, likes, replies, reposts, quotes, clicks | Per post | Phase 3f. Insights from 13 April 2024 onwards |
+| Bluesky | Public AppView API (`app.bsky.feed.getAuthorFeed`, `getProfile`), no login | Followers, likes, reposts, replies, quotes | Per post | Phase 3f. Free; no views or reach |
+| Mastodon | Server REST API with a read-only access token | Followers, favourites, boosts, replies | Per post | Phase 3f. Free, per server; no views or reach |
+| X | X API v2 with user OAuth 2.0 (owner's account): `users/me`, `users/:id/tweets` with `public_metrics` and `non_public_metrics` | Followers, impressions, likes, reposts, replies, quotes, bookmarks, link clicks | Per post | Phase 3f. Pay-per-use credits since Feb 2026 (about $0.005 per post read); posts are refreshed for 7 days, a monthly budget cap stops collection before it runs out |
+| LinkedIn (company page) | Community Management API (organization follower, page and share statistics) | Followers, page views, impressions, clicks, reactions, comments, shares, video views | Per post | Phase 3f. Vetted product: a new developer app, Development tier, then Standard tier with a screencast; weeks of review |
+| TikTok | Display API with the owner's login (`user.info.stats`, `video.list`) | Followers, likes, views, likes, comments, shares per video | Per video | Phase 3f. App review needed; no daily history, so daily numbers are computed from the change in totals |
 
 ## Data model
 
@@ -184,6 +190,7 @@ A full manual with screenshots, hosted on GitHub Pages and opened from a **Help*
 | 1 · Data and streams | Data model, worker, scheduler, Icecast and Owncast connectors, first dashboard, Entra ID SSO | Live viewer and listener numbers |
 | 2 · Website and video | WordPress plugin, YouTube connector, articles and editors, top lists per item | Numbers per article |
 | 3 · Facebook + builder | Facebook + Instagram connectors, dashboard builder (stack/overlay/legend), linking posts to articles, followers and goals, live wall on 8081 | One total reach |
+| 3f · More social media | Threads, Bluesky, Mastodon, then X (pay-per-use), then LinkedIn and TikTok once their app review is approved; all in the canonical measures, goals, post-to-article links and dashboards | Every channel the newsroom posts on |
 | 4 · Reports | Report builder, interactive HTML and PDF, schedules and recipients, mail via Graph and SMTP | Monthly report in the inbox |
 | 5 · Go-live | Backup/restore FTP/FTPS/SCP, updates from the UI, production and test channel, security review | In production |
 | Later · Multi-tenant | Fully separated customers with their own brand, SSO and mailbox | |
@@ -197,6 +204,8 @@ A first live wall with website, Owncast and Icecast can ship after phase 2.
 | App and repo name | Stats Collector, `stats-collector` |
 | Meta Business verification | Verified; App Review starts in phase 0 |
 | Instagram | Included in phase 3 via the same Meta app |
+| X, LinkedIn and other social media | Added as phase 3f (requested 2026-11-10): Threads, Bluesky, Mastodon first (free, no review), then X (pay-per-use, about $30-40 a month estimated), then LinkedIn and TikTok after app review |
+| Icecast without `status-json.xsl` | The IJmond360 host removed it; the connector falls back to `admin/stats` with the admin login |
 | Number of sources | 2 to 5 each of WordPress sites, Owncast servers, Icecast mounts |
 | Report mailbox | Not decided; configurable at install |
 | Data retention | Raw samples 1 year, hourly/daily totals forever |

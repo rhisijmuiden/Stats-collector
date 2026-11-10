@@ -2,7 +2,7 @@
 
 ## Volgers
 
-**Analyse → Volgers** toont hoe het aantal YouTube-abonnees en Facebook- en Instagram-volgers groeit, per kanaal en voor alle kanalen samen. Iedereen kan deze pagina openen.
+**Analyse → Volgers** toont hoe het aantal YouTube-abonnees en Facebook-, Instagram-, Bluesky- en Mastodon-volgers groeit, per kanaal en voor alle kanalen samen. Iedereen kan deze pagina openen.
 
 ![Volgers](../images/nl-followers.png)
 
@@ -25,7 +25,7 @@ Een doel meet een van deze, over alle kanalen of de kanalen die je kiest:
 | Volgers | het aantal volgers en abonnees het doel haalt |
 | Weergaven | pagina-, video- en berichtweergaven vanaf de startdatum samen het doel halen |
 | Bereik | websitebezoekers en sociaal bereik per dag vanaf de startdatum samen het doel halen |
-| Interacties | likes, reacties, opmerkingen, keren gedeeld en opgeslagen vanaf de startdatum samen het doel halen |
+| Interacties | likes, reacties, opmerkingen, keren gedeeld en opgeslagen (Bluesky en Mastodon: likes of favorieten, reposts of boosts, antwoorden en citaten) vanaf de startdatum samen het doel halen |
 | Luister- en kijkminuten | live minuten en YouTube-kijktijd vanaf de startdatum samen het doel halen |
 
 Elke doelkaart toont de waarde nu, het doel, een voortgangsbalk en een status:

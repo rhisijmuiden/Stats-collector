@@ -20,6 +20,10 @@ from ..models import ContentItem, DimensionPoint, ItemLink, ItemPerson, MetricPo
 from ..security import current_user, require_role
 from ..services import links as link_svc
 from ..services.metrics import (
+    BSKY_LIKES,
+    BSKY_QUOTES,
+    BSKY_REPLIES,
+    BSKY_REPOSTS,
     FB_CLICKS,
     FB_COMMENTS,
     FB_REACH,
@@ -34,6 +38,9 @@ from ..services.metrics import (
     IG_VIEWS,
     LIVE_MINUTES,
     LIVE_PEAK,
+    MASTO_BOOSTS,
+    MASTO_FAVOURITES,
+    MASTO_REPLIES,
     WEB_COMMENTS,
     WEB_READ_SECONDS,
     WEB_READS,
@@ -92,6 +99,13 @@ METRIC_NAMES = {
     FB_REACTIONS: "likes",
     IG_LIKES: "likes",
     IG_SAVES: "saves",
+    BSKY_LIKES: "likes",
+    MASTO_FAVOURITES: "likes",
+    BSKY_REPOSTS: "shares",
+    BSKY_QUOTES: "shares",
+    MASTO_BOOSTS: "shares",
+    BSKY_REPLIES: "comments",
+    MASTO_REPLIES: "comments",
     FB_CLICKS: "clicks",
     LIVE_MINUTES: "minutes",
     YT_WATCH_MINUTES: "minutes",
@@ -100,7 +114,7 @@ METRIC_NAMES = {
 TOTALS = tuple(dict.fromkeys(METRIC_NAMES.values()))
 SEES_ALL = ("admin", "editor_in_chief")
 can_link = require_role("admin", "editor_in_chief", "editor")
-SOCIAL_SOURCES = ("facebook", "instagram", "youtube")
+SOCIAL_SOURCES = ("facebook", "instagram", "youtube", "bluesky", "mastodon")
 
 
 def _aware(dt: datetime) -> datetime:

@@ -51,7 +51,9 @@
     "instagram": "Instagram",
     "youtube": "YouTube",
     "owncast": "Owncast",
-    "icecast": "Icecast"
+    "icecast": "Icecast",
+    "bluesky": "Bluesky",
+    "mastodon": "Mastodon"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -536,7 +538,13 @@
     "end_before_start": "De einddatum moet na de startdatum liggen.",
     "link_kinds": "Alleen een bericht of video kan aan een artikel gekoppeld worden.",
     "icecast_no_status": "Deze server heeft geen openbare statuspagina (status-json.xsl). Vul de beheerder-gebruikersnaam en het wachtwoord van Icecast in, dan worden de cijfers uit admin/stats gelezen.",
-    "invalid_ip": "Vul IP-adressen of netwerken in, gescheiden door komma's."
+    "invalid_ip": "Vul IP-adressen of netwerken in, gescheiden door komma's.",
+    "invalid_handle": "Vul een Bluesky-handle in, zoals @naam.bsky.social.",
+    "invalid_account": "Vul een Mastodon-account in, zoals @naam@mastodon.social.",
+    "masto_token_needed": "Deze Mastodon-server antwoordt alleen met een toegangstoken. Vul er een in bij Toegangstoken.",
+    "social_account_not_found": "Het account is niet gevonden. Controleer de handle of de server.",
+    "social_forbidden": "Het platform weigerde het verzoek.",
+    "social_rate_limit": "Het platform vraagt om het rustiger aan te doen; de volgende synchronisatie probeert het opnieuw."
   },
   "sources": {
     "title": "Bronnen",
@@ -554,7 +562,9 @@
       "wordpress": "WordPress (website)",
       "youtube": "YouTube (kanaal)",
       "facebook": "Facebook (pagina)",
-      "instagram": "Instagram (account)"
+      "instagram": "Instagram (account)",
+      "bluesky": "Bluesky (account)",
+      "mastodon": "Mastodon (account)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
@@ -562,7 +572,9 @@
       "wordpress": "Het adres van de website, bijvoorbeeld https://www.example.org.",
       "youtube": "",
       "facebook": "",
-      "instagram": ""
+      "instagram": "",
+      "bluesky": "",
+      "mastodon": "De Mastodon-server, bijv. https://mastodon.social. Wordt voor je ingevuld als je @naam@server invult."
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -648,7 +660,21 @@
     "metaMetricNames": "Namen van metrics",
     "metaMetricNamesHint": "Meta hernoemt af en toe metrics. Stats Collector probeert zelf de bekende namen; vul alleen een naam in als Meta een nieuwe aankondigt.",
     "metaAutomatic": "automatisch",
-    "metaUnsupported": "niet beschikbaar"
+    "metaUnsupported": "niet beschikbaar",
+    "bskyHandle": "Bluesky-handle",
+    "bskyHandleHint": "Bijvoorbeeld @onzekrant.bsky.social, je eigen domein of de profiellink. Geen login of app nodig.",
+    "mastoAccount": "Mastodon-account",
+    "mastoAccountHint": "Bijvoorbeeld @onzekrant@mastodon.social of de profiellink.",
+    "mastoServer": "Server",
+    "mastoToken": "Toegangstoken (optioneel)",
+    "mastoTokenHint": "Alleen nodig als de server het account niet openbaar toont. Maak er een aan onder Voorkeuren → Ontwikkelen → Nieuwe applicatie, met alleen de scope read.",
+    "socialInfo": "Bluesky en Mastodon geven geen weergaven of bereik. Je krijgt likes, reposts of boosts, antwoorden en het aantal volgers, per bericht en per dag.",
+    "socialConnected": "Leest {{account}}",
+    "socialStats": "{{followers}} volgers",
+    "socialHistoryDone": "Berichten van het afgelopen jaar zijn binnen; elk uur nieuwe cijfers.",
+    "socialHistoryBusy": "Oudere berichten worden gelezen (tot een jaar terug)…",
+    "socialAfterSave": "Na het opslaan komen de eerste cijfers binnen een paar minuten binnen.",
+    "testFollowers": "{{followers}} volgers"
   },
   "content": {
     "title": "Content",
@@ -733,7 +759,9 @@
     "platform": {
       "facebook": "Facebook",
       "instagram": "Instagram",
-      "youtube": "YouTube"
+      "youtube": "YouTube",
+      "bluesky": "Bluesky",
+      "mastodon": "Mastodon"
     },
     "socialSub_one": "{{count}} bericht · {{likes}} likes",
     "socialSub_other": "{{count}} berichten · {{likes}} likes",
@@ -753,7 +781,18 @@
     "ig_comments": "Opmerkingen",
     "ig_shares": "Keren gedeeld",
     "ig_saves": "Opgeslagen",
-    "ig_profile_views": "Profielbezoeken"
+    "ig_profile_views": "Profielbezoeken",
+    "bsky_likes": "Likes",
+    "bsky_reposts": "Reposts",
+    "bsky_replies": "Antwoorden",
+    "bsky_quotes": "Citaten",
+    "bsky_follows": "Nieuwe volgers (netto)",
+    "bsky_followers": "Volgers",
+    "masto_favourites": "Favorieten",
+    "masto_boosts": "Boosts",
+    "masto_replies": "Antwoorden",
+    "masto_follows": "Nieuwe volgers (netto)",
+    "masto_followers": "Volgers"
   },
   "followers": {
     "title": "Volgers",
@@ -924,7 +963,9 @@
       "youtube": "YouTube",
       "owncast": "Owncast",
       "icecast": "Icecast",
-      "total": "Totaal"
+      "total": "Totaal",
+      "bluesky": "Bluesky",
+      "mastodon": "Mastodon"
     },
     "splits": {
       "platform": "Platform",

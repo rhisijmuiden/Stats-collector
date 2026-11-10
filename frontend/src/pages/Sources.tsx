@@ -1,14 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Download, Facebook, Globe, Instagram, KeyRound, Link2, Pencil, PlugZap, Plus, Radio, RefreshCw, Trash2, Tv, Unlink, Youtube } from "lucide-react";
+import { AtSign, Cloud, Copy, Download, Facebook, Globe, Instagram, KeyRound, Link2, Pencil, PlugZap, Plus, Radio, RefreshCw, Trash2, Tv, Unlink, Youtube } from "lucide-react";
 import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
 import { errorText } from "../i18n";
 import { formatDate } from "../lib/format";
 import { Alert, Card, Field, Modal, PageHead, Switch, useLoad } from "../components/ui";
 
-type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram";
-const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram"];
+type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram" | "bluesky" | "mastodon";
+const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon"];
 interface Source {
   id?: number; kind: Kind; name: string; url: string; mounts: string[]; admin_user: string; admin_password_set?: boolean;
   verify_tls: boolean; poll_seconds: number; enabled: boolean; webhook_url?: string | null; items?: number;
@@ -20,6 +20,8 @@ interface Source {
   config_id?: string; graph_version?: string; graph_version_default?: string; metric_overrides?: Record<string, string>; metric_keys?: string[];
   unsupported_metrics?: string[]; choices?: { id: string; name: string; page?: string | null }[]; account_name?: string | null;
   account_url?: string | null; page_name?: string | null; followers?: number | null;
+  // Bluesky / Mastodon
+  account?: string; access_token_set?: boolean; handle?: string | null;
 }
 interface TestResult { ok: boolean; error?: string; online?: boolean; info?: Record<string, unknown>; items?: { id: string; title: string; value: number; online: boolean }[] }
 
@@ -27,7 +29,8 @@ const EMPTY: Source = { kind: "icecast", name: "", url: "", mounts: [], admin_us
 
 const oauth = (k: Kind) => k === "youtube" || k === "facebook" || k === "instagram";
 const social = (k: Kind) => k === "facebook" || k === "instagram";
-const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, icecast: <Radio size={16} /> })[k];
+const fedi = (k: Kind) => k === "bluesky" || k === "mastodon";
+const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, bluesky: <Cloud size={16} />, mastodon: <AtSign size={16} />, icecast: <Radio size={16} /> })[k];
 
 export default function Sources() {
   const { t, i18n } = useTranslation();
@@ -37,6 +40,7 @@ export default function Sources() {
   const [mountsText, setMountsText] = useState("");
   const [password, setPassword] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+  const [token, setToken] = useState("");
 
   // Back from the Google or Facebook consent screen: say how it went and reopen the source.
   const [reopen, setReopen] = useState<number | null>(null);
@@ -59,10 +63,11 @@ export default function Sources() {
   const [busy, setBusy] = useState(false);
   const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
 
-  const open = (s: Source) => { setDraft(s); setMountsText(s.mounts.join(", ")); setPassword(""); setClientSecret(""); setTest(null); };
+  const open = (s: Source) => { setDraft(s); setMountsText(s.mounts.join(", ")); setPassword(""); setClientSecret(""); setToken(""); setTest(null); };
   const body = () => ({
     ...draft!, mounts: mountsText.split(/[\s,]+/).filter(Boolean), admin_password: password || (draft!.id ? null : ""),
     client_id: draft!.client_id ?? "", client_secret: clientSecret || null,
+    account: draft!.account ?? "", access_token: token || null,
   });
 
   const save = async (e: FormEvent) => {
@@ -94,6 +99,7 @@ export default function Sources() {
   const web = draft?.kind === "wordpress";
   const yt = draft?.kind === "youtube";
   const fbig = draft?.kind === "facebook" || draft?.kind === "instagram";
+  const fediDraft = draft ? fedi(draft.kind) : false;
   const connector = yt ? "youtube" : "meta";
   const disconnect = async () => {
     if (!window.confirm(t(yt ? "sources.ytDisconnectConfirm" : "sources.metaDisconnectConfirm"))) return;
@@ -123,7 +129,7 @@ export default function Sources() {
                 <tr key={s.id}>
                   <td><b>{s.name}</b></td>
                   <td><span className="source-kind"><i style={{ background: theme?.channels?.[s.kind === "wordpress" ? "website" : s.kind] }} />{icon(s.kind)} {t(`sources.kinds.${s.kind}`)}</span></td>
-                  <td>{s.kind === "youtube" ? (s.channel_url ? <a href={s.channel_url} target="_blank" rel="noreferrer">{s.channel_title}</a> : "–") : social(s.kind) ? (s.account_url ? <a href={s.account_url} target="_blank" rel="noreferrer">{s.account_name}</a> : "–") : <code>{s.url}</code>}{social(s.kind) && <div className="muted small">{s.connected ? (s.history_done ? t("sources.metaHistoryDone") : t("sources.metaHistoryBusy")) : s.choices?.length ? t("sources.metaChoose") : t("sources.ytNotConnected")}</div>}{s.kind === "icecast" && s.mounts.length > 0 && <div className="muted small">{s.mounts.join(", ")}</div>}{s.kind === "wordpress" && s.plugin_version && <div className="muted small">{t("sources.pluginVersion", { version: s.plugin_version })}</div>}{s.kind === "youtube" && <div className="muted small">{s.connected ? <>{s.channel_title} · {(s.history_done ? t("sources.ytHistoryDone") : t("sources.ytHistoryBusy", { date: s.history_until ?? "…" }))}</> : t("sources.ytNotConnected")}</div>}</td>
+                  <td>{fedi(s.kind) ? <>{s.account_url ? <a href={s.account_url} target="_blank" rel="noreferrer">{s.handle}</a> : <code>{s.account}</code>}<div className="muted small">{s.connected ? (s.history_done ? t("sources.socialHistoryDone") : t("sources.socialHistoryBusy")) : t("sources.socialAfterSave")}</div></> : s.kind === "youtube" ? (s.channel_url ? <a href={s.channel_url} target="_blank" rel="noreferrer">{s.channel_title}</a> : "–") : social(s.kind) ? (s.account_url ? <a href={s.account_url} target="_blank" rel="noreferrer">{s.account_name}</a> : "–") : <code>{s.url}</code>}{social(s.kind) && <div className="muted small">{s.connected ? (s.history_done ? t("sources.metaHistoryDone") : t("sources.metaHistoryBusy")) : s.choices?.length ? t("sources.metaChoose") : t("sources.ytNotConnected")}</div>}{s.kind === "icecast" && s.mounts.length > 0 && <div className="muted small">{s.mounts.join(", ")}</div>}{s.kind === "wordpress" && s.plugin_version && <div className="muted small">{t("sources.pluginVersion", { version: s.plugin_version })}</div>}{s.kind === "youtube" && <div className="muted small">{s.connected ? <>{s.channel_title} · {(s.history_done ? t("sources.ytHistoryDone") : t("sources.ytHistoryBusy", { date: s.history_until ?? "…" }))}</> : t("sources.ytNotConnected")}</div>}</td>
                   <td>
                     {!s.enabled ? <span className="badge">{t("sources.disabled")}</span>
                       : s.last_error ? <span className="badge critical" title={formatDate(s.last_error_at, i18n.language)}>{errorText(s.last_error)}</span>
@@ -155,10 +161,36 @@ export default function Sources() {
                 </div>
               </Field>
             )}
-            <div className={yt || fbig ? "" : "grid two"}>
-              <Field label={t("sources.name")}><input required maxLength={200} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder={draft.kind === "icecast" ? "Radio" : web ? "Website" : yt ? "YouTube" : fbig ? t(`sources.kinds.${draft.kind}`) : "TV"} /></Field>
-              {!yt && !fbig && <Field label={t("sources.url")} hint={t(`sources.urlHint.${draft.kind}`)}><input required type="url" value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder={draft.kind === "icecast" ? "https://radio.example.org:8000" : web ? "https://www.example.org" : "https://live.example.org"} /></Field>}
+            <div className={yt || fbig || fediDraft ? "" : "grid two"}>
+              <Field label={t("sources.name")}><input required maxLength={200} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder={draft.kind === "icecast" ? "Radio" : web ? "Website" : yt ? "YouTube" : fbig ? t(`sources.kinds.${draft.kind}`) : fediDraft ? t(`channels.${draft.kind}`) : "TV"} /></Field>
+              {!yt && !fbig && !fediDraft && <Field label={t("sources.url")} hint={t(`sources.urlHint.${draft.kind}`)}><input required type="url" value={draft.url} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder={draft.kind === "icecast" ? "https://radio.example.org:8000" : web ? "https://www.example.org" : "https://live.example.org"} /></Field>}
             </div>
+            {fediDraft && (
+              <div className="stack">
+                <Alert kind="info">{t("sources.socialInfo")}</Alert>
+                {draft.kind === "bluesky" ? (
+                  <Field label={t("sources.bskyHandle")} hint={t("sources.bskyHandleHint")}><input required value={draft.account ?? ""} onChange={(e) => setDraft({ ...draft, account: e.target.value })} placeholder="@ournews.bsky.social" /></Field>
+                ) : (
+                  <>
+                    <div className="grid two">
+                      <Field label={t("sources.mastoAccount")} hint={t("sources.mastoAccountHint")}><input required value={draft.account ?? ""} onChange={(e) => setDraft({ ...draft, account: e.target.value })} placeholder="@ournews@mastodon.social" /></Field>
+                      <Field label={t("sources.mastoServer")} hint={t("sources.urlHint.mastodon")}><input type="url" value={draft.url ?? ""} onChange={(e) => setDraft({ ...draft, url: e.target.value })} placeholder="https://mastodon.social" /></Field>
+                    </div>
+                    <Field label={t("sources.mastoToken")} hint={draft.access_token_set ? t("common.secretKept") : t("sources.mastoTokenHint")}>
+                      <input type="password" autoComplete="new-password" value={token} onChange={(e) => setToken(e.target.value)} placeholder={draft.access_token_set ? "••••••••" : ""} />
+                    </Field>
+                  </>
+                )}
+                <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} label={t("sources.enabled")} />
+                {draft.id ? (draft.connected ? (
+                  <Alert kind="success">
+                    <b>{t("sources.socialConnected", { account: draft.handle ?? draft.account_name })}</b>
+                    <div className="small">{t("sources.socialStats", { followers: draft.followers ?? 0 })}</div>
+                    <div className="small">{draft.history_done ? t("sources.socialHistoryDone") : t("sources.socialHistoryBusy")}</div>
+                  </Alert>
+                ) : <Alert kind="info">{t("sources.socialAfterSave")}</Alert>) : <Alert kind="info">{t("sources.socialAfterSave")}</Alert>}
+              </div>
+            )}
             {draft.kind === "icecast" && (
               <Field label={t("sources.mounts")} hint={t("sources.mountsHint")}><input value={mountsText} onChange={(e) => setMountsText(e.target.value)} placeholder="/live, /jazz" /></Field>
             )}
@@ -227,13 +259,13 @@ export default function Sources() {
                 </details>
               </div>
             )}
-            {!web && !yt && !fbig && <div className="grid two">
+            {!web && !yt && !fbig && !fediDraft && <div className="grid two">
               {draft.kind === "icecast" && <Field label={t("sources.adminUser")}><input value={draft.admin_user} onChange={(e) => setDraft({ ...draft, admin_user: e.target.value })} /></Field>}
               <Field label={t("sources.adminPassword")} hint={draft.admin_password_set ? t("common.secretKept") : t(`sources.passwordHint.${draft.kind}`)}>
                 <input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={draft.admin_password_set ? "••••••••" : ""} />
               </Field>
             </div>}
-            {yt || fbig ? null : web ? <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} label={t("sources.enabled")} /> : <div className="grid two">
+            {yt || fbig || fediDraft ? null : web ? <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} label={t("sources.enabled")} /> : <div className="grid two">
               <Field label={t("sources.pollSeconds")} hint={t("sources.pollHint")}><input type="number" min={10} max={3600} value={draft.poll_seconds} onChange={(e) => setDraft({ ...draft, poll_seconds: Number(e.target.value) })} /></Field>
               <div className="stack">
                 <Switch checked={draft.verify_tls} onChange={(v) => setDraft({ ...draft, verify_tls: v })} label={t("email.verifyTls")} />
@@ -274,9 +306,10 @@ export default function Sources() {
             {test && (test.ok ? (
               <Alert kind="success">
                 <b>{t("sources.testOk")}</b> {String(test.info?.server ?? "")} {test.info?.version ? `(${String(test.info.version)})` : ""}
+                {test.info?.followers != null && <> · {t("sources.testFollowers", { followers: Number(test.info.followers) })}</>}
                 {test.items?.length ? (
                   <ul className="items-list">{test.items.map((i) => <li key={i.id}><span>{i.title} <span className="muted">{i.id}</span></span><b>{i.online ? i.value : t("dashboard.offline")}</b></li>)}</ul>
-                ) : <div>{test.online ? "" : t("sources.testOffline")}</div>}
+                ) : fediDraft ? null : <div>{test.online ? "" : t("sources.testOffline")}</div>}
                 {draft.kind === "icecast" && Array.isArray(test.info?.mounts_found) && <div className="muted small">{t("sources.mountsFound")}: {(test.info!.mounts_found as string[]).join(", ") || "—"}</div>}
               </Alert>
             ) : <Alert kind="error">{t("sources.testFailed")}: {errorText(test.error ?? "")}</Alert>)}
@@ -285,7 +318,7 @@ export default function Sources() {
               {(yt || fbig) && draft.id && draft.client_secret_set && (draft.connected
                 ? <button type="button" className="btn ghost" onClick={disconnect}><Unlink /> {t("sources.ytDisconnect")}</button>
                 : <a className="btn secondary" href={`/api/connectors/${connector}/start?source=${draft.id}`}><Link2 /> {t(yt ? "sources.ytConnect" : "sources.metaConnect")}</a>)}
-              {!web && !yt && !fbig && <button type="button" className="btn secondary" disabled={busy || !draft.url} onClick={runTest}><PlugZap /> {busy ? t("sources.testing") : t("sources.test")}</button>}
+              {!web && !yt && !fbig && <button type="button" className="btn secondary" disabled={busy || !(fediDraft ? draft.account : draft.url)} onClick={runTest}><PlugZap /> {busy ? t("sources.testing") : t("sources.test")}</button>}
               <button type="button" className="btn secondary" onClick={() => setDraft(null)}>{t("common.cancel")}</button>
               <button className="btn">{t("common.save")}</button>
             </div>

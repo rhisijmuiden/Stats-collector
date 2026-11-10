@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import math
 import random
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
@@ -210,6 +210,7 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         + result["days"]
         + create_demo_channel(db, now=now)
         + create_demo_social(db, now=now)
+        + create_demo_open_social(db, now=now)
         + create_demo_goals(db, now=now)
         + auto_link(db)["added"]
         + create_demo_dashboard(db)
@@ -523,6 +524,130 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
         months_from_days(db, source, first, today, FB_DAY_METRICS if kind == "facebook" else IG_DAY_METRICS, tz)
         lost = "fb_unfollows" if kind == "facebook" else None
         rebuild_gauge(db, source, f"{p}_followers", f"{p}_follows", lost, {today: followers}, today, tz)
+    db.commit()
+    return rows
+
+
+def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = None) -> int:
+    """A Bluesky and a Mastodon account with posts, interactions per day and followers."""
+    from zoneinfo import ZoneInfo
+
+    from ..models import MetricPoint
+    from .followers import day_bucket, rebuild_gauge
+    from .meta import months_from_days, sum_posts_into_page
+    from .metrics import BSKY_DAY_METRICS, BSKY_POST_METRICS, MASTO_DAY_METRICS, MASTO_POST_METRICS
+
+    rnd = random.Random(31)
+    tz = ZoneInfo("Europe/Amsterdam")
+    now = now or utcnow()
+    today = now.astimezone(tz).date()
+    first = today - timedelta(days=days - 1)
+    rows = 0
+    plans = [
+        (
+            "bluesky",
+            "Demo Bluesky",
+            "@demonews.bsky.social",
+            "https://bsky.app/profile/demonews.bsky.social",
+            2140,
+            {"bsky_likes": 0.6, "bsky_reposts": 0.15, "bsky_replies": 0.08, "bsky_quotes": 0.03},
+            40,
+        ),
+        (
+            "mastodon",
+            "Demo Mastodon",
+            "@demonews@mastodon.example",
+            "https://mastodon.example/@demonews",
+            980,
+            {"masto_favourites": 0.55, "masto_boosts": 0.25, "masto_replies": 0.07},
+            18,
+        ),
+    ]
+    for kind, name, handle, url, followers, shares, base in plans:
+        server, account = (
+            ("", "demonews.bsky.social") if kind == "bluesky" else ("https://mastodon.example", "demonews")
+        )
+        source = Source(
+            kind=kind,
+            name=name,
+            config={
+                "demo": True,
+                "url": server,
+                "account": account,
+                "account_id": f"demo-{kind}",
+                "account_name": "Demo News",
+                "handle": handle,
+                "account_url": url,
+                "followers": followers,
+                "posts_done": True,
+            },
+            last_ok_at=now,
+            poll_seconds=3600,
+        )
+        db.add(source)
+        db.flush()
+        changed: set[date] = set()
+        for n, title in enumerate(rnd.sample(POSTS, 8)):
+            published = today - timedelta(days=rnd.randint(0, days - 1))
+            meta: dict = {}
+            if n < 2:  # shares an article: links to it (see services/links.py)
+                article = 1001 + n * 4
+                title = TITLES[n * 4 + 1]
+                meta["links"] = [f"https://news.example.org/{article}"]
+            item = ContentItem(
+                source_id=source.id,
+                kind="post",
+                external_id=f"demo-{kind}-{n}",
+                title=title,
+                url=f"{url}/post/{n}" if kind == "bluesky" else f"{url}/{n}",
+                published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC)
+                + timedelta(hours=rnd.randint(7, 20)),
+                meta=meta,
+            )
+            db.add(item)
+            db.flush()
+            pull = rnd.uniform(0.5, 2.5)
+            day = published
+            while day <= today:
+                age = (day - published).days
+                volume = base * pull * math.exp(-age / 1.5) * rnd.uniform(0.8, 1.2)
+                for metric, share in shares.items():
+                    value = round(volume * share)
+                    if value:
+                        db.add(
+                            MetricPoint(
+                                source_id=source.id,
+                                item_id=item.id,
+                                metric=metric,
+                                granularity="day",
+                                bucket=day_bucket(day, tz),
+                                value=value,
+                            )
+                        )
+                        rows += 1
+                changed.add(day)
+                day += timedelta(days=1)
+        db.flush()
+        post_metrics = BSKY_POST_METRICS if kind == "bluesky" else MASTO_POST_METRICS
+        sum_posts_into_page(db, source, changed, post_metrics, tz)
+        follows = "bsky_follows" if kind == "bluesky" else "masto_follows"
+        day = first
+        while day <= today:
+            db.add(
+                MetricPoint(
+                    source_id=source.id,
+                    metric=follows,
+                    granularity="day",
+                    bucket=day_bucket(day, tz),
+                    value=rnd.randint(-1, 9 if kind == "bluesky" else 4),
+                )
+            )
+            rows += 1
+            day += timedelta(days=1)
+        db.flush()
+        months_from_days(db, source, first, today, BSKY_DAY_METRICS if kind == "bluesky" else MASTO_DAY_METRICS, tz)
+        gauge = "bsky_followers" if kind == "bluesky" else "masto_followers"
+        rebuild_gauge(db, source, gauge, follows, None, {today: followers}, today, tz)
     db.commit()
     return rows
 

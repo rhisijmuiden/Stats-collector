@@ -13,7 +13,7 @@ import { GoalsCard } from "./Goals";
 type Measure = "reach" | "views" | "interactions" | "watch_minutes" | "followers";
 type Split = "none" | "platform" | "source";
 type Mode = "stacked" | "overlay" | "separate";
-type Platform = "website" | "youtube" | "facebook" | "instagram" | "owncast" | "icecast";
+type Platform = "website" | "youtube" | "facebook" | "instagram" | "bluesky" | "mastodon" | "owncast" | "icecast";
 export interface Widget {
   id: string; type: "kpi" | "chart" | "top" | "editors" | "goals"; title: string; size: "small" | "half" | "full";
   measure: Measure; sources: number[]; platforms: Platform[]; split: Split; mode: Mode; chart: "line" | "area" | "bar";
@@ -27,7 +27,7 @@ interface Data {
 interface SourceRef { id: number; name: string; kind: string }
 
 const MEASURES: Measure[] = ["reach", "views", "interactions", "watch_minutes", "followers"];
-const PLATFORMS: Platform[] = ["website", "facebook", "instagram", "youtube", "owncast", "icecast"];
+const PLATFORMS: Platform[] = ["website", "facebook", "instagram", "bluesky", "mastodon", "youtube", "owncast", "icecast"];
 const SORTS = ["views", "reach", "visitors", "shares", "comments", "likes", "minutes", "published"];
 const KINDS = ["", "article", "post", "video", "broadcast", "mount"];
 const STORE = "sc.dashboard";

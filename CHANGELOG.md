@@ -7,6 +7,10 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- Bluesky and Mastodon accounts as sources: likes, reposts or boosts, replies and quotes per post and per day, and the follower count, through the platforms' open APIs (no app review needed; Mastodon optionally with an access token). They count towards the interactions and followers measures, and their posts are linked to the articles they point to.
+  NL: Bluesky- en Mastodon-accounts als bron: likes, reposts of boosts, antwoorden en citaten per bericht en per dag, en het aantal volgers, via de open API's van de platforms (geen app-review nodig; Mastodon eventueel met een toegangstoken). Ze tellen mee voor de maten interacties en volgers, en hun berichten worden gekoppeld aan de artikelen waarnaar ze verwijzen.
+- Roadmap: phase 3f adds X, LinkedIn, TikTok, Threads, Bluesky and Mastodon (`docs/DESIGN.md`).
+  NL: Roadmap: fase 3f voegt X, LinkedIn, TikTok, Threads, Bluesky en Mastodon toe (`docs/DESIGN.md`).
 - Live walls: read-only screens for the newsroom on port 8081 (`stats-collector-livewall`), with the last hour per radio stream, Owncast stream and website as animated 3D bars, a secret link per wall, new links, optional IP allow-list, updates every minute through Server-Sent Events.
   NL: Live walls: alleen-lezen schermen voor de redactie op poort 8081 (`stats-collector-livewall`), met het afgelopen uur per radiostream, Owncast-stream en website als bewegende 3D-staven, een geheime link per wall, nieuwe links, een optionele lijst met toegestane IP-adressen en elke minuut nieuwe cijfers via Server-Sent Events.
 - My dashboards: build your own dashboards with totals, charts, top content, editors and goals; charts switch between stacked, overlay and separate, totals compare with the previous period; admins and editors-in-chief can share a dashboard with everyone.

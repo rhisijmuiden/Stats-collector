@@ -162,8 +162,20 @@ def delete_goal(goal_id: int, db: Session = Depends(get_db), user: User = Depend
 
 # ----------------------------------------------------------------------------- followers
 
-GAUGES = {"youtube": "yt_subscribers", "facebook": "fb_followers", "instagram": "ig_followers"}
-GAINED = {"youtube": "yt_subs_gained", "facebook": "fb_follows", "instagram": "ig_follows"}
+GAUGES = {
+    "youtube": "yt_subscribers",
+    "facebook": "fb_followers",
+    "instagram": "ig_followers",
+    "bluesky": "bsky_followers",
+    "mastodon": "masto_followers",
+}
+GAINED = {
+    "youtube": "yt_subs_gained",
+    "facebook": "fb_follows",
+    "instagram": "ig_follows",
+    "bluesky": "bsky_follows",
+    "mastodon": "masto_follows",
+}
 FollowRange = Literal["30d", "90d", "365d"]
 
 
