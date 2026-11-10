@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import FollowersPage from "./pages/Followers";
 import GoalsPage from "./pages/Goals";
 import DashboardsPage from "./pages/Dashboards";
+import LiveWallsPage from "./pages/LiveWalls";
 import { useApp } from "./lib/app";
 import Layout from "./components/Layout";
 import { Login, Setup } from "./pages/Login";
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="admin/sources" element={<AdminOnly><Sources /></AdminOnly>} />
         <Route path="admin/users" element={<AdminOnly><Users /></AdminOnly>} />
         <Route path="admin/sso" element={<AdminOnly><SsoPage /></AdminOnly>} />
+        <Route path="admin/livewalls" element={<AdminOnly><LiveWallsPage /></AdminOnly>} />
         <Route path="admin/branding" element={<AdminOnly><Branding /></AdminOnly>} />
         <Route path="admin/email" element={<AdminOnly><Email /></AdminOnly>} />
         <Route path="admin/backup" element={<AdminOnly><Backup /></AdminOnly>} />

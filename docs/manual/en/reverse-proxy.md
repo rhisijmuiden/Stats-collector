@@ -1,6 +1,6 @@
 # Reverse proxy and HTTPS (Zoraxy)
 
-Stats Collector listens on plain HTTP port 8080. A reverse proxy in front of it handles HTTPS with a Let's Encrypt certificate. The live wall (from phase 3) uses port 8081 and its own host name.
+Stats Collector listens on plain HTTP port 8080. A reverse proxy in front of it handles HTTPS with a Let's Encrypt certificate. The [live wall](live-wall.md) uses port 8081 and its own host name.
 
 ## Zoraxy, step by step
 

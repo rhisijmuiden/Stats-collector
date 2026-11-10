@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     host: str = "127.0.0.1"
     port: int = 8080
     livewall_port: int = 8081
+    # Address of the wall service as screens open it, e.g. https://live.example.org (default: public URL on port 8081)
+    livewall_url: str | None = None
     trusted_proxies: str = "127.0.0.1"
     # Header with the real client IP set by the proxy chain, e.g. CF-Connecting-IP behind Cloudflare.
     # Only read when the request comes from a trusted proxy.
@@ -43,6 +45,15 @@ class Settings(BaseSettings):
     @property
     def cookie_secure(self) -> bool:
         return self.public_url.startswith("https://")
+
+    @property
+    def wall_base_url(self) -> str:
+        if self.livewall_url:
+            return self.livewall_url.rstrip("/")
+        from urllib.parse import urlsplit
+
+        parts = urlsplit(self.public_url)
+        return f"{parts.scheme}://{parts.hostname}:{self.livewall_port}"
 
     @property
     def ops_dir(self) -> Path:

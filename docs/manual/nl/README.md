@@ -22,6 +22,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 - [Content en redacteuren](content.md)
 - [Mijn dashboards](dashboards.md)
 - [Volgers en doelen](followers-and-goals.md)
+- [Live wall](live-wall.md)
 
 ## Platforms koppelen
 

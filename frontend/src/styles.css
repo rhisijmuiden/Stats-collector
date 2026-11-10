@@ -407,3 +407,15 @@ details.advanced label { display: flex; flex-direction: column; gap: 4px; }
   .dash-grid { grid-template-columns: minmax(0, 1fr); }
   .dash-cell, .dash-cell.small, .dash-cell.full { grid-column: span 1; }
 }
+
+/* Live walls (admin preview) */
+.wall-preview { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; background: #060B16; border-radius: var(--radius-card); padding: 14px; }
+.wall-mini { color: #D8F3FF; border: 1px solid rgba(216, 243, 255, 0.12); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.wall-mini-head { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.wall-mini-head svg { width: 14px; height: 14px; }
+.wall-dot { width: 8px; height: 8px; border-radius: 50%; background: #556; margin-left: auto; }
+.wall-dot.on { background: var(--c); box-shadow: 0 0 8px var(--c); }
+.wall-mini-now { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.wall-mini-now span { font-size: 12px; font-weight: 400; color: rgba(216, 243, 255, 0.6); }
+.wall-mini-bars { height: 56px; display: flex; align-items: flex-end; gap: 3px; }
+.wall-mini-bars i { flex: 1; background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 30%, #060B16)); border-radius: 2px 2px 0 0; box-shadow: 0 0 8px color-mix(in srgb, var(--c) 40%, transparent); }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  Archive, BookOpen, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers } from "lucide-react";
+  Archive, BookOpen, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers, MonitorPlay } from "lucide-react";
 import { useApp } from "../lib/app";
 import { api, type User } from "../lib/api";
 import { resolveMode } from "../lib/theme";
@@ -98,6 +98,7 @@ export default function Layout() {
             {item("/admin/sources", Radio, t("nav.sources"))}
             {item("/admin/users", Users, t("nav.users"))}
             {item("/admin/sso", ShieldCheck, t("nav.sso"))}
+            {item("/admin/livewalls", MonitorPlay, t("nav.livewalls"))}
             {item("/admin/branding", Palette, t("nav.branding"))}
             {item("/admin/email", Mail, t("nav.email"))}
             {item("/admin/backup", Archive, t("nav.backup"))}
