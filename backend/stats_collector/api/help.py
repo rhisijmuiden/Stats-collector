@@ -18,6 +18,7 @@ ORDER = [
     "dashboards",
     "content",
     "followers-and-goals",
+    "live-wall",
     "installation",
     "reverse-proxy",
     "users-and-roles",

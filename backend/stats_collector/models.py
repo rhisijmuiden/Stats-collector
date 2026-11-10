@@ -352,6 +352,25 @@ class Dashboard(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
 
+class LiveWall(Base):
+    """A read-only screen for the newsroom, served on its own port at /w/<token> (see livewall/)."""
+
+    __tablename__ = "live_walls"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(String(200), default="")
+    source_ids: Mapped[Any] = mapped_column(JSON, default=list)  # empty = every live source
+    token_enc: Mapped[str] = mapped_column(Text)  # encrypted; the link is /w/<token>
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)  # sha256 of the token: the snapshot key
+    allow_ips: Mapped[str] = mapped_column(String(1000), default="")  # comma-separated IPs or networks
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    rotated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class GoalRevision(Base):
     """Every target a goal has had, so reports show what the target was at the time."""
 

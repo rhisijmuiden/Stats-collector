@@ -29,9 +29,16 @@ async function editDashboardWidget(page) {
   await page.waitForTimeout(300);
 }
 
+// The wall itself is served by the wall service on port 8081 (the link may show the public address).
+async function openLiveWall(page) {
+  const link = await page.locator(".copy-field input").first().inputValue();
+  await page.goto(link.replace(/^https?:\/\/[^/]+/, process.env.WALL_BASE || "http://127.0.0.1:8081"));
+  await page.waitForTimeout(2500);
+}
+
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];
 

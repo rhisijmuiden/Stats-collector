@@ -22,6 +22,7 @@ The same manual opens inside the application through the **Help** button at the 
 - [Content and editors](content.md)
 - [My dashboards](dashboards.md)
 - [Followers and goals](followers-and-goals.md)
+- [Live wall](live-wall.md)
 
 ## Connecting platforms
 

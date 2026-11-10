@@ -43,6 +43,7 @@ celery_app.conf.update(
             "schedule": crontab(minute="5,20,35,50"),
             "options": {"expires": 800},
         },
+        "livewall": {"task": "stats_collector.livewall", "schedule": 60.0, "options": {"expires": 55}},
         "goals": {"task": "stats_collector.goals", "schedule": crontab(minute=40), "options": {"expires": 3000}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
@@ -185,6 +186,23 @@ def link_items() -> dict:
 
     with session_factory()() as db:
         return auto_link(db)
+
+
+@celery_app.task(name="stats_collector.livewall")
+def livewall_task() -> int:
+    """Live walls: one snapshot of the last hour per wall, read by the wall service on port 8081."""
+    from .services.livewall import publish
+
+    with session_factory()() as db:
+        return publish(db)
+
+
+def livewall_soon() -> None:
+    """Refresh the walls now (after a change); inline when the worker is not reachable."""
+    try:
+        livewall_task.apply_async(expires=55, retry=False)
+    except Exception:  # noqa: BLE001 - Redis unreachable (development)
+        livewall_task()
 
 
 def poll_soon(source_id: int) -> None:

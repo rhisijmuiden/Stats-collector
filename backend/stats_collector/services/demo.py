@@ -218,9 +218,30 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
 
 def create_demo_dashboard(db: Session) -> int:
     from ..api.dashboards import example
+    from ..models import LiveWall
+    from ..security import encrypt_secret
+    from .livewall import new_token, publish, token_hash
 
     db.add(example("Overview", None, shared=True))
+    token = new_token()
+    db.add(LiveWall(name="Newsroom", title="Live now", token_enc=encrypt_secret(token), token_hash=token_hash(token)))
     db.commit()
+    # The wall builds website minutes from runs a minute apart; give the demo site an hour of them.
+    from datetime import timedelta as _td
+
+    from .livewall import _views_today, store_put
+
+    now = utcnow()
+    rnd = random.Random(3)
+    for site in db.execute(select(Source).where(Source.kind == "wordpress")).scalars():
+        minute = now.replace(second=0, microsecond=0)
+        minutes = [((minute - _td(minutes=60 - i)).isoformat(), float(rnd.randint(8, 30))) for i in range(60)]
+        store_put(
+            f"state-web-{site.id}",
+            {"total": _views_today(db, site, now), "minute": minute.isoformat(), "minutes": minutes},
+            ttl=7200,
+        )
+    publish(db)
     return 1
 
 

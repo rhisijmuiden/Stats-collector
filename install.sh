@@ -293,12 +293,13 @@ step "System services"
 install -m 644 "$TARGET"/deploy/systemd/*.service "$TARGET"/deploy/systemd/*.path "$TARGET"/deploy/systemd/*.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now stats-collector-ops.path stats-collector-backup.timer >/dev/null 2>&1
-systemctl enable stats-collector-web stats-collector-worker >/dev/null 2>&1
-systemctl restart stats-collector-web stats-collector-worker
+systemctl enable stats-collector-web stats-collector-worker stats-collector-livewall >/dev/null 2>&1
+systemctl restart stats-collector-web stats-collector-worker stats-collector-livewall
 for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 && break; sleep 1; done
 curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null || { journalctl -u stats-collector-web -n 40 --no-pager; die "The web service did not start."; }
 systemctl is-active --quiet stats-collector-worker || { journalctl -u stats-collector-worker -n 40 --no-pager; die "The worker did not start."; }
-ok "stats-collector-web on port $PORT, worker, ops runner and hourly backup timer"
+systemctl is-active --quiet stats-collector-livewall || warn "The live wall service (port 8081) did not start; see journalctl -u stats-collector-livewall."
+ok "stats-collector-web on port $PORT, live wall on port 8081, worker, ops runner and hourly backup timer"
 
 if [ "$FIREWALL" = 1 ]; then
   step "Firewall (nftables)"

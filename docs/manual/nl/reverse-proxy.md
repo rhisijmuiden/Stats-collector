@@ -1,6 +1,6 @@
 # Reverse proxy en HTTPS (Zoraxy)
 
-Stats Collector luistert op gewone HTTP-poort 8080. Een reverse proxy ervoor regelt HTTPS met een Let's Encrypt-certificaat. De live wall (vanaf fase 3) gebruikt poort 8081 en een eigen hostnaam.
+Stats Collector luistert op gewone HTTP-poort 8080. Een reverse proxy ervoor regelt HTTPS met een Let's Encrypt-certificaat. De [live wall](live-wall.md) gebruikt poort 8081 en een eigen hostnaam.
 
 ## Zoraxy, stap voor stap
 

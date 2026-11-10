@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>__TITLE__</title>
+<style>
+  :root { --bg: #060B16; --glow: #2FB8FF; --text: #D8F3FF; --dim: rgba(216, 243, 255, 0.55); --line: rgba(216, 243, 255, 0.12); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: radial-gradient(1200px 700px at 50% -10%, color-mix(in srgb, var(--glow) 18%, transparent), transparent 70%), var(--bg);
+    color: var(--text); font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden;
+    display: flex; flex-direction: column; padding: 2.2vh 2.4vw; gap: 2vh;
+  }
+  header { display: flex; align-items: baseline; gap: 2vw; }
+  h1 { margin: 0; font-size: clamp(22px, 3.4vh, 44px); font-weight: 700; letter-spacing: 0.01em; }
+  .app { color: var(--dim); font-size: clamp(12px, 1.6vh, 18px); text-transform: uppercase; letter-spacing: 0.18em; }
+  .clock { margin-left: auto; font-size: clamp(22px, 3.4vh, 44px); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .totals { display: flex; gap: 3vw; color: var(--dim); font-size: clamp(13px, 1.8vh, 22px); }
+  .totals b { color: var(--text); font-size: 1.4em; margin-right: 0.35em; font-variant-numeric: tabular-nums; }
+  main { flex: 1; display: grid; gap: 2vh 2vw; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); min-height: 0; }
+  .panel { position: relative; border: 1px solid var(--line); border-radius: 18px; padding: 2vh 1.6vw 1.4vh;
+    background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .panel::before { content: ""; position: absolute; inset: 0; background: radial-gradient(600px 220px at 20% 0%, color-mix(in srgb, var(--c) 22%, transparent), transparent 70%); pointer-events: none; }
+  .head { display: flex; align-items: center; gap: 0.7em; font-size: clamp(14px, 2.1vh, 26px); font-weight: 600; position: relative; }
+  .dot { width: 0.6em; height: 0.6em; border-radius: 50%; background: var(--c); box-shadow: 0 0 12px var(--c); }
+  .dot.live { animation: pulse 1.6s ease-in-out infinite; }
+  .dot.off { background: #556; box-shadow: none; }
+  .state { margin-left: auto; font-size: 0.65em; color: var(--dim); text-transform: uppercase; letter-spacing: 0.14em; }
+  .now { font-size: clamp(34px, 7vh, 110px); font-weight: 800; line-height: 1; margin: 1vh 0 0.2vh; font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 24px color-mix(in srgb, var(--c) 55%, transparent); position: relative; }
+  .unit { color: var(--dim); font-size: clamp(12px, 1.7vh, 20px); position: relative; }
+  .stage { flex: 1; min-height: 80px; perspective: 900px; perspective-origin: 50% -40%; display: flex; align-items: flex-end; margin-top: 1.5vh; }
+  .bars { width: 100%; height: 100%; display: flex; align-items: flex-end; gap: 1.1%; transform: rotateX(16deg) rotateY(-14deg); transform-style: preserve-3d; padding: 0 2% 3% 0; }
+  .bar { --h: 0%; flex: 1; height: var(--h); min-height: 3px; position: relative; transform-style: preserve-3d; transition: height 1.2s cubic-bezier(.2,.8,.2,1); }
+  .bar .f { position: absolute; inset: 0; background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 35%, var(--bg))); border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--c) 45%, transparent); }
+  .bar .t { position: absolute; left: 0; right: 0; top: 0; height: 14px; background: color-mix(in srgb, var(--c) 70%, white); transform-origin: top; transform: rotateX(90deg); opacity: 0.85; }
+  .bar .s { position: absolute; top: 0; bottom: 0; right: 0; width: 12px; background: color-mix(in srgb, var(--c) 45%, black); transform-origin: right; transform: rotateY(-90deg); }
+  .bar.cur .f { animation: glow 2.4s ease-in-out infinite; }
+  .axis { display: flex; justify-content: space-between; color: var(--dim); font-size: clamp(10px, 1.3vh, 15px); margin-top: 0.8vh; position: relative; }
+  .empty { display: grid; place-items: center; color: var(--dim); font-size: 3vh; grid-column: 1 / -1; }
+  footer { display: flex; justify-content: space-between; color: var(--dim); font-size: clamp(10px, 1.3vh, 15px); }
+  .stale { color: #ffb86b; }
+  @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.85); } }
+  @keyframes glow { 50% { filter: brightness(1.35); } }
+  @media (prefers-reduced-motion: reduce) { .bar { transition: none; } .dot.live, .bar.cur .f { animation: none; } }
+</style>
+</head>
+<body>
+<header><h1 id="title">__TITLE__</h1><span class="app" id="app"></span><span class="clock" id="clock"></span></header>
+<div class="totals" id="totals"></div>
+<main id="main"></main>
+<footer><span id="note"></span><span id="updated"></span></footer>
+<script>
+(function () {
+  "use strict";
+  var data = __INITIAL__;
+  var nl = /^nl\b/i.test(navigator.language || "");
+  var T = nl
+    ? { listeners: "luisteraars nu", viewers: "kijkers nu", views: "weergaven in de laatste 5 minuten", onAir: "live", offAir: "offline",
+        site: "website", ago: "60 min geleden", now: "nu", updated: "Bijgewerkt", stale: "Geen verse cijfers", note: "Elke staaf is 5 minuten. Website: weergaven, radio en tv: gemiddeld aantal tegelijk.",
+        tListen: "luisteraars", tView: "kijkers", tViews: "weergaven (5 min)", none: "Nog geen kanalen op deze wall." }
+    : { listeners: "listening now", viewers: "watching now", views: "views in the last 5 minutes", onAir: "live", offAir: "off air",
+        site: "website", ago: "60 min ago", now: "now", updated: "Updated", stale: "No fresh numbers", note: "Each bar is 5 minutes. Website: views; radio and TV: average audience.",
+        tListen: "listening", tView: "watching", tViews: "views (5 min)", none: "No channels on this wall yet." };
+  document.documentElement.lang = nl ? "nl" : "en";
+  var fmt = new Intl.NumberFormat(nl ? "nl-NL" : "en-GB", { maximumFractionDigits: 0 });
+  var root = document.documentElement.style;
+  var main = document.getElementById("main");
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function build(d) {
+    main.innerHTML = "";
+    var n = d.channels.length;
+    root.setProperty("--cols", n <= 1 ? 1 : n <= 4 ? 2 : 3);
+    if (!n) { main.appendChild(el("div", "empty", T.none)); return; }
+    d.channels.forEach(function (c) {
+      var p = el("section", "panel"); p.id = "ch-" + c.id; p.style.setProperty("--c", c.color);
+      var head = el("div", "head"); head.appendChild(el("span", "dot")); head.appendChild(el("span", "name", c.name)); head.appendChild(el("span", "state"));
+      p.appendChild(head);
+      p.appendChild(el("div", "now", "0"));
+      p.appendChild(el("div", "unit", T[c.unit]));
+      var stage = el("div", "stage"), bars = el("div", "bars");
+      for (var i = 0; i < c.bars.length; i++) { var b = el("div", "bar"); b.appendChild(el("i", "f")); b.appendChild(el("i", "t")); b.appendChild(el("i", "s")); bars.appendChild(b); }
+      stage.appendChild(bars); p.appendChild(stage);
+      var axis = el("div", "axis"); axis.appendChild(el("span", null, T.ago)); axis.appendChild(el("span", null, T.now)); p.appendChild(axis);
+      main.appendChild(p);
+    });
+  }
+
+  function countTo(node, to) {
+    var from = Number(node.dataset.v || 0), t0 = performance.now();
+    node.dataset.v = to;
+    function step(t) { var k = Math.min(1, (t - t0) / 900); node.textContent = fmt.format(from + (to - from) * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+
+  function render(d) {
+    data = d;
+    var colors = d.colors || {};
+    if (colors.background) root.setProperty("--bg", colors.background);
+    if (colors.glow) root.setProperty("--glow", colors.glow);
+    if (colors.text) root.setProperty("--text", colors.text);
+    document.getElementById("title").textContent = d.title; document.title = d.title;
+    document.getElementById("app").textContent = d.app_name || "";
+    var ids = d.channels.map(function (c) { return c.id; }).join(",");
+    if (main.dataset.ids !== ids) { main.dataset.ids = ids; build(d); }
+    var listen = 0, watch = 0, views = 0;
+    d.channels.forEach(function (c) {
+      var p = document.getElementById("ch-" + c.id); if (!p) return;
+      var max = Math.max.apply(null, c.bars.concat([1]));
+      p.querySelectorAll(".bar").forEach(function (b, i) { b.style.setProperty("--h", Math.max(1.5, (c.bars[i] / max) * 100) + "%"); b.classList.toggle("cur", i === c.bars.length - 1); });
+      countTo(p.querySelector(".now"), c.now);
+      var dot = p.querySelector(".dot"); dot.className = "dot " + (c.online ? "live" : "off");
+      p.querySelector(".state").textContent = c.kind === "wordpress" ? T.site : c.online ? T.onAir : T.offAir;
+      if (c.unit === "listeners") listen += c.now; else if (c.unit === "viewers") watch += c.now; else views += c.now;
+    });
+    var totals = document.getElementById("totals"); totals.innerHTML = "";
+    [[listen, T.tListen, "listeners"], [watch, T.tView, "viewers"], [views, T.tViews, "views"]].forEach(function (x) {
+      if (!d.channels.some(function (c) { return c.unit === x[2]; })) return;
+      var s = el("span"); s.appendChild(el("b", null, fmt.format(x[0]))); s.appendChild(document.createTextNode(x[1])); totals.appendChild(s);
+    });
+    document.getElementById("note").textContent = T.note;
+    tick();
+  }
+
+  function tick() {
+    var now = new Date();
+    document.getElementById("clock").textContent = now.toLocaleTimeString(nl ? "nl-NL" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+    var at = new Date(data.at), age = (now - at) / 1000;
+    var u = document.getElementById("updated");
+    u.textContent = age > 300 ? T.stale : T.updated + " " + at.toLocaleTimeString(nl ? "nl-NL" : "en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    u.className = age > 300 ? "stale" : "";
+  }
+
+  var base = location.pathname.replace(/\/$/, "");
+  function poll() { fetch(base + "/data", { cache: "no-store" }).then(function (r) { if (r.status === 404) location.reload(); return r.ok ? r.json() : null; }).then(function (d) { if (d) render(d); }).catch(function () {}); }
+  function connect() {
+    if (!window.EventSource) { setInterval(poll, 60000); return; }
+    var es = new EventSource(base + "/events");
+    es.onmessage = function (e) { try { render(JSON.parse(e.data)); } catch (err) { /* ignore a bad message */ } };
+    es.addEventListener("gone", function () { es.close(); location.reload(); });
+    es.onerror = function () { es.close(); setTimeout(connect, 15000); poll(); };
+  }
+  render(data);
+  setInterval(tick, 1000);
+  connect();
+})();
+</script>
+</body>
+</html>

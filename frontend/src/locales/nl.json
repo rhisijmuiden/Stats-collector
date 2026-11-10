@@ -32,7 +32,8 @@
     "editors": "Redacteuren",
     "followers": "Volgers",
     "goals": "Doelen",
-    "dashboards": "Mijn dashboards"
+    "dashboards": "Mijn dashboards",
+    "livewalls": "Live walls"
   },
   "roles": {
     "admin": "Beheerder",
@@ -534,7 +535,8 @@
     "unknown_source": "Een van de gekozen kanalen bestaat niet meer.",
     "end_before_start": "De einddatum moet na de startdatum liggen.",
     "link_kinds": "Alleen een bericht of video kan aan een artikel gekoppeld worden.",
-    "icecast_no_status": "Deze server heeft geen openbare statuspagina (status-json.xsl). Vul de beheerder-gebruikersnaam en het wachtwoord van Icecast in, dan worden de cijfers uit admin/stats gelezen."
+    "icecast_no_status": "Deze server heeft geen openbare statuspagina (status-json.xsl). Vul de beheerder-gebruikersnaam en het wachtwoord van Icecast in, dan worden de cijfers uit admin/stats gelezen.",
+    "invalid_ip": "Vul IP-adressen of netwerken in, gescheiden door komma's."
   },
   "sources": {
     "title": "Bronnen",
@@ -946,6 +948,43 @@
       "video": "Video's",
       "broadcast": "Uitzendingen",
       "mount": "Mountpoints"
+    }
+  },
+  "livewalls": {
+    "title": "Live walls",
+    "subtitle": "Alleen-lezen schermen voor de redactie: het afgelopen uur per kanaal, op poort 8081.",
+    "add": "Nieuwe live wall",
+    "edit": "Live wall bewerken",
+    "defaultName": "Redactie",
+    "saved": "Live wall opgeslagen.",
+    "proxyHint": "Walls draaien op {{url}}. Laat in je reverse proxy een hostnaam zoals live.example.org naar poort 8081 wijzen, en zet SC_LIVEWALL_URL in de configuratie zodat de links hieronder die gebruiken.",
+    "noneTitle": "Nog geen live walls",
+    "noneText": "Maak een wall, open de link op de tv en hij werkt zichzelf elke minuut bij.",
+    "on": "Aan",
+    "off": "Uit",
+    "link": "Link",
+    "copy": "Link kopiëren",
+    "open": "Openen",
+    "copied": "Link gekopieerd.",
+    "rotate": "Nieuwe link",
+    "rotated": "Nieuwe link gemaakt; de oude werkt niet meer.",
+    "confirmRotate": "Een nieuwe link maken voor \"{{name}}\"? Schermen met de oude link tonen hem dan niet meer.",
+    "confirmDelete": "De live wall \"{{name}}\" verwijderen? De link werkt dan niet meer.",
+    "channels": "Kanalen",
+    "allChannels": "alle radio, tv en websites",
+    "channelsHint": "Icecast, Owncast en websites. Niets gekozen betekent alles.",
+    "allowIps": "Toegestane adressen",
+    "everyone": "iedereen met de link",
+    "allowIpsHint": "Optioneel: IP-adressen of netwerken (met komma's) die de wall mogen openen, bijv. het openbare IP-adres van de redactie.",
+    "name": "Naam",
+    "wallTitle": "Titel op het scherm",
+    "wallTitleHint": "Laat leeg om de naam te gebruiken.",
+    "enabled": "Deze wall tonen",
+    "noChannels": "Nog geen kanalen op deze wall.",
+    "unit": {
+      "listeners": "luisteraars",
+      "viewers": "kijkers",
+      "views": "weergaven (5 min)"
     }
   }
 }

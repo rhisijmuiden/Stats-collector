@@ -18,10 +18,10 @@ from .ops import JobContext, JobFailed
 from .updates import fetch_releases, parse_version
 
 APP_USER = "statscollector"
-SERVICES = ("stats-collector-web", "stats-collector-worker")
+SERVICES = ("stats-collector-web", "stats-collector-worker", "stats-collector-livewall")
 UNIT_DIR = Path("/etc/systemd/system")
 UNIT_SUFFIXES = (".service", ".path", ".timer")
-OPTIONAL_UNITS = ("stats-collector-worker.service",)  # not present in every release
+OPTIONAL_UNITS = ("stats-collector-worker.service", "stats-collector-livewall.service")  # not in every release
 
 
 def install_units(ctx: JobContext, root: Path) -> list[str]:

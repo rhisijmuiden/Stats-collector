@@ -39,7 +39,7 @@ version = { attr = "stats_collector.__version__" }
 include = ["stats_collector*"]
 
 [tool.setuptools.package-data]
-stats_collector = ["locales/*.json", "migrations/*.py", "migrations/versions/*.py", "migrations/script.py.mako"]
+stats_collector = ["locales/*.json", "migrations/*.py", "migrations/versions/*.py", "migrations/script.py.mako", "livewall/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

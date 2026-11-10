@@ -32,7 +32,8 @@
     "editors": "Editors",
     "followers": "Followers",
     "goals": "Goals",
-    "dashboards": "My dashboards"
+    "dashboards": "My dashboards",
+    "livewalls": "Live walls"
   },
   "roles": {
     "admin": "Admin",
@@ -534,7 +535,8 @@
     "unknown_source": "One of the chosen channels no longer exists.",
     "end_before_start": "The end date must be after the start date.",
     "link_kinds": "Only a post or video can be linked to an article.",
-    "icecast_no_status": "This server has no public status page (status-json.xsl). Enter the Icecast admin user and password, then the numbers are read from admin/stats."
+    "icecast_no_status": "This server has no public status page (status-json.xsl). Enter the Icecast admin user and password, then the numbers are read from admin/stats.",
+    "invalid_ip": "Enter IP addresses or networks, separated by commas."
   },
   "sources": {
     "title": "Sources",
@@ -946,6 +948,43 @@
       "video": "Videos",
       "broadcast": "Broadcasts",
       "mount": "Mount points"
+    }
+  },
+  "livewalls": {
+    "title": "Live walls",
+    "subtitle": "Read-only screens for the newsroom: the last hour per channel, on port 8081.",
+    "add": "New live wall",
+    "edit": "Edit live wall",
+    "defaultName": "Newsroom",
+    "saved": "Live wall saved.",
+    "proxyHint": "Walls are served on {{url}}. Point a host name such as live.example.org at port 8081 in your reverse proxy, and set SC_LIVEWALL_URL in the configuration so the links below use it.",
+    "noneTitle": "No live walls yet",
+    "noneText": "Make a wall, open its link on the TV and it updates itself every minute.",
+    "on": "On",
+    "off": "Off",
+    "link": "Link",
+    "copy": "Copy link",
+    "open": "Open",
+    "copied": "Link copied.",
+    "rotate": "New link",
+    "rotated": "New link made; the old one no longer works.",
+    "confirmRotate": "Make a new link for \"{{name}}\"? Screens with the old link stop showing it.",
+    "confirmDelete": "Delete the live wall \"{{name}}\"? Its link stops working.",
+    "channels": "Channels",
+    "allChannels": "all radio, TV and websites",
+    "channelsHint": "Icecast, Owncast and websites. None selected means all.",
+    "allowIps": "Allowed addresses",
+    "everyone": "everyone with the link",
+    "allowIpsHint": "Optional: IP addresses or networks (comma-separated) that may open the wall, e.g. the newsroom's public IP.",
+    "name": "Name",
+    "wallTitle": "Title on the screen",
+    "wallTitleHint": "Leave empty to use the name.",
+    "enabled": "Show this wall",
+    "noChannels": "No channels on this wall yet.",
+    "unit": {
+      "listeners": "listening",
+      "viewers": "watching",
+      "views": "views (5 min)"
     }
   }
 }
