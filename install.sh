@@ -310,6 +310,23 @@ EOF
   ok "Ports $PORT and 8081 only reachable from $PROXY_IPS"
 fi
 
+step "First backup"
+if /usr/local/bin/stats-collector backup full --if-none >/tmp/sc-first-backup.log 2>&1; then
+  ok "Full backup made (kept locally until you add a remote location)"
+else
+  warn "The first backup failed; see /tmp/sc-first-backup.log. The hourly timer will try again."
+fi
+
+step "Cleaning up old releases"
+CUR="$(readlink -f "$INSTALL_DIR/current")"
+# keep the current release and the two newest others (for rollback); remove everything older or half-installed
+mapfile -t OLD < <(find "$INSTALL_DIR/releases" -mindepth 1 -maxdepth 1 -type d ! -path "$CUR" -printf '%T@ %p\n' | sort -rn | cut -d' ' -f2-)
+for i in "${!OLD[@]}"; do
+  d="${OLD[$i]}"
+  if [ "$i" -ge 2 ] || [ ! -x "$d/venv/bin/stats-collector" ] || [[ "$(basename "$d")" == .* ]]; then rm -rf "$d"; fi
+done
+ok "$(find "$INSTALL_DIR/releases" -mindepth 1 -maxdepth 1 -type d | wc -l) release(s) on disk"
+
 # ----------------------------------------------------------------------------------------------------------
 echo
 echo "${c_b}Stats Collector $VERSION is running.${c_0}"

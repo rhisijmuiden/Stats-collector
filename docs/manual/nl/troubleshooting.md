@@ -18,6 +18,8 @@ stats-collector setup-link          # eenmalige link voor de eerste beheerder
 stats-collector reset-password E-MAIL
 stats-collector migrate             # databasemigraties uitvoeren
 stats-collector ops run-pending     # taken in de wachtrij nu uitvoeren (root)
+stats-collector backup full|incr    # nu een back-up maken (root)
+stats-collector restore --target ID --label LABEL   # terugzetten vanaf een externe locatie (root)
 ```
 
 ## Veelvoorkomende problemen

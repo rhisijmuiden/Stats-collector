@@ -139,6 +139,44 @@ def due_backup(cfg: dict, records, now: datetime) -> str | None:
     return None
 
 
+def cmd_backup(args) -> int:
+    """Queue a backup and run it right away (root). Used by the installer for the first full backup."""
+    from sqlalchemy import select
+
+    from .db import session_factory
+    from .models import BackupRecord, OpsJob
+    from .services import ops
+
+    with session_factory()() as db:
+        if args.if_none and db.execute(select(BackupRecord).limit(1)).first():
+            print("a backup already exists")
+            return 0
+        job = ops.enqueue(db, "backup", {"type": args.type}, None)
+        job_id = job.id
+    ops.run_pending()
+    with session_factory()() as db:
+        job = db.get(OpsJob, job_id)
+        print(job.log if job else "")
+        return 0 if job and job.status == "succeeded" else 1
+
+
+def cmd_restore(args) -> int:
+    """Restore a backup from a remote location (root): stats-collector restore --target 1 --label 2026...-full"""
+    from .db import session_factory
+    from .services import ops
+
+    with session_factory()() as db:
+        job = ops.enqueue(db, "restore", {"target_id": args.target, "label": args.label}, None)
+        job_id = job.id
+    ops.run_pending()
+    from .config import get_settings
+
+    log = get_settings().ops_dir / f"job-{job_id}.log"
+    print(log.read_text() if log.exists() else "")
+    status = get_settings().ops_dir / "last-restore.json"
+    return 0 if status.exists() and '"succeeded"' in status.read_text() else 1
+
+
 def cmd_version(_args) -> int:
     info = build_info()
     print(
@@ -168,6 +206,16 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("ops", help="Run privileged jobs (root only)")
     p.add_argument("action", choices=["run-pending", "tick"])
     p.set_defaults(func=cmd_ops)
+
+    p = sub.add_parser("backup", help="Make a backup now (root only)")
+    p.add_argument("type", choices=["full", "incr"])
+    p.add_argument("--if-none", action="store_true", help="Only when no backup exists yet")
+    p.set_defaults(func=cmd_backup)
+
+    p = sub.add_parser("restore", help="Restore a backup from a remote location (root only)")
+    p.add_argument("--target", type=int, required=True, help="Remote location id (see Backup & restore)")
+    p.add_argument("--label", required=True, help="Backup label, e.g. 20261110-023000-full")
+    p.set_defaults(func=cmd_restore)
 
     sub.add_parser("version").set_defaults(func=cmd_version)
 

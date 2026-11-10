@@ -18,6 +18,8 @@ stats-collector setup-link          # one-time link for the first administrator
 stats-collector reset-password EMAIL
 stats-collector migrate             # apply database migrations
 stats-collector ops run-pending     # run queued tasks now (root)
+stats-collector backup full|incr    # make a backup now (root)
+stats-collector restore --target ID --label LABEL   # restore from a remote location (root)
 ```
 
 ## Common problems
