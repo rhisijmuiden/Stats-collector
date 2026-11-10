@@ -54,7 +54,8 @@ def _pages_url(lang: str, slug: str) -> str:
     """URL of the same page in the versioned manual on GitHub Pages (published by the release workflow)."""
     owner, repo = get_settings().github_repo.split("/", 1)
     info = build_info()
-    released = re.match(r"^\d+\.\d+\.\d+(-(rc|test)\.\d+)?$", info["version"] or "")
+    # Production versions keep their own manual; test builds share the "test" manual (only the newest is kept).
+    released = re.match(r"^\d+\.\d+\.\d+$", info["version"] or "")
     version = info["version"] if released else ("test" if get_settings().default_channel == "test" else "latest")
     path = "" if slug == "README" else f"{slug}/"
     prefix = "" if lang == "en" else f"{lang}/"

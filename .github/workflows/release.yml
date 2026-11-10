@@ -113,5 +113,7 @@ jobs:
             mike deploy --push --update-aliases "$v" latest && mike set-default --push latest
           else
             mike deploy --push --update-aliases "$v" test
+            # Keep only the newest test manual: every copy holds all screenshots, and a large site makes the Pages deploy time out.
+            for old in $(mike list | awk '{print $1}' | grep -- '-rc\.' | grep -vxF "$v"); do mike delete --push "$old"; done
             git ls-remote --exit-code origin gh-pages >/dev/null && (mike list | grep -q latest || mike set-default --push test)
           fi
