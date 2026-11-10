@@ -218,7 +218,7 @@ if [ -n "$TARBALL" ]; then
   cp "$TARBALL" "$WORK/"
   PKG="$WORK/$(basename "$TARBALL")"
 elif [ -n "$SOURCE" ]; then
-  VERSION="$(cat "$SOURCE/VERSION")-src.$(date +%Y%m%d%H%M%S)"
+  VERSION="$(cat "$SOURCE/VERSION").dev$(date +%Y%m%d%H%M%S)"
   [ -f "$SOURCE/frontend/dist/index.html" ] || (cd "$SOURCE/frontend" && npm ci --no-audit --no-fund --silent && npm run build --silent)
   PKG="$(bash "$SOURCE/scripts/package.sh" "$VERSION" "$CHANNEL" "$(git -C "$SOURCE" rev-parse HEAD 2>/dev/null || echo local)" | tail -1)"
 else
@@ -231,7 +231,7 @@ else
     apt-get install -y -qq nodejs npm >/dev/null
     BRANCH="$([ "$CHANNEL" = test ] && echo develop || echo main)"
     git clone -q --depth 1 --branch "$BRANCH" "https://github.com/$REPO.git" "$WORK/src"
-    VERSION="$(cat "$WORK/src/VERSION")-src.$(date +%Y%m%d%H%M%S)"
+    VERSION="$(cat "$WORK/src/VERSION").dev$(date +%Y%m%d%H%M%S)"
     PKG="$(bash "$WORK/src/scripts/package.sh" "$VERSION" "$CHANNEL" "$(git -C "$WORK/src" rev-parse HEAD)" | tail -1)"
   else
     curl -fsSL -o "$WORK/release.tar.gz" "$ASSET"
