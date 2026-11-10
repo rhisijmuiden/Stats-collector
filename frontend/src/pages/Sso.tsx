@@ -9,6 +9,10 @@ import { Alert, Card, Field, PageHead, Switch, useLoad } from "../components/ui"
 interface Sso {
   enabled: boolean; tenant_id: string; client_id: string; client_secret_set: boolean; allow_local_login: boolean;
   group_roles: Record<Role, string>; default_role: Role; redirect_uri: string;
+  app_roles: AppRole[];
+}
+interface AppRole {
+  role: Role; allowedMemberTypes: string[]; description: string; displayName: string; id: string; isEnabled: boolean; value: string;
 }
 const ROLES: Role[] = ["admin", "editor_in_chief", "editor", "staff"];
 
@@ -25,10 +29,16 @@ export default function SsoPage() {
     e.preventDefault();
     try {
       const r = await api.put<Sso>("/api/settings/sso", { ...cfg, client_secret: secret || undefined });
-      setCfg({ ...r, redirect_uri: cfg.redirect_uri }); setSecret("");
+      setCfg({ ...r, redirect_uri: cfg.redirect_uri, app_roles: cfg.app_roles }); setSecret("");
       toast("success", t("common.saved"));
     } catch (err) { toast("error", errorText(err instanceof ApiError ? err.detail : String(err))); }
   };
+
+  const copy = (text: string) => {
+    navigator.clipboard?.writeText(text).then(() => toast("success", t("common.copied")), () => undefined);
+  };
+  // The manifest's appRoles entries, without our own role key.
+  const manifest = JSON.stringify(cfg.app_roles.map(({ role: _role, ...rest }) => rest), null, 2);
 
   return (
     <form className="page" onSubmit={save}>
@@ -51,6 +61,31 @@ export default function SsoPage() {
           </div>
           <Switch checked={cfg.allow_local_login} onChange={(v) => setCfg({ ...cfg, allow_local_login: v })} label={t("sso.allowLocal")} />
           <p className="muted small">{t("sso.breakGlass")}</p>
+        </div>
+      </Card>
+      <Card title={t("sso.appRoles")} subtitle={t("sso.appRolesIntro")}
+        actions={<button type="button" className="btn secondary" onClick={() => copy(manifest)}><Copy /> {t("sso.copyManifest")}</button>}>
+        <div className="stack">
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>{t("sso.role")}</th><th>{t("sso.appRoleValue")}</th><th>{t("sso.appRoleName")}</th></tr></thead>
+              <tbody>
+                {cfg.app_roles.map((a) => (
+                  <tr key={a.role}>
+                    <td><b>{t(`roles.${a.role}`)}</b></td>
+                    <td>
+                      <span className="row" style={{ flexWrap: "nowrap", gap: 6 }}>
+                        <code>{a.value}</code>
+                        <button type="button" className="btn ghost" onClick={() => copy(a.value)} aria-label={t("common.copy")}><Copy /></button>
+                      </span>
+                    </td>
+                    <td className="muted">{a.displayName}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="muted small">{t("sso.appRolesAssign")}</p>
         </div>
       </Card>
       <Card title={t("sso.groups")} subtitle={t("sso.groupsIntro")}>

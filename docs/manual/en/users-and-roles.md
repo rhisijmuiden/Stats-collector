@@ -31,4 +31,4 @@ Editor names and per-editor numbers are removed on the server before data reache
 
 ## Microsoft 365
 
-From phase 1 colleagues can sign in with their Microsoft 365 account and get their role from a Microsoft 365 group. The settings can already be prepared: see [Microsoft 365](microsoft-365.md).
+Colleagues can sign in with their Microsoft 365 account and get their role from an app role or group in Microsoft 365: see [Microsoft 365](microsoft-365.md).

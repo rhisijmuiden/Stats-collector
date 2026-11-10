@@ -1,9 +1,11 @@
 """Sign-in with Microsoft 365 (Entra ID) via OpenID Connect: authorization code flow with PKCE.
 
-Roles come from Microsoft 365: Settings → Microsoft 365 maps Entra group object IDs (or app role
-values) to the app roles; membership is read at every sign-in, so changing a group in Microsoft
-365 changes the role. When a user is in more than ~200 groups Entra leaves the `groups` claim out
-("group overage"); the groups are then read from Microsoft Graph with the user's token.
+Roles come from Microsoft 365, read at every sign-in. The simplest way is app roles: the app
+registration defines the roles in APP_ROLES (fixed values, so nothing has to be looked up) and
+users or groups are assigned to them; Entra puts the values in the `roles` claim. Entra group
+object IDs (or other app role values) can also be mapped per role under Roles & sign-in.
+When a user is in more than ~200 groups Entra leaves the `groups` claim out ("group overage");
+the groups are then read from Microsoft Graph with the user's token.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ import hashlib
 import re
 import secrets
 import time
+import uuid
 from typing import Any
 
 import httpx
@@ -24,6 +27,36 @@ SCOPES = "openid profile email User.Read"
 LOGIN_HOST = "https://login.microsoftonline.com"
 GRAPH = "https://graph.microsoft.com/v1.0"
 _GUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+
+# The app roles to create in the app registration. The values are what Entra sends in the `roles`
+# claim; the ids are fixed so that pasting the manifest twice does not create duplicates.
+APP_ROLES = {
+    "admin": ("StatsCollector.Admin", "Stats Collector admin", "Everything, including settings and users."),
+    "editor_in_chief": (
+        "StatsCollector.EditorInChief",
+        "Stats Collector editor-in-chief",
+        "All numbers including per editor; dashboards, reports and goals.",
+    ),
+    "editor": ("StatsCollector.Editor", "Stats Collector editor", "All numbers plus their own editor numbers."),
+    "staff": ("StatsCollector.Staff", "Stats Collector staff", "Views numbers without editor names."),
+}
+
+
+def app_roles() -> list[dict]:
+    """The app roles in the shape of the app registration manifest (`appRoles`), plus our role key."""
+    return [
+        {
+            "role": role,
+            "allowedMemberTypes": ["User"],
+            "description": description,
+            "displayName": name,
+            "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://stats-collector/app-role/{role}")),
+            "isEnabled": True,
+            "value": value,
+        }
+        for role, (value, name, description) in APP_ROLES.items()
+    ]
+
 
 _discovery_cache: dict[str, tuple[float, dict]] = {}
 _jwks_clients: dict[str, jwt.PyJWKClient] = {}
@@ -160,11 +193,15 @@ def group_ids(claims: dict, access_token: str | None) -> list[str]:
 
 
 def resolve_role(cfg: dict, groups: list[str], app_roles: list[str]) -> str:
-    """Highest mapped role wins (Admin > Editor-in-chief > Editor > Staff); otherwise the default role."""
+    """Highest role wins (Admin > Editor-in-chief > Editor > Staff); otherwise the default role.
+
+    A role is matched by its fixed app role value (APP_ROLES) or by a group ID or value mapped to it.
+    """
     have = {g.lower() for g in groups} | {r.lower() for r in app_roles}
     mapping: dict[str, Any] = cfg.get("group_roles") or {}
     for role in ROLES:
         wanted = [w.strip().lower() for w in re.split(r"[,\s;]+", str(mapping.get(role) or "")) if w.strip()]
+        wanted.append(APP_ROLES[role][0].lower())
         if any(w in have for w in wanted):
             return role
     default = cfg.get("default_role") or "staff"
