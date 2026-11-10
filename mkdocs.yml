@@ -61,6 +61,7 @@ markdown_extensions:
 nav:
   - README.md
   - dashboard.md
+  - content.md
   - installation.md
   - reverse-proxy.md
   - users-and-roles.md

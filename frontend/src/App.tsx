@@ -13,6 +13,8 @@ import GeneralSettings from "./pages/GeneralSettings";
 import InfoPage from "./pages/Info";
 import Help from "./pages/Help";
 import Profile from "./pages/Profile";
+import Content from "./pages/Content";
+import EditorsPage from "./pages/Editors";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useApp();
@@ -20,6 +22,11 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   return children;
+}
+
+function EditorsOnly({ children }: { children: JSX.Element }) {
+  const { user } = useApp();
+  return user && ["admin", "editor_in_chief", "editor"].includes(user.role) ? children : <Navigate to="/" replace />;
 }
 
 function AdminOnly({ children }: { children: JSX.Element }) {
@@ -36,6 +43,8 @@ export default function App() {
       <Route path="/setup" element={<Setup />} />
       <Route element={<RequireAuth><Layout /></RequireAuth>}>
         <Route index element={<Dashboard />} />
+        <Route path="content" element={<Content />} />
+        <Route path="editors" element={<EditorsOnly><EditorsPage /></EditorsOnly>} />
         <Route path="info" element={<InfoPage />} />
         <Route path="help" element={<Help />} />
         <Route path="help/:slug" element={<Help />} />

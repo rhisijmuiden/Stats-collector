@@ -27,7 +27,9 @@
     "info": "Info & updates",
     "profile": "Mijn profiel",
     "logout": "Uitloggen",
-    "sources": "Bronnen"
+    "sources": "Bronnen",
+    "content": "Content",
+    "editors": "Redacteuren"
   },
   "roles": {
     "admin": "Beheerder",
@@ -75,13 +77,15 @@
       "24h": "24 uur",
       "7d": "7 dagen",
       "30d": "30 dagen",
-      "90d": "90 dagen"
+      "90d": "90 dagen",
+      "365d": "12 maanden"
     },
     "rangeLong": {
       "24h": "afgelopen 24 uur",
       "7d": "afgelopen 7 dagen",
       "30d": "afgelopen 30 dagen",
-      "90d": "afgelopen 90 dagen"
+      "90d": "afgelopen 90 dagen",
+      "365d": "afgelopen 12 maanden"
     },
     "noSourcesTitle": "Nog geen bronnen gekoppeld",
     "noSourcesText": "Voeg je Icecast- en Owncast-servers toe om hier live luisteraars en kijkers te zien. Website, YouTube en sociale media volgen in de volgende fases.",
@@ -173,7 +177,9 @@
       "test": "Testrelease"
     },
     "running": "Deze versie draait",
-    "installVersion": "{{version}} installeren"
+    "installVersion": "{{version}} installeren",
+    "yourIp": "Jouw adres volgens de app",
+    "yourIpHint": "Hoort je eigen openbare IP-adres te zijn. Staat hier het adres van de proxy, controleer dan de vertrouwde proxy's."
   },
   "jobs": {
     "recent": "Recente taken",
@@ -479,7 +485,11 @@
     "internal_error": "Onverwachte fout bij het ophalen.",
     "unsupported_kind": "Dit soort bron wordt nog niet ondersteund.",
     "kind_cannot_change": "Het soort bron kan niet worden gewijzigd. Voeg een nieuwe bron toe.",
-    "no_webhook": "Deze bron heeft geen webhook."
+    "no_webhook": "Deze bron heeft geen webhook.",
+    "test_in_wordpress": "Test de verbinding vanuit WordPress (Instellingen → Stats Collector).",
+    "push_only": "Deze bron stuurt de cijfers zelf.",
+    "no_site_key": "Deze bron heeft geen sitesleutel.",
+    "plugin_missing": "De plugin zit niet in deze installatie."
   },
   "sources": {
     "title": "Bronnen",
@@ -490,14 +500,16 @@
     "kind": "Soort",
     "url": "Serveradres",
     "status": "Status",
-    "items": "Streams & uitzendingen",
+    "items": "Items",
     "kinds": {
       "icecast": "Icecast (radio)",
-      "owncast": "Owncast (video)"
+      "owncast": "Owncast (video)",
+      "wordpress": "WordPress (website)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
-      "owncast": "Het adres van je Owncast-server."
+      "owncast": "Het adres van je Owncast-server.",
+      "wordpress": "Het adres van de website, bijvoorbeeld https://www.example.org."
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -512,10 +524,10 @@
     "enabled": "Gegevens ophalen van deze bron",
     "disabled": "Gepauzeerd",
     "ok": "Werkt",
-    "waiting": "Wacht op eerste ophaalronde",
+    "waiting": "Wacht op eerste gegevens",
     "pollNow": "Nu ophalen",
     "confirmDelete": "{{name}} en alle bijbehorende cijfers verwijderen?",
-    "none": "Nog geen bronnen. Voeg een Icecast- of Owncast-server toe om te beginnen.",
+    "none": "Nog geen bronnen. Voeg een Icecast- of Owncast-server of een WordPress-site toe om te beginnen.",
     "webhook": "Webhook voor Owncast",
     "webhookHint": "Ga in Owncast naar Integrations → Webhooks, voeg deze URL toe en kies Stream started en Stream stopped. Uitzendingen beginnen en eindigen dan op de minuut.",
     "webhookAfterSave": "Wordt getoond na opslaan.",
@@ -528,6 +540,76 @@
     "testFailed": "Verbinding mislukt",
     "mountsFound": "Mounts op deze server",
     "renew": "Vernieuwen",
-    "renewConfirm": "De oude webhook-URL werkt dan niet meer. Doorgaan?"
+    "renewConfirm": "De oude webhook-URL werkt dan niet meer. Doorgaan?",
+    "pluginVersion": "Plugin {{version}}",
+    "ingestUrl": "Adres van Stats Collector voor de plugin",
+    "siteKey": "Sitesleutel",
+    "siteSecret": "Geheim",
+    "secretOnce": "Kopieer het nu: het wordt maar één keer getoond. Plak het in WordPress onder Instellingen → Stats Collector.",
+    "secretHidden": "Het geheim is versleuteld opgeslagen en kan niet opnieuw getoond worden. Kwijt? Maak een nieuwe sleutel en plak beide in WordPress.",
+    "renewKey": "Nieuwe sleutel en geheim",
+    "renewKeyConfirm": "De plugin stopt met versturen tot je de nieuwe sleutel en het geheim in WordPress plakt. Doorgaan?",
+    "wpSteps": "Installeer de plugin op de website (Plugins → Nieuwe plugin → Plugin uploaden) en plak deze drie waarden onder Instellingen → Stats Collector. Klik daarna op Verbinding testen.",
+    "wpAfterSave": "Na het opslaan krijg je de sitesleutel en het geheim voor de plugin.",
+    "downloadPlugin": "WordPress-plugin downloaden"
+  },
+  "content": {
+    "title": "Content",
+    "subtitle": "Top artikelen, uitzendingen en streams in de gekozen periode.",
+    "search": "Zoek in titels",
+    "source": "Bron",
+    "allSources": "Alle bronnen",
+    "category": "Categorie",
+    "allCategories": "Alle categorieën",
+    "editor": "Redacteur",
+    "allEditors": "Alle redacteuren",
+    "sortBy": "Sorteer",
+    "title_": "Titel",
+    "authors": "Redacteuren",
+    "published": "Gepubliceerd",
+    "views": "Weergaven",
+    "visitors": "Bezoekers",
+    "avgRead": "Gem. leestijd",
+    "reads": "Gelezen",
+    "shares": "Gedeeld",
+    "comments": "Reacties",
+    "minutes": "Luister-/kijkmin.",
+    "peak": "Piek",
+    "referrers": "Waar bezoekers vandaan kwamen",
+    "devices": "Apparaten",
+    "noBreakdown": "Geen gegevens in deze periode.",
+    "open": "Openen",
+    "loading": "Laden…",
+    "noneTitle": "Niets in deze periode",
+    "noneText": "Geen enkel item heeft cijfers voor deze periode en dit filter. Koppel een WordPress-site onder Bronnen, of kies een langere periode.",
+    "sort": {
+      "views": "weergaven",
+      "visitors": "bezoekers",
+      "read_seconds": "leestijd",
+      "reads": "gelezen",
+      "shares": "gedeeld",
+      "comments": "reacties",
+      "minutes": "luisteren/kijken",
+      "published": "nieuwste"
+    },
+    "device": {
+      "mobile": "Mobiel",
+      "desktop": "Computer",
+      "tablet": "Tablet",
+      "direct": "Direct / onbekend"
+    }
+  },
+  "editors": {
+    "title": "Redacteuren",
+    "subtitle": "Websitecijfers per redacteur: hun artikelen, lezers en leestijd.",
+    "subtitleOwn": "Je eigen websitecijfers.",
+    "ownOnly": "Je ziet alleen je eigen cijfers. De cijfers van collega's zijn zichtbaar voor de hoofdredactie en beheerders.",
+    "name": "Redacteur",
+    "published": "Gepubliceerd",
+    "notLinked": "Niet gekoppeld aan een gebruiker",
+    "topArticles": "Best gelezen artikelen",
+    "noneTitle": "Nog geen redacteuren",
+    "noneText": "Redacteuren verschijnen zodra een WordPress-site de eerste artikelen stuurt.",
+    "noneOwn": "Er zijn nog geen artikelen aan jou gekoppeld. Je WordPress-account moet hetzelfde e-mailadres hebben als je account hier."
   }
 }

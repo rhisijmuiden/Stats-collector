@@ -16,13 +16,18 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 6. [Back-up en herstel](backup.md)
 7. [Info, updates en het productie-/testkanaal](updates.md)
 
+## Gebruiken
+
+- [Dashboard](dashboard.md)
+- [Content en redacteuren](content.md)
+
 ## Platforms koppelen
 
 | Platform | Pagina | Beschikbaar vanaf |
 | --- | --- | --- |
 | Inloggen met Microsoft 365 (Entra ID) | [Microsoft 365](microsoft-365.md) | Fase 1 (instellingen kun je nu al voorbereiden) |
 | Owncast en Icecast | [Owncast en Icecast](owncast-icecast.md) | Fase 1 |
-| WordPress (eigen plugin) | [WordPress](wordpress.md) | Fase 2 |
+| WordPress (eigen plugin) | [WordPress](wordpress.md) | Beschikbaar |
 | YouTube | [YouTube](youtube.md) | Fase 2 (Google-verificatie nu al starten) |
 | Facebook en Instagram | [Meta: Facebook en Instagram](meta.md) | Fase 3 (Meta App Review nu al starten) |
 

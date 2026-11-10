@@ -31,6 +31,17 @@ LIVE_PEAK = "live_peak"
 LIVE_MINUTES = "live_minutes"
 LIVE_METRICS = (LIVE_AVG, LIVE_PEAK, LIVE_MINUTES)
 
+# Website metrics (WordPress plugin). Hourly values come from the plugin; daily and monthly
+# totals are sums, except unique visitors per day, which the plugin counts itself.
+WEB_VIEWS = "web_views"
+WEB_VISITORS = "web_visitors"
+WEB_READ_SECONDS = "web_read_seconds"
+WEB_READS = "web_reads"
+WEB_SHARES = "web_shares"
+WEB_COMMENTS = "web_comments"
+WEB_HOUR_METRICS = (WEB_VIEWS, WEB_VISITORS, WEB_READ_SECONDS, WEB_READS, WEB_SHARES, WEB_COMMENTS)
+WEB_SUM_FROM_HOURS = (WEB_VIEWS, WEB_READ_SECONDS, WEB_READS, WEB_SHARES, WEB_COMMENTS)
+
 REGISTRY: tuple[Metric, ...] = (
     Metric("icecast", LIVE_AVG, "count", "avg", "live_audience", "Average listeners", "Gemiddeld aantal luisteraars"),
     Metric("icecast", LIVE_PEAK, "count", "max", "live_audience", "Peak listeners", "Piek luisteraars"),
@@ -38,6 +49,12 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("owncast", LIVE_AVG, "count", "avg", "live_audience", "Average viewers", "Gemiddeld aantal kijkers"),
     Metric("owncast", LIVE_PEAK, "count", "max", "live_audience", "Peak viewers", "Piek kijkers"),
     Metric("owncast", LIVE_MINUTES, "minutes", "sum", "watch_time", "Viewing minutes", "Kijkminuten"),
+    Metric("wordpress", WEB_VIEWS, "count", "sum", "views", "Page views", "Paginaweergaven"),
+    Metric("wordpress", WEB_VISITORS, "count", "unique", "reach", "Unique visitors", "Unieke bezoekers"),
+    Metric("wordpress", WEB_READ_SECONDS, "seconds", "sum", "watch_time", "Reading time", "Leestijd"),
+    Metric("wordpress", WEB_READS, "count", "sum", "interactions", "Engaged reads", "Gelezen artikelen"),
+    Metric("wordpress", WEB_SHARES, "count", "sum", "interactions", "Share clicks", "Deelkliks"),
+    Metric("wordpress", WEB_COMMENTS, "count", "sum", "interactions", "Comments", "Reacties"),
 )
 
 
