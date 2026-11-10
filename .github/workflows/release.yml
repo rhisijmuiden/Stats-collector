@@ -3,10 +3,13 @@ name: Release
 # Triggered by pushing a version tag:
 #   vX.Y.Z-rc.N on develop -> test build (prerelease, test channel)
 #   vX.Y.Z      on main    -> production release
-# (workflow_dispatch on main or develop does the same, numbering test builds by run number.)
+# A merge into develop whose commit message contains "[test-release]" also builds the next
+# test build vX.Y.Z-rc.N (N = highest existing rc + 1), so test builds need no manual tag.
+# (workflow_dispatch on main or develop does the same.)
 on:
   push:
     tags: ["v*"]
+    branches: [develop]
   workflow_dispatch:
 
 permissions:
@@ -18,12 +21,14 @@ concurrency:
 
 jobs:
   release:
+    if: github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[test-release]')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.v.outputs.version }}
       channel: ${{ steps.v.outputs.channel }}
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
       - name: Work out version and channel
@@ -40,7 +45,9 @@ jobs:
           else
             case "$GITHUB_REF_NAME" in
               main)    v="$base"; ch=production; section="$base" ;;
-              develop) v="$base-rc.$GITHUB_RUN_NUMBER"; ch=test; section=Unreleased ;;
+              develop)
+                last="$(git tag -l "v$base-rc.*" | sed "s/^v$base-rc\.//" | grep -E '^[0-9]+$' | sort -n | tail -1)"
+                v="$base-rc.$(( ${last:-0} + 1 ))"; ch=test; section=Unreleased ;;
               *) echo "Releases are only built from main or develop" >&2; exit 1 ;;
             esac
           fi
