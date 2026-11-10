@@ -189,7 +189,24 @@ def data(
     """One measure over a period, with the previous period's total for comparison."""
     level = measure in explore.LEVEL
     span = "7d" if level and range == "24h" else range  # followers are counted per day
-    start, end, gran, buckets = period(db, span)
+    window = period(db, span)
+    previous = period(db, span, now=window[0] - timedelta(seconds=1)) if compare else None
+    return {"range": span, **measure_data(db, measure, split, sources, list(platforms), window, previous)}
+
+
+def measure_data(
+    db: Session,
+    measure: str,
+    split: str,
+    sources: list[int],
+    platforms: list[str],
+    window: tuple,
+    previous_window: tuple | None,
+) -> dict:
+    """Series and totals of one measure in a window (start, end, granularity, buckets), with the
+    total of an earlier window for comparison. Shared by dashboards and reports."""
+    level = measure in explore.LEVEL
+    start, end, gran, buckets = window
     chosen = explore.sources_for(db, measure, sources, platforms)
     values = explore.per_source(db, measure, chosen, start, end, gran, buckets)
     series = explore.group(chosen, values, split)
@@ -205,8 +222,8 @@ def data(
         level,
     )
     previous = None
-    if compare:
-        p_start, p_end, p_gran, p_buckets = period(db, span, now=start - timedelta(seconds=1))
+    if previous_window is not None:
+        p_start, p_end, p_gran, p_buckets = previous_window
         p_values = explore.per_source(db, measure, chosen, p_start, p_end, p_gran, p_buckets)
         cols = list(zip(*p_values.values(), strict=True)) if p_values else []
         merged = [None if all(v is None for v in col) else sum(v or 0 for v in col) for col in cols]
@@ -214,7 +231,6 @@ def data(
             previous = explore.total(merged, level)
     return {
         "measure": measure,
-        "range": span,
         "kind": "level" if level else "total",
         "granularity": gran,
         "buckets": [b.isoformat() for b in buckets],

@@ -15,18 +15,19 @@ type Split = "none" | "platform" | "source";
 type Mode = "stacked" | "overlay" | "separate";
 type Platform = "website" | "youtube" | "facebook" | "instagram" | "threads" | "x" | "bluesky" | "mastodon" | "owncast" | "icecast";
 export interface Widget {
-  id: string; type: "kpi" | "chart" | "top" | "editors" | "goals"; title: string; size: "small" | "half" | "full";
+  id: string; type: "kpi" | "chart" | "top" | "editors" | "goals" | "text"; title: string; size: "small" | "half" | "full";
   measure: Measure; sources: number[]; platforms: Platform[]; split: Split; mode: Mode; chart: "line" | "area" | "bar";
-  sort: string; kind: string; limit: number;
+  sort: string; kind: string; limit: number; text?: string;
 }
 interface Dashboard { id: number; name: string; widgets: Widget[]; shared: boolean; position: number; mine: boolean; can_edit: boolean }
-interface Data {
+export interface MeasureData {
   kind: "level" | "total"; granularity: "hour" | "day"; buckets: string[]; total: number; previous: number | null; change: number | null;
   series: { key: string; name: string; kind: string; platform: string; values: (number | null)[]; total: number }[]; daily_only: number[];
 }
-interface SourceRef { id: number; name: string; kind: string }
+type Data = MeasureData;
+export interface SourceRef { id: number; name: string; kind: string }
 
-const MEASURES: Measure[] = ["reach", "views", "interactions", "watch_minutes", "followers"];
+export const MEASURES: Measure[] = ["reach", "views", "interactions", "watch_minutes", "followers"];
 const PLATFORMS: Platform[] = ["website", "facebook", "instagram", "threads", "x", "bluesky", "mastodon", "youtube", "owncast", "icecast"];
 const SORTS = ["views", "reach", "visitors", "shares", "comments", "likes", "minutes", "published"];
 const KINDS = ["", "article", "post", "video", "broadcast", "mount"];
@@ -44,21 +45,25 @@ function useData(w: Widget, range: Range) {
   return useLoad(() => api.get<Data>(`/api/dashboards/data?${q}`), [q.toString()]);
 }
 
-const widgetTitle = (w: Widget, t: TFunction) =>
+export const widgetTitle = (w: Widget, t: TFunction) =>
   w.title || (w.type === "kpi" || w.type === "chart" ? t(`dashboards.measure.${w.measure}`) : t(`dashboards.type.${w.type}`));
 
 const fmtMeasure = (v: number, _m: Measure, lang: string) => fmt(v, lang);
 
 function Kpi({ w, range }: { w: Widget; range: Range }) {
-  const { t, i18n } = useTranslation();
   const d = useData(w, range);
-  const c = d.data?.change;
+  return <KpiView w={w} data={d.data} error={d.error} />;
+}
+
+export function KpiView({ w, data, error }: { w: Widget; data?: MeasureData | null; error?: string | null }) {
+  const { t, i18n } = useTranslation();
+  const c = data?.change;
   return (
     <div className="kpi dash-kpi">
       <div className="kpi-label">{widgetTitle(w, t)}</div>
-      {d.error ? <div className="muted small">{errorText(d.error)}</div> : (
+      {error ? <div className="muted small">{errorText(error)}</div> : (
         <>
-          <div className="kpi-value">{d.data ? fmtMeasure(d.data.total, w.measure, i18n.language) : "…"}</div>
+          <div className="kpi-value">{data ? fmtMeasure(data.total, w.measure, i18n.language) : "…"}</div>
           <div className="kpi-sub">
             {c == null ? t("dashboards.noCompare") : <span className={c >= 0 ? "up" : "down"}>{c >= 0 ? "▲" : "▼"} {fmt(Math.abs(c), i18n.language, 1)}%</span>}
             {c != null && ` ${t("dashboards.vsPrevious")}`}
@@ -70,10 +75,13 @@ function Kpi({ w, range }: { w: Widget; range: Range }) {
 }
 
 function ChartWidget({ w, range, onMode }: { w: Widget; range: Range; onMode: (m: Mode) => void }) {
+  return <ChartView w={w} d={useData(w, range).data} onMode={onMode} />;
+}
+
+export function ChartView({ w, d, onMode, still }: { w: Widget; d?: MeasureData | null; onMode: (m: Mode) => void; still?: boolean }) {
   const { t, i18n } = useTranslation();
   const { theme } = useApp();
   const lang = i18n.language;
-  const d = useData(w, range).data;
   const colors = useMemo(() => {
     const seen: Record<string, number> = {};
     return (d?.series ?? []).map((s) => s.key === "total" ? cssVar("--accent", "#0e9f8e") : shade(theme?.channels?.[s.platform] ?? "#3E7BFA", (seen[s.platform] = (seen[s.platform] ?? -1) + 1)));
@@ -85,11 +93,13 @@ function ChartWidget({ w, range, onMode }: { w: Widget; range: Range; onMode: (m
     const grid = cssVar("--border", "#e2e7ef");
     const stack = w.mode === "stacked" && !small;
     return {
+      animation: !still,
       animationDuration: 300,
       color: subset.map((i) => colors[i]),
       tooltip: { trigger: "axis", valueFormatter: (v: number | null) => (v == null ? "–" : fmt(v, lang)) },
       legend: small ? { show: false } : { bottom: 0, textStyle: { color: text }, icon: "roundRect" },
-      grid: { left: 8, right: 12, top: small ? 8 : 16, bottom: small ? 4 : 36, containLabel: true },
+      // Room for the legend under the chart: it wraps onto more lines with many series in a narrow cell.
+      grid: { left: 8, right: 12, top: small ? 8 : 16, bottom: small ? 4 : 14 + 22 * Math.ceil(subset.length / (w.size === "full" ? 8 : 3)), containLabel: true },
       xAxis: {
         type: "category", data: d.buckets.map((b) => new Date(b)[d.granularity === "day" ? "toLocaleDateString" : "toLocaleTimeString"](lang, d.granularity === "day" ? { day: "numeric", month: "short" } : { hour: "2-digit", minute: "2-digit" })),
         axisLabel: { color: text, hideOverlap: true }, axisLine: { lineStyle: { color: grid } },
@@ -110,7 +120,7 @@ function ChartWidget({ w, range, onMode }: { w: Widget; range: Range; onMode: (m
   const all = (d?.series ?? []).map((_, i) => i);
   return (
     <Card title={widgetTitle(w, t)} subtitle={d ? `${t("dashboards.total")}: ${fmtMeasure(d.total, w.measure, lang)}${d.change != null ? ` (${d.change >= 0 ? "+" : ""}${fmt(d.change, lang, 1)}%)` : ""}` : undefined}
-      actions={w.split !== "none" && (d?.series.length ?? 0) > 1 ? (
+      actions={!still && w.split !== "none" && (d?.series.length ?? 0) > 1 ? (
         <div className="seg" role="group" aria-label={t("dashboards.mode")}>
           {(["stacked", "overlay", "separate"] as const).map((m) => <button key={m} type="button" aria-pressed={w.mode === m} onClick={() => onMode(m)}>{t(`dashboards.modes.${m}`)}</button>)}
         </div>
@@ -132,30 +142,42 @@ function ChartWidget({ w, range, onMode }: { w: Widget; range: Range; onMode: (m
 }
 
 function TopWidget({ w, range }: { w: Widget; range: Range }) {
-  const { t } = useTranslation();
   const [open, setOpen] = useState<number | null>(null);
   const q = new URLSearchParams({ range, sort: w.sort, limit: String(w.limit) });
   if (w.kind) q.set("kind", w.kind);
   const top = useLoad(() => api.get<{ items: Item[] }>(`/api/content/top?${q}`), [q.toString()]);
   return (
-    <Card title={widgetTitle(w, t)}>
-      {top.error && <Alert kind="error">{errorText(top.error)}</Alert>}
-      {top.data && (top.data.items.length ? <ItemsTable items={top.data.items} onOpen={setOpen} showAuthors={false} /> : <p className="muted small">{t("dashboards.noData")}</p>)}
+    <>
+      <TopView w={w} items={top.data?.items} error={top.error} onOpen={setOpen} />
       {open != null && <ItemModal id={open} range={range} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
+
+export function TopView({ w, items, error, onOpen }: { w: Widget; items?: Item[]; error?: string | null; onOpen?: (id: number) => void }) {
+  const { t } = useTranslation();
+  return (
+    <Card title={widgetTitle(w, t)}>
+      {error && <Alert kind="error">{errorText(error)}</Alert>}
+      {items && (items.length ? <ItemsTable items={items} onOpen={onOpen} showAuthors={false} /> : <p className="muted small">{t("dashboards.noData")}</p>)}
     </Card>
   );
 }
 
-interface EditorRow { id: number; name: string; published: number; avg_read_seconds: number; metrics: { views: number }; social?: { views: number } }
+export interface EditorRow { id: number; name: string; published: number; avg_read_seconds: number; metrics: { views: number }; social?: { views: number } }
 function EditorsWidget({ w, range }: { w: Widget; range: Range }) {
-  const { t, i18n } = useTranslation();
   const list = useLoad(() => api.get<{ editors: EditorRow[] }>(`/api/editors?range=${range}`), [range]);
-  const rows = (list.data?.editors ?? []).slice(0, w.limit);
+  return <EditorsView w={w} editors={list.data?.editors} error={list.error} />;
+}
+
+export function EditorsView({ w, editors, error }: { w: Widget; editors?: EditorRow[]; error?: string | null }) {
+  const { t, i18n } = useTranslation();
+  const rows = (editors ?? []).slice(0, w.limit);
   const max = Math.max(1, ...rows.map((e) => e.metrics.views));
   return (
     <Card title={widgetTitle(w, t)}>
-      {list.error && <p className="muted small">{list.error === "forbidden" ? t("dashboards.editorsHidden") : errorText(list.error)}</p>}
-      {list.data && (rows.length ? (
+      {error && <p className="muted small">{error === "forbidden" ? t("dashboards.editorsHidden") : errorText(error)}</p>}
+      {editors && (rows.length ? (
         <div className="table-wrap"><table>
           <thead><tr><th>{t("editors.name")}</th><th className="num">{t("editors.published")}</th><th>{t("content.views")}</th><th className="num">{t("content.avgRead")}</th><th className="num">{t("editors.socialViews")}</th></tr></thead>
           <tbody>{rows.map((e) => (
@@ -169,7 +191,9 @@ function EditorsWidget({ w, range }: { w: Widget; range: Range }) {
   );
 }
 
-function WidgetForm({ initial, adding, sources, onSave, onClose }: { initial: Widget; adding: boolean; sources: SourceRef[]; onSave: (w: Widget) => void; onClose: () => void }) {
+const DASHBOARD_TYPES: Widget["type"][] = ["kpi", "chart", "top", "editors", "goals"];
+
+export function WidgetForm({ initial, adding, sources, onSave, onClose, types = DASHBOARD_TYPES }: { initial: Widget; adding: boolean; sources: SourceRef[]; onSave: (w: Widget) => void; onClose: () => void; types?: Widget["type"][] }) {
   const { t } = useTranslation();
   const [w, setW] = useState(initial);
   const set = (patch: Partial<Widget>) => setW((x) => ({ ...x, ...patch }));
@@ -181,7 +205,7 @@ function WidgetForm({ initial, adding, sources, onSave, onClose }: { initial: Wi
         <div className="grid two">
           <Field label={t("dashboards.widgetType")}>
             <select value={w.type} onChange={(e) => set({ type: e.target.value as Widget["type"] })}>
-              {(["kpi", "chart", "top", "editors", "goals"] as const).map((k) => <option key={k} value={k}>{t(`dashboards.type.${k}`)}</option>)}
+              {types.map((k) => <option key={k} value={k}>{t(`dashboards.type.${k}`)}</option>)}
             </select>
           </Field>
           <Field label={t("dashboards.size")}>
@@ -193,6 +217,11 @@ function WidgetForm({ initial, adding, sources, onSave, onClose }: { initial: Wi
         <Field label={t("dashboards.widgetTitle")} hint={t("dashboards.widgetTitleHint")}>
           <input value={w.title} maxLength={200} onChange={(e) => set({ title: e.target.value })} placeholder={widgetTitle({ ...w, title: "" }, t)} />
         </Field>
+        {w.type === "text" && (
+          <Field label={t("reports.text")} hint={t("reports.textHint")}>
+            <textarea className="prose" rows={6} maxLength={5000} value={w.text ?? ""} onChange={(e) => set({ text: e.target.value })} />
+          </Field>
+        )}
         {series && (
           <>
             <Field label={t("dashboards.measureLabel")} hint={t(`dashboards.measureHint.${w.measure}`)}>

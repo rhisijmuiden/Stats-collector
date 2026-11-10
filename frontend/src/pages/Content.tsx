@@ -215,7 +215,7 @@ export function ItemModal({ id: first, range, onClose }: { id: number; range: Ra
   );
 }
 
-export function ItemsTable({ items, onOpen, showAuthors }: { items: Item[]; onOpen: (id: number) => void; showAuthors: boolean }) {
+export function ItemsTable({ items, onOpen, showAuthors }: { items: Item[]; onOpen?: (id: number) => void; showAuthors: boolean }) {
   const { t, i18n } = useTranslation();
   const { theme } = useApp();
   const lang = i18n.language;
@@ -228,9 +228,10 @@ export function ItemsTable({ items, onOpen, showAuthors }: { items: Item[]; onOp
       </tr></thead>
       <tbody>
         {items.map((i) => (
-          <tr key={i.id} className="clickable" onClick={() => onOpen(i.id)}>
+          <tr key={i.id} className={onOpen ? "clickable" : undefined} onClick={onOpen ? () => onOpen(i.id) : undefined}>
             <td>
-              <button type="button" className="link-btn" onClick={(e) => { e.stopPropagation(); onOpen(i.id); }}>{i.title}</button>
+              {onOpen ? <button type="button" className="link-btn" onClick={(e) => { e.stopPropagation(); onOpen(i.id); }}>{i.title}</button>
+                : i.url ? <a href={i.url} target="_blank" rel="noreferrer noopener">{i.title}</a> : i.title}
               <div className="muted small source-kind"><i style={{ background: theme?.channels?.[channel(i.source?.kind ?? "")] }} />{kindIcon(i.source?.kind)} {i.source?.name}{i.category ? ` · ${i.category}` : ""}</div>
             </td>
             {showAuthors && <td>{i.authors?.map((a) => a.name).join(", ") || "–"}</td>}

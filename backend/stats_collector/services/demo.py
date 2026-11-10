@@ -214,7 +214,52 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         + create_demo_goals(db, now=now)
         + auto_link(db)["added"]
         + create_demo_dashboard(db)
+        + create_demo_report(db, now=now)
     )
+
+
+DEMO_REPORT = [
+    {"id": "r1", "type": "kpi", "measure": "reach", "size": "small"},
+    {"id": "r2", "type": "kpi", "measure": "views", "size": "small"},
+    {"id": "r3", "type": "kpi", "measure": "interactions", "size": "small"},
+    {"id": "r4", "type": "chart", "measure": "reach", "split": "platform", "mode": "stacked", "size": "full"},
+    {"id": "r5", "type": "chart", "measure": "followers", "split": "platform", "mode": "overlay", "chart": "line"},
+    {"id": "r6", "type": "goals", "size": "half"},
+    {"id": "r7", "type": "top", "sort": "views", "limit": 8, "size": "full"},
+    {
+        "id": "r8",
+        "type": "text",
+        "title": "Notes",
+        "size": "full",
+        "text": "Video did well this month. Next month we try two live streams a week.",
+    },
+]
+
+
+def create_demo_report(db: Session, now: datetime | None = None) -> int:
+    """A monthly report to the board, made once so the archive has an entry."""
+    from ..api.reports import Block
+    from ..models import Report
+    from .reports import generate, next_run
+    from .rollup import org_timezone
+
+    report = Report(
+        name="Monthly report",
+        title="Reach and audience",
+        intro="All channels of the last 30 days in one overview.",
+        blocks=[Block(**b).model_dump() for b in DEMO_REPORT],
+        period="last_30d",
+        schedule="monthly",
+        monthday=1,
+        send_time="08:00",
+        recipient_emails=["board@example.org"],
+    )
+    db.add(report)
+    db.flush()
+    report.next_run_at = next_run(report, now or datetime.now(UTC), org_timezone(db))
+    db.commit()
+    generate(db, report, None, now=now)
+    return 1
 
 
 def create_demo_dashboard(db: Session) -> int:

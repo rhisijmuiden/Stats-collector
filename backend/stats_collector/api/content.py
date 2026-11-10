@@ -293,6 +293,17 @@ def top(
         if via == "social":  # the posts and videos that link to this editor's articles
             own = select(ItemLink.from_item_id).where(ItemLink.to_item_id.in_(own))
         stmt = stmt.where(ContentItem.id.in_(own))
+    return {
+        "range": range,
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "sort": sort,
+        "items": ranked_items(db, stmt, start, end, gran, sort, limit, user.role in SEES_ALL),
+    }
+
+
+def ranked_items(db: Session, stmt, start: datetime, end: datetime, gran: str, sort: str, limit: int, authors: bool):
+    """The items of a query ranked by one metric in a window (or by publication date). Shared with reports."""
     items = {i.id: i for i in db.execute(stmt).scalars()}
     totals = _totals(db, start, end, gran, items.keys())
     if sort == "published":
@@ -302,20 +313,11 @@ def top(
         ranked = sorted((items[i] for i in totals if totals[i].get(sort)), key=lambda i: -totals[i.id].get(sort, 0))
     ranked = ranked[:limit]
     sources = {s.id: s for s in db.execute(select(Source)).scalars()}
-    show_authors = user.role in SEES_ALL
-    authors = _people_for(db, [i.id for i in ranked]) if show_authors else {}
-    return {
-        "range": range,
-        "start": start.isoformat(),
-        "end": end.isoformat(),
-        "sort": sort,
-        "items": [
-            _item_out(
-                i, sources.get(i.source_id), totals.get(i.id, {}), authors.get(i.id, []) if show_authors else None
-            )
-            for i in ranked
-        ],
-    }
+    people = _people_for(db, [i.id for i in ranked]) if authors else {}
+    return [
+        _item_out(i, sources.get(i.source_id), totals.get(i.id, {}), people.get(i.id, []) if authors else None)
+        for i in ranked
+    ]
 
 
 def _series(db: Session, gran: str, buckets: list[datetime], where) -> dict[str, list[float]]:

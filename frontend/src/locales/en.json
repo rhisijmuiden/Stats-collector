@@ -33,7 +33,8 @@
     "followers": "Followers",
     "goals": "Goals",
     "dashboards": "My dashboards",
-    "livewalls": "Live walls"
+    "livewalls": "Live walls",
+    "reports": "Reports"
   },
   "roles": {
     "admin": "Admin",
@@ -298,7 +299,7 @@
   },
   "email": {
     "title": "Email",
-    "subtitle": "Your own SMTP server for notifications and reports.",
+    "subtitle": "How notifications and reports are sent: Microsoft 365 or your own SMTP server.",
     "server": "Mail server",
     "enabled": "Send email",
     "presets": "Presets",
@@ -329,7 +330,18 @@
     "testIntro": "Saves the settings and sends a test message.",
     "testTo": "Send test to",
     "sendTest": "Send test email",
-    "testOk": "Test email sent to {{to}}."
+    "testOk": "Test email sent to {{to}}.",
+    "route": "Sending route",
+    "routeHint": "Microsoft 365 sends through Microsoft Graph from one mailbox. Any other provider uses SMTP.",
+    "transport": {
+      "graph": "Microsoft 365 (Graph)",
+      "smtp": "SMTP server"
+    },
+    "graphTenant": "Tenant ID",
+    "graphTenantHint": "Directory (tenant) ID of the app registration in Entra ID.",
+    "graphMailbox": "Mailbox",
+    "graphMailboxHint": "The mailbox the mail is sent from, for example reports@yourdomain. Empty: the from address below.",
+    "graphFallback": "The app registration needs the application permission Mail.Send; limit it to this mailbox with an application access policy (see Help). When an SMTP server is filled in below, it is used if Graph fails."
   },
   "backup": {
     "title": "Backup & restore",
@@ -569,7 +581,22 @@
     "x_rate_limit": "X asks to slow down; collecting continues automatically in a while.",
     "x_permission": "X refused access: check the app's permissions and that the account has credit (see Help → X).",
     "x_payment_required": "X asks for payment: add credit in the X developer console.",
-    "x_budget_reached": "The monthly budget for X is spent; reading starts again next month (or raise the budget)."
+    "x_budget_reached": "The monthly budget for X is spent; reading starts again next month (or raise the budget).",
+    "editors_recipients": "A report with the editors ranking can only be sent to editors-in-chief and administrators.",
+    "no_recipients": "Choose at least one recipient.",
+    "mail_not_configured": "Email is not set up yet (Administration › Email).",
+    "chromium_missing": "Chromium is not installed on the server, so no PDF can be made.",
+    "pdf_failed": "The PDF could not be made.",
+    "pdf_timeout": "Making the PDF took too long.",
+    "link_expired": "This link has expired.",
+    "editors_block_forbidden": "Only editors-in-chief and administrators can add the editors ranking.",
+    "unknown_user": "Unknown user.",
+    "invalid_time": "Enter a time as HH:MM.",
+    "graph_not_configured": "Microsoft Graph is not set up: fill in the tenant ID, client ID and secret.",
+    "graph_token_failed": "Microsoft did not give a token; check the tenant ID, client ID and secret.",
+    "graph_send_failed": "Microsoft Graph refused the email; check Mail.Send and the mailbox.",
+    "graph_mailbox_missing": "Fill in the mailbox to send from.",
+    "attachment_too_large": "The attachment is too large."
   },
   "sources": {
     "title": "Sources",
@@ -1008,7 +1035,8 @@
       "chart": "Chart",
       "top": "Top content",
       "editors": "Editors ranking",
-      "goals": "Goals"
+      "goals": "Goals",
+      "text": "Text"
     },
     "sizes": {
       "small": "Third",
@@ -1109,5 +1137,114 @@
     "proxies": "Reverse proxy addresses (optional)",
     "proxiesHint": "IP addresses or networks of the proxy in front of the walls, when it is another machine than the main proxy. Needed for Allowed addresses to see the real visitor.",
     "addressSaved": "Address saved. The links below use it now; the wall service picks up the proxy within two minutes."
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Compose a report once, then generate it for any period or have it emailed on a schedule.",
+    "new": "New report",
+    "edit": "Edit report",
+    "saved": "Report saved",
+    "name": "Name",
+    "nameHint": "For the list of reports.",
+    "titleLabel": "Title",
+    "titleHint": "Shown above the report and in the email subject. Empty: the name.",
+    "period": "Period",
+    "periodHint": "Whole days in the organisation's time zone, counted back from the moment the report is made.",
+    "language": "Language",
+    "languageHint": "Language of the email, and of the report page for readers who are not logged in.",
+    "intro": "Introduction",
+    "introHint": "Optional text at the top of the report.",
+    "blocks": "Blocks",
+    "blocksHint": "The same building blocks as My dashboards, plus text.",
+    "addBlock": "Add block",
+    "noBlocks": "No blocks yet. Add a block to fill the report.",
+    "text": "Text",
+    "textHint": "An empty line starts a new paragraph.",
+    "delivery": "Delivery",
+    "deliveryHint": "Who receives the report, and when. Send now always works, with or without a schedule.",
+    "schedule": "Schedule",
+    "weekday": "Day of the week",
+    "monthday": "Day of the month",
+    "monthdayHint": "1 to 28, so it exists in every month.",
+    "time": "Time",
+    "timeHint": "In the organisation's time zone.",
+    "users": "Users",
+    "editorsOnly": "This report has the editors ranking, so only editors-in-chief and administrators can receive it.",
+    "emails": "Other email addresses",
+    "emailsHint": "Separated by commas or new lines. Each recipient gets their own email.",
+    "linkDays": "Link valid for (days)",
+    "linkDaysHint": "The interactive report in the email can be opened without logging in until then.",
+    "attachPdf": "Attach a PDF",
+    "enabled": "Schedule active",
+    "editorNote": "Editors can make reports and open them; an editor-in-chief or administrator sends and schedules them.",
+    "periods": {
+      "yesterday": "Yesterday",
+      "last_week": "Last week (Mon–Sun)",
+      "last_month": "Last month",
+      "last_7d": "Last 7 days",
+      "last_30d": "Last 30 days",
+      "last_90d": "Last 90 days"
+    },
+    "schedules": {
+      "none": "Only on demand",
+      "daily": "Every day",
+      "weekly": "Every week",
+      "monthly": "Every month"
+    },
+    "weekdays": {
+      "0": "Monday",
+      "1": "Tuesday",
+      "2": "Wednesday",
+      "3": "Thursday",
+      "4": "Friday",
+      "5": "Saturday",
+      "6": "Sunday"
+    },
+    "when": {
+      "daily": "every day at {{time}}",
+      "weekly": "every {{day}} at {{time}}",
+      "monthly": "{{day}} at {{time}}"
+    },
+    "onDay": "every month on day {{day}}",
+    "onDemand": "on demand",
+    "nextRun": "Next: {{date}}",
+    "paused": "Schedule paused",
+    "lastRun": "Last made {{date}}",
+    "noRuns": "Not made yet",
+    "blockCount_one": "{{count}} block",
+    "blockCount_other": "{{count}} blocks",
+    "recipientCount_one": "{{count}} recipient",
+    "recipientCount_other": "{{count}} recipients",
+    "generate": "Generate",
+    "sendNow": "Send now",
+    "confirmSend": "Make \"{{name}}\" now and email it to its recipients?",
+    "sent_one": "Report sent to {{count}} recipient",
+    "sent_other": "Report sent to {{count}} recipients",
+    "confirmDelete": "Delete the report \"{{name}}\"? Reports already sent stay in the archive.",
+    "archive": "Archive",
+    "archiveTitle": "Archive: {{name}}",
+    "made": "Made",
+    "periodLabel": "Period",
+    "status": "Status",
+    "recipients": "Recipients",
+    "trigger": {
+      "manual": "by hand",
+      "schedule": "scheduled"
+    },
+    "statuses": {
+      "generated": "Generated",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "open": "Open",
+    "noneTitle": "No reports yet",
+    "noneText": "A new report starts with reach, views, interactions, charts and the top content. Change it to fit.",
+    "downloadPdf": "Download PDF",
+    "print": "Print",
+    "generatedAt": "Made on {{date}}. The numbers are those of that moment.",
+    "blockFailed": "This block could not be filled in.",
+    "expiredTitle": "This link has expired",
+    "expiredText": "Ask the sender for a new report.",
+    "missingTitle": "Report not found"
   }
 }

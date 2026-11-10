@@ -7,6 +7,12 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- Reports: build a report from blocks (totals, charts, top content, editors ranking, goals and text), generate it for a fixed period, and share it as an interactive page behind a link that expires, or as a PDF made from the same page; reports go out daily, weekly or monthly to users and email addresses, and every run is kept in the archive.
+  NL: Rapporten: stel een rapport samen uit blokken (totalen, grafieken, topcontent, ranglijst redacteuren, doelen en tekst), maak het voor een vaste periode en deel het als interactieve pagina achter een link die verloopt, of als PDF van dezelfde pagina; rapporten gaan dagelijks, wekelijks of maandelijks naar gebruikers en e-mailadressen, en elke uitvoering blijft bewaard in het archief.
+- Email through Microsoft 365 with the Graph API (app registration with Mail.Send), with the SMTP server as fallback.
+  NL: E-mail via Microsoft 365 met de Graph API (app-registratie met Mail.Send), met de SMTP-server als terugval.
+- The installer and updates install Chromium, which prints reports to PDF.
+  NL: De installer en updates installeren Chromium, waarmee rapporten als PDF worden afgedrukt.
 - X accounts as sources through the X API v2 (OAuth 2.0): impressions, likes, reposts, replies, quotes, bookmarks, link and profile clicks per post and per day, and the follower count, with a monthly budget per source because X charges per post read.
   NL: X-accounts als bron via de X API v2 (OAuth 2.0): weergaven, likes, reposts, antwoorden, citaten, bladwijzers, link- en profielkliks per bericht en per dag, en het aantal volgers, met een maandbudget per bron omdat X per gelezen bericht rekent.
 - Threads accounts as sources through the Threads API of the Meta app: views per day for the account, views, likes, replies, reposts, quotes and shares per post and per day, and the follower count; the token is renewed every week.

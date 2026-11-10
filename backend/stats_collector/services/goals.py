@@ -268,7 +268,7 @@ def check(db: Session, now: datetime | None = None) -> int:
             goal.behind_notified_at = now
             event = "behind"
         db.commit()
-        if not event or not goal.notify or not cfg.get("host"):
+        if not event or not goal.notify or not mail.configured(cfg):
             continue
         for email, lang in _recipients(db, goal):
             subject, body = TEXTS.get(lang, TEXTS["en"])[event]

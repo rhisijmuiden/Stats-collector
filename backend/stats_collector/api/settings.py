@@ -79,6 +79,11 @@ class EmailIn(BaseModel):
     reply_to: str = ""
     verify_tls: bool = True
     timeout: int = Field(20, ge=3, le=120)
+    transport: Literal["smtp", "graph"] = "smtp"
+    graph_tenant_id: str = Field("", max_length=100)
+    graph_client_id: str = Field("", max_length=100)
+    graph_client_secret: str | None = None
+    graph_mailbox: str = Field("", max_length=320)
 
 
 class EmailTestIn(BaseModel):
@@ -93,10 +98,11 @@ def get_email(db: Session = Depends(get_db), _=Depends(require_admin)) -> dict:
 @router.put("/email")
 def put_email(body: EmailIn, db: Session = Depends(get_db), admin: User = Depends(require_admin)) -> dict:
     current = settings_store.get_section(db, "email")
-    data = body.model_dump(exclude={"password", "oauth_client_secret"})
+    data = body.model_dump(exclude={"password", "oauth_client_secret", "graph_client_secret"})
     current.update(data)
     _keep_or_set(current, "password_enc", body.password)
     _keep_or_set(current, "oauth_client_secret_enc", body.oauth_client_secret)
+    _keep_or_set(current, "graph_client_secret_enc", body.graph_client_secret)
     settings_store.set_section(db, "email", current)
     audit(db, admin, "settings.email")
     return settings_store.public_view("email", current)

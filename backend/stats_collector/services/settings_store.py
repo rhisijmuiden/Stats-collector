@@ -40,6 +40,12 @@ DEFAULTS: dict[str, dict[str, Any]] = {
         "reply_to": "",
         "verify_tls": True,
         "timeout": 20,
+        # Microsoft 365: send through Graph from one mailbox; the SMTP server above is then the fallback.
+        "transport": "smtp",  # smtp | graph
+        "graph_tenant_id": "",
+        "graph_client_id": "",
+        "graph_client_secret_enc": None,
+        "graph_mailbox": "",
     },
     "sso": {
         "enabled": False,
@@ -70,7 +76,7 @@ DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 SECRET_FIELDS = {
-    "email": ["password_enc", "oauth_client_secret_enc"],
+    "email": ["password_enc", "oauth_client_secret_enc", "graph_client_secret_enc"],
     "sso": ["client_secret_enc"],
     "backup": ["encryption_passphrase_enc"],
 }

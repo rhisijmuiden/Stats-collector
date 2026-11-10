@@ -19,6 +19,7 @@ ORDER = [
     "content",
     "followers-and-goals",
     "live-wall",
+    "reports",
     "installation",
     "reverse-proxy",
     "users-and-roles",

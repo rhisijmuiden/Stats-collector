@@ -11,6 +11,7 @@ interface EmailCfg {
   auth: "password" | "xoauth2" | "none"; username: string; password_set: boolean;
   oauth_token_url: string; oauth_client_id: string; oauth_client_secret_set: boolean; oauth_scope: string;
   from_address: string; from_name: string; reply_to: string; verify_tls: boolean; timeout: number;
+  transport: "smtp" | "graph"; graph_tenant_id: string; graph_client_id: string; graph_client_secret_set: boolean; graph_mailbox: string;
 }
 
 const PRESETS: Record<string, Partial<EmailCfg>> = {
@@ -26,6 +27,7 @@ export default function Email() {
   const [cfg, setCfg] = useState<EmailCfg | null>(null);
   const [password, setPassword] = useState("");
   const [secret, setSecret] = useState("");
+  const [graphSecret, setGraphSecret] = useState("");
   const [to, setTo] = useState(user?.email ?? "");
   const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,9 +39,9 @@ export default function Email() {
     e?.preventDefault();
     try {
       const r = await api.put<EmailCfg>("/api/settings/email", {
-        ...cfg, password: password || undefined, oauth_client_secret: secret || undefined,
+        ...cfg, password: password || undefined, oauth_client_secret: secret || undefined, graph_client_secret: graphSecret || undefined,
       });
-      setCfg(r); setPassword(""); setSecret("");
+      setCfg(r); setPassword(""); setSecret(""); setGraphSecret("");
       toast("success", t("common.saved"));
       return true;
     } catch (err) {
@@ -64,6 +66,28 @@ export default function Email() {
   return (
     <form className="page" onSubmit={save}>
       <PageHead help="email" title={t("email.title")} subtitle={t("email.subtitle")} actions={<button className="btn">{t("common.save")}</button>} />
+      <Card title={t("email.route")} subtitle={t("email.routeHint")}>
+        <div className="stack">
+          <div className="seg">
+            {(["graph", "smtp"] as const).map((x) => (
+              <button key={x} type="button" aria-pressed={cfg.transport === x} onClick={() => set("transport", x)}>{t(`email.transport.${x}`)}</button>
+            ))}
+          </div>
+          {cfg.transport === "graph" && (
+            <>
+              <div className="grid two">
+                <Field label={t("email.graphTenant")} hint={t("email.graphTenantHint")}><input value={cfg.graph_tenant_id} onChange={(e) => set("graph_tenant_id", e.target.value)} placeholder="00000000-0000-0000-0000-000000000000" /></Field>
+                <Field label={t("email.graphMailbox")} hint={t("email.graphMailboxHint")}><input type="email" value={cfg.graph_mailbox} onChange={(e) => set("graph_mailbox", e.target.value)} placeholder="reports@example.org" /></Field>
+                <Field label={t("email.clientId")}><input value={cfg.graph_client_id} onChange={(e) => set("graph_client_id", e.target.value)} /></Field>
+                <Field label={t("email.clientSecret")} hint={cfg.graph_client_secret_set ? t("common.secretKept") : undefined}>
+                  <input type="password" autoComplete="new-password" value={graphSecret} onChange={(e) => setGraphSecret(e.target.value)} placeholder={cfg.graph_client_secret_set ? "••••••••" : ""} />
+                </Field>
+              </div>
+              <Alert kind="info">{t("email.graphFallback")}</Alert>
+            </>
+          )}
+        </div>
+      </Card>
       <Card title={t("email.server")} actions={<Switch checked={cfg.enabled} onChange={(v) => set("enabled", v)} label={t("email.enabled")} />}>
         <div className="stack">
           <div className="row small">

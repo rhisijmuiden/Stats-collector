@@ -12,7 +12,7 @@ The same manual opens inside the application through the **Help** button at the 
 2. [Reverse proxy and HTTPS (Zoraxy)](reverse-proxy.md)
 3. [First sign-in, users and roles](users-and-roles.md)
 4. [Branding](branding.md)
-5. [Email (SMTP)](email.md)
+5. [Email](email.md)
 6. [Backup and restore](backup.md)
 7. [Info, updates and the production/test channel](updates.md)
 
@@ -23,6 +23,7 @@ The same manual opens inside the application through the **Help** button at the 
 - [My dashboards](dashboards.md)
 - [Followers and goals](followers-and-goals.md)
 - [Live wall](live-wall.md)
+- [Reports](reports.md)
 
 ## Connecting platforms
 

@@ -1,6 +1,8 @@
-# E-mail (SMTP)
+# E-mail
 
-Stats Collector verstuurt meldingen en (vanaf fase 4) rapporten via je eigen SMTP-server. Open **Beheer → E-mail**.
+Stats Collector verstuurt meldingen en rapporten via Microsoft 365 (de Graph API) of via je eigen SMTP-server. Open **Beheer → E-mail**.
+
+Bij **Verzendroute** kies je hoe mail de deur uitgaat: **Microsoft 365 (Graph)** of **SMTP-server**. Met Graph wordt een SMTP-server die je ook instelt als terugval gebruikt wanneer Microsoft een bericht weigert.
 
 ![E-mailscherm](../images/nl-email.png)
 
@@ -42,4 +44,23 @@ Microsoft zet basisauthenticatie voor SMTP uit. Gebruik daarom OAuth 2.0:
    - Client-ID en clientgeheim uit stap 1 en 3
 6. Verstuur een testmail.
 
-Versturen via de Microsoft Graph API (in plaats van SMTP) komt samen met de rapporten in fase 4.
+## Microsoft 365 via de Graph API
+
+De Graph-route heeft geen SMTP nodig en is de betrouwbaarste manier om vanuit Microsoft 365 te versturen. Stats Collector logt in als app (client credentials) en verstuurt vanuit één mailbox.
+
+![Graph-route](../images/nl-email-graph.png)
+
+1. Ga in het [Entra-beheercentrum](https://entra.microsoft.com) naar **App-registraties → Nieuwe registratie** en noem hem *Stats Collector mail*. Noteer de **Toepassings-ID (client)** en de **Map-ID (tenant)**.
+2. **API-machtigingen → Een machtiging toevoegen → Microsoft Graph → Toepassingsmachtigingen → Mail.Send**. Klik op **Beheerderstoestemming verlenen**.
+3. **Certificaten en geheimen → Nieuw clientgeheim**. Kopieer de waarde.
+4. Zonder verdere stappen mag de app als *elke* mailbox versturen. Beperk hem tot de verzendende mailbox met een toegangsbeleid in Exchange Online PowerShell (gebruik een beveiligingsgroep met e-mail waarin de mailbox zit):
+   ```powershell
+   New-ApplicationAccessPolicy -AppId <client-id> -PolicyScopeGroupId stats-senders@example.org -AccessRight RestrictAccess -Description "Stats Collector mail"
+   Test-ApplicationAccessPolicy -AppId <client-id> -Identity reports@example.org
+   ```
+5. Kies in Stats Collector **Microsoft 365 (Graph)** en vul in:
+   - Tenant-ID en client-ID uit stap 1, clientgeheim uit stap 3
+   - Verzendende mailbox, bijv. `reports@example.org`
+6. Vul hieronder de afzendernaam in, sla op en verstuur een testmail.
+
+Bijlagen tot 3 MB gaan mee met het bericht; een grotere rapport-PDF wordt weggelaten en de mail bevat dan alleen de link.
