@@ -92,6 +92,7 @@ jobs:
           (cd frontend && npm ci --no-audit --no-fund && npm run build && npx playwright install --with-deps chromium)
           export SC_CONFIG_FILE=/nonexistent SC_DATABASE_URL=sqlite:///$RUNNER_TEMP/shots.db SC_DATA_DIR=$RUNNER_TEMP/var
           stats-collector migrate
+          stats-collector demo-data
           echo "SETUP_LINK=$(SC_PUBLIC_URL=http://127.0.0.1:8080 stats-collector setup-link)" >> "$GITHUB_ENV"
           nohup uvicorn stats_collector.main:app --app-dir backend --port 8080 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 30); do curl -fs http://127.0.0.1:8080/api/health && break; sleep 1; done

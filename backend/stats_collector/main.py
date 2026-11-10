@@ -8,8 +8,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import APP_ROOT, build_info
-from .api import auth, backup, help, settings, system, users
+from .api import auth, backup, dashboard, entra, help, settings, sources, system, users
 from .config import get_settings
+from .proxy import ProxyHeadersMiddleware
 
 
 def create_app() -> FastAPI:
@@ -21,6 +22,8 @@ def create_app() -> FastAPI:
         redoc_url=None,
         openapi_url=None if cfg.is_production else "/api/openapi.json",
     )
+
+    app.add_middleware(ProxyHeadersMiddleware, trusted=cfg.trusted_proxies, client_ip_header=cfg.client_ip_header)
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError):
@@ -53,9 +56,10 @@ def create_app() -> FastAPI:
         info = build_info()
         return {"status": "ok", "version": info["version"]}
 
-    for module in (auth, users, settings, system, backup, help):
+    for module in (auth, entra, users, settings, system, backup, help, sources, dashboard):
         app.include_router(module.router)
     app.include_router(settings.public_router)
+    app.include_router(sources.hooks)
 
     images = APP_ROOT / "docs" / "manual" / "images"
     if images.is_dir():

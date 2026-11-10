@@ -8,6 +8,7 @@
 #   --channel test|production   update channel (default: test during the development phase)
 #   --public-url URL            URL users open, e.g. https://stats.example.org
 #   --proxy-ips LIST            comma separated reverse proxy IPs that may send X-Forwarded-* headers
+#   --client-ip-header NAME     header with the visitor's IP set by the proxy chain (e.g. CF-Connecting-IP)
 #   --port N                    web port (default 8080)
 #   --listen ADDR               listen address (default 0.0.0.0; use 127.0.0.1 when the proxy runs on this host)
 #   --source DIR                install from a local source checkout instead of a GitHub release
@@ -30,6 +31,7 @@ DB_USER="statscollector"
 CHANNEL=""
 PUBLIC_URL=""
 PROXY_IPS=""
+CLIENT_IP_HEADER=""
 PORT=""
 LISTEN=""
 SOURCE=""
@@ -51,13 +53,14 @@ while [ $# -gt 0 ]; do
     --channel) CHANNEL="$2"; shift 2 ;;
     --public-url) PUBLIC_URL="$2"; shift 2 ;;
     --proxy-ips) PROXY_IPS="$2"; shift 2 ;;
+    --client-ip-header) CLIENT_IP_HEADER="$2"; shift 2 ;;
     --port) PORT="$2"; shift 2 ;;
     --listen) LISTEN="$2"; shift 2 ;;
     --source) SOURCE="$(cd "$2" && pwd)"; shift 2 ;;
     --tarball) TARBALL="$(readlink -f "$2")"; shift 2 ;;
     --firewall) FIREWALL=1; shift ;;
     -y|--yes) YES=1; shift ;;
-    -h|--help) sed -n '2,20p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,21p' "$0"; exit 0 ;;
     *) die "Unknown option: $1" ;;
   esac
 done
@@ -87,6 +90,7 @@ ok "Network"
 CHANNEL="${CHANNEL:-$(conf_get SC_DEFAULT_CHANNEL)}"
 PUBLIC_URL="${PUBLIC_URL:-$(conf_get SC_PUBLIC_URL)}"
 PROXY_IPS="${PROXY_IPS:-$(conf_get SC_TRUSTED_PROXIES)}"
+CLIENT_IP_HEADER="${CLIENT_IP_HEADER:-$(conf_get SC_CLIENT_IP_HEADER)}"
 PORT="${PORT:-$(conf_get SC_PORT)}"
 LISTEN="${LISTEN:-$(conf_get SC_HOST)}"
 
@@ -98,6 +102,7 @@ ask PORT "Web port" "8080"
 ask LISTEN "Listen address" "0.0.0.0"
 [[ "$PORT" =~ ^[0-9]+$ ]] || die "Port must be a number."
 [[ "$PROXY_IPS" =~ ^[0-9a-fA-F:.,/\ ]+$ ]] || die "Proxy IPs may only contain IP addresses, commas and CIDR ranges."
+[[ -z "$CLIENT_IP_HEADER" || "$CLIENT_IP_HEADER" =~ ^[A-Za-z0-9-]+$ ]] || die "Client IP header must be a header name."
 PROXY_IPS="${PROXY_IPS// /}"
 
 # ----------------------------------------------------------------------------------------------------------
@@ -151,6 +156,8 @@ SC_HOST=$LISTEN
 SC_PORT=$PORT
 SC_LIVEWALL_PORT=8081
 SC_TRUSTED_PROXIES=$PROXY_IPS
+SC_CLIENT_IP_HEADER=$CLIENT_IP_HEADER
+SC_REDIS_URL=redis://127.0.0.1:6379/0
 SC_DEFAULT_CHANNEL=$CHANNEL
 SC_GITHUB_REPO=$REPO
 SC_PGBACKREST_STANZA=$STANZA
@@ -286,11 +293,12 @@ step "System services"
 install -m 644 "$TARGET"/deploy/systemd/*.service "$TARGET"/deploy/systemd/*.path "$TARGET"/deploy/systemd/*.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now stats-collector-ops.path stats-collector-backup.timer >/dev/null 2>&1
-systemctl enable stats-collector-web >/dev/null 2>&1
-systemctl restart stats-collector-web
+systemctl enable stats-collector-web stats-collector-worker >/dev/null 2>&1
+systemctl restart stats-collector-web stats-collector-worker
 for _ in $(seq 1 40); do curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 && break; sleep 1; done
 curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null || { journalctl -u stats-collector-web -n 40 --no-pager; die "The web service did not start."; }
-ok "stats-collector-web on port $PORT, ops runner and hourly backup timer"
+systemctl is-active --quiet stats-collector-worker || { journalctl -u stats-collector-worker -n 40 --no-pager; die "The worker did not start."; }
+ok "stats-collector-web on port $PORT, worker, ops runner and hourly backup timer"
 
 if [ "$FIREWALL" = 1 ]; then
   step "Firewall (nftables)"

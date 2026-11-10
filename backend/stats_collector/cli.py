@@ -29,6 +29,11 @@ def cmd_migrate(args) -> int:
         command.downgrade(cfg, args.to)
     else:
         command.upgrade(cfg, "head")
+        from .db import session_factory
+        from .services.metrics import sync_definitions
+
+        with session_factory()() as db:
+            sync_definitions(db)
     return 0
 
 
@@ -185,6 +190,20 @@ def cmd_version(_args) -> int:
     return 0
 
 
+def cmd_demo_data(args) -> int:
+    from .config import get_settings
+    from .db import session_factory
+    from .services.demo import create_demo
+
+    if get_settings().is_production and not args.yes:
+        print("This is a production server; add --yes to add demo sources anyway.", file=sys.stderr)
+        return 1
+    with session_factory()() as db:
+        n = create_demo(db, days=args.days)
+    print(f"{n} demo samples added" if n else "Demo sources already exist")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="stats-collector")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -216,6 +235,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--target", type=int, required=True, help="Remote location id (see Backup & restore)")
     p.add_argument("--label", required=True, help="Backup label, e.g. 20261110-023000-full")
     p.set_defaults(func=cmd_restore)
+
+    p = sub.add_parser("demo-data", help="Add demo sources with a week of numbers (for trying out and screenshots)")
+    p.add_argument("--days", type=int, default=7)
+    p.add_argument("--yes", action="store_true", help="Also on a production server")
+    p.set_defaults(func=cmd_demo_data)
 
     sub.add_parser("version").set_defaults(func=cmd_version)
 

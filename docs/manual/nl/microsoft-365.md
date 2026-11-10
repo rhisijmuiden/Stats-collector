@@ -1,6 +1,8 @@
 # Microsoft 365 (Entra ID)
 
-Vanaf fase 1 loggen collega's in met hun Microsoft 365-account en krijgen ze hun rol uit een Microsoft 365-groep. De app-registratie en de instellingen onder **Beheer → Rollen & inloggen** kun je nu al aanmaken.
+Collega's loggen in met hun Microsoft 365-account (knop **Inloggen met Microsoft 365** op de inlogpagina) en krijgen hun rol uit een Microsoft 365-groep. Je stelt dit in onder **Beheer → Rollen & inloggen**.
+
+![Rollen & inloggen](../images/nl-sso.png)
 
 ## 1. App-registratie
 
@@ -23,8 +25,20 @@ Maak vier beveiligingsgroepen in Microsoft 365 (de namen zijn een voorbeeld):
 | Redacteur | `SC-Editors` |
 | Medewerker | alle anderen in de organisatie (geen groep nodig) |
 
-Kopieer de **Object-ID** van elke groep naar **Rollen & inloggen → Rollen uit Microsoft 365-groepen**. Het lidmaatschap wordt bij elke keer inloggen gelezen: iemand toevoegen of verwijderen in Microsoft 365 verandert de rol bij de volgende keer inloggen.
+Kopieer de **Object-ID** van elke groep naar **Rollen & inloggen → Rollen uit Microsoft 365-groepen**. Meerdere ID's per rol scheid je met komma's, en de waarde van een *app-rol* (App-registratie → App-rollen) werkt ook. Het lidmaatschap wordt bij elke keer inloggen gelezen: iemand toevoegen of verwijderen in Microsoft 365 verandert de rol bij de volgende keer inloggen. Zit iemand in meerdere groepen, dan geldt de hoogste rol (Beheerder, dan Hoofdredacteur, Redacteur, Medewerker); wie in geen van de groepen zit, krijgt de rol bij **Rol voor alle anderen in de organisatie**.
 
-## 3. Lokale accounts
+Is iemand lid van meer dan ongeveer 200 groepen, dan laat Microsoft de groepen weg uit het inlogtoken. Stats Collector leest ze dan uit Microsoft Graph; voeg daarvoor de gedelegeerde machtiging `GroupMember.Read.All` toe met beheerderstoestemming.
+
+## 3. Aanzetten en testen
+
+1. Vul de tenant-ID, client-ID en het clientgeheim in, koppel de groepen en zet **Inloggen met Microsoft 365 aanzetten** aan. Klik op **Opslaan**.
+2. Open de inlogpagina in een privévenster en klik op **Inloggen met Microsoft 365**.
+3. Na het inloggen kom je op het dashboard; je rol staat onderaan het menu. Onder **Gebruikers** staat het account met inlogmethode *Microsoft 365*.
+
+Lukt het niet? De inlogpagina toont de reden, bijvoorbeeld een verkeerd clientgeheim of een verkeerde omleidings-URI. De meest gemaakte fout is een omleidings-URI die niet precies klopt: die moet het `https://`-adres zijn dat gebruikers openen, dus controleer `SC_PUBLIC_URL` (zie [Reverse proxy](reverse-proxy.md)).
+
+## 4. Lokale accounts
+
+Een bestaand lokaal account met hetzelfde e-mailadres wordt bij de eerste keer inloggen met Microsoft gekoppeld. Het houdt zijn wachtwoord en de rol die in Stats Collector is ingesteld, zodat je eerste beheerder altijd een werkend noodaccount blijft. Accounts die via Microsoft worden aangemaakt, krijgen hun rol bij elke keer inloggen uit Microsoft 365.
 
 Laat **Lokale accounts mogen ook inloggen** aan totdat inloggen met Microsoft 365 werkt. Beheerders kunnen altijd met een lokaal account inloggen, dus een kapotte Entra-configuratie sluit je nooit buiten.

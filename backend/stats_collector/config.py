@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     port: int = 8080
     livewall_port: int = 8081
     trusted_proxies: str = "127.0.0.1"
+    # Header with the real client IP set by the proxy chain, e.g. CF-Connecting-IP behind Cloudflare.
+    # Only read when the request comes from a trusted proxy.
+    client_ip_header: str | None = None
+    redis_url: str = "redis://127.0.0.1:6379/0"
     default_channel: str = "test"  # test | production
     github_repo: str = "rhisijmuiden/stats-collector"
     github_token: str | None = None

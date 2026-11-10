@@ -38,6 +38,8 @@ Zonder vragen installeren:
 bash install.sh --channel test --public-url https://stats.example.org --proxy-ips 192.0.2.10 -y
 ```
 
+Voeg `--client-ip-header CF-Connecting-IP` toe als het openbare adres via Cloudflare loopt (zie [Reverse proxy](reverse-proxy.md)).
+
 Met `--firewall` blokkeert nftables poort 8080 voor iedereen behalve de proxy.
 
 ## Wat het script doet
@@ -65,6 +67,7 @@ stats-collector setup-link
 | Dienst | Wat het doet |
 | --- | --- |
 | `stats-collector-web` | De webapplicatie en API op poort 8080 |
+| `stats-collector-worker` | Haalt de bronnen op (Icecast, Owncast) en telt elke 5 minuten de cijfers op |
 | `stats-collector-ops.path` / `.service` | Voert updates, back-ups en herstel uit die beheerders in de interface starten |
 | `stats-collector-backup.timer` | Controleert elk uur of er een geplande back-up moet draaien |
 

@@ -35,8 +35,24 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Back-up & herstel: volledige en incrementele back-ups van database en bestanden, versleutelde kopieën naar FTP-, FTPS- en SCP/SFTP-locaties, planning en bewaartermijn, herstellen vanaf een externe locatie.
 - Help button with the full manual in English and Dutch, also published on GitHub.
   NL: Helpknop met de volledige handleiding in het Engels en Nederlands, ook gepubliceerd op GitHub.
+- Sources: add Icecast servers (listeners per mount point, average listening time and players with the admin password) and Owncast servers (viewers, every broadcast as a separate item, webhook for stream start and stop), with a connection test.
+  NL: Bronnen: voeg Icecast-servers toe (luisteraars per mountpoint, gemiddelde luistertijd en spelers met het beheerwachtwoord) en Owncast-servers (kijkers, elke uitzending als apart item, webhook voor start en einde van de stream), met een verbindingstest.
+- Dashboard with live listeners and viewers, peak today, minutes, a chart per 5 minutes, hour or day that can be stacked, overlaid or shown per source, totals per source and the top broadcasts.
+  NL: Dashboard met live luisteraars en kijkers, piek van vandaag, minuten, een grafiek per 5 minuten, uur of dag die gestapeld, over elkaar of per bron getoond kan worden, totalen per bron en de best bekeken uitzendingen.
+- Background worker with scheduler (stats-collector-worker) that polls the sources every 30 seconds and adds the numbers up per hour, day and month; raw samples are kept for one year.
+  NL: Achtergrondworker met planner (stats-collector-worker) die de bronnen elke 30 seconden ophaalt en de cijfers optelt per uur, dag en maand; ruwe metingen worden een jaar bewaard.
+- Sign in with Microsoft 365 (Entra ID, OpenID Connect with PKCE); the role comes from Microsoft 365 groups or app roles at every sign-in.
+  NL: Inloggen met Microsoft 365 (Entra ID, OpenID Connect met PKCE); de rol komt bij elke keer inloggen uit Microsoft 365-groepen of app-rollen.
+- Setting for the header with the visitor's real IP address behind Cloudflare (`SC_CLIENT_IP_HEADER`, e.g. `CF-Connecting-IP`).
+  NL: Instelling voor de header met het echte IP-adres van de bezoeker achter Cloudflare (`SC_CLIENT_IP_HEADER`, bijv. `CF-Connecting-IP`).
+- `stats-collector demo-data` adds demo sources with a week of numbers to try out the dashboard.
+  NL: `stats-collector demo-data` voegt demobronnen met een week aan cijfers toe om het dashboard uit te proberen.
 
 ### Changed
+- Updates now also install the system services shipped with the new version and restart the worker.
+  NL: Updates installeren nu ook de systeemdiensten van de nieuwe versie en herstarten de worker.
+- Reverse proxy headers are handled by the app itself; trusted proxies may be IP ranges (CIDR).
+  NL: Headers van de reverse proxy worden door de app zelf verwerkt; vertrouwde proxy's mogen IP-reeksen (CIDR) zijn.
 - Releases are built by pushing a version tag (`vX.Y.Z-rc.N` for a test build, `vX.Y.Z` for production).
   NL: Releases worden gebouwd door een versietag te pushen (`vX.Y.Z-rc.N` voor een testversie, `vX.Y.Z` voor productie).
 - A merge into `develop` marked `[test-release]` builds the next test build automatically.

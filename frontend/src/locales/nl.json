@@ -26,7 +26,8 @@
     "help": "Help",
     "info": "Info & updates",
     "profile": "Mijn profiel",
-    "logout": "Uitloggen"
+    "logout": "Uitloggen",
+    "sources": "Bronnen"
   },
   "roles": {
     "admin": "Beheerder",
@@ -50,14 +51,15 @@
     "signIn": "Inloggen",
     "signInIntro": "Log in met je account om het statistiekenplatform te openen.",
     "signInMicrosoft": "Inloggen met Microsoft 365",
-    "ssoSoon": "Inloggen met Microsoft 365 komt beschikbaar in fase 1.",
     "needsSetup": "Er is nog geen account. Open de installatielink die het installatiescript heeft getoond om de eerste beheerder aan te maken.",
     "email": "E-mailadres",
     "password": "Wachtwoord",
     "confirmPassword": "Bevestig wachtwoord",
     "passwordRule": "Minimaal 12 tekens. Een zinnetje van een paar woorden werkt goed.",
     "totpCode": "Verificatiecode",
-    "totpHint": "De 6-cijferige code uit je authenticator-app."
+    "totpHint": "De 6-cijferige code uit je authenticator-app.",
+    "orLocal": "of met een lokaal account",
+    "localAdminsOnly": "Lokaal inloggen hieronder is alleen voor beheerders."
   },
   "setup": {
     "title": "Eerste beheerder aanmaken",
@@ -68,42 +70,56 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welkom, {{name}}.",
-    "emptyTitle": "Nog geen databronnen gekoppeld",
-    "emptyText": "De basis staat. Koppelingen voor streams, website, video en social media komen in de volgende fases.",
-    "roadmap": "Roadmap",
-    "roadmapIntro": "Wat er per fase gebouwd wordt.",
-    "nextSteps": "Aan de slag",
-    "stepBranding": "Stel je logo en kleuren in",
-    "stepEmail": "Configureer de mailserver",
-    "stepBackup": "Voeg een back-uplocatie toe",
-    "stepUsers": "Nodig collega's uit",
-    "stepHelp": "Lees de handleiding",
-    "phases": {
-      "p0": {
-        "title": "Fundament",
-        "text": "Installatiescript, accounts, menu, talen, huisstijl, info en updates, e-mail, back-up."
-      },
-      "p1": {
-        "title": "Data en streams",
-        "text": "Datamodel, achtergrondtaken, Owncast en Icecast, eerste dashboard, inloggen met Microsoft 365."
-      },
-      "p2": {
-        "title": "Website en video",
-        "text": "WordPress-plugin, YouTube, artikelen en redacteuren."
-      },
-      "p3": {
-        "title": "Facebook en dashboardbouwer",
-        "text": "Facebook en Instagram, gestapelde en overlappende grafieken, doelen, live wall."
-      },
-      "p4": {
-        "title": "Rapporten",
-        "text": "Rapportbouwer, PDF en interactieve HTML, planningen."
-      },
-      "p5": {
-        "title": "Livegang",
-        "text": "Beveiligingscontrole en productierelease."
-      }
-    }
+    "period": "Periode",
+    "range": {
+      "24h": "24 uur",
+      "7d": "7 dagen",
+      "30d": "30 dagen",
+      "90d": "90 dagen"
+    },
+    "rangeLong": {
+      "24h": "afgelopen 24 uur",
+      "7d": "afgelopen 7 dagen",
+      "30d": "afgelopen 30 dagen",
+      "90d": "afgelopen 90 dagen"
+    },
+    "noSourcesTitle": "Nog geen bronnen gekoppeld",
+    "noSourcesText": "Voeg je Icecast- en Owncast-servers toe om hier live luisteraars en kijkers te zien. Website, YouTube en sociale media volgen in de volgende fases.",
+    "addSource": "Bron toevoegen",
+    "readHow": "Zo werkt het",
+    "liveNow": "Nu live",
+    "sourcesOnline": "{{online}} van {{total}} bronnen in de lucht",
+    "peakToday": "Piek vandaag",
+    "peakTodayHint": "hoogste publiek per bron, opgeteld",
+    "minutes": "Luister- en kijkminuten",
+    "peakRange": "Hoogste piek",
+    "online": "In de lucht",
+    "offline": "Uit de lucht",
+    "listenersNow": "luisteraars nu",
+    "viewersNow": "kijkers nu",
+    "peak": "piek",
+    "audience": "Live publiek",
+    "metric": {
+      "live_avg": "Gemiddeld",
+      "live_peak": "Piek",
+      "live_minutes": "Minuten"
+    },
+    "metricHint": {
+      "live_avg": "Gemiddeld aantal gelijktijdige luisteraars en kijkers.",
+      "live_peak": "Hoogste aantal gelijktijdige luisteraars en kijkers.",
+      "live_minutes": "Totaal aantal beluisterde en bekeken minuten."
+    },
+    "mode": {
+      "stacked": "Gestapeld",
+      "overlay": "Over elkaar",
+      "separate": "Apart"
+    },
+    "perSource": "Per bron",
+    "source": "Bron",
+    "topItems": "Best bekeken uitzendingen en streams",
+    "topItemsHint": "Op minuten in deze periode.",
+    "item": "Uitzending of stream",
+    "noData": "Nog geen gegevens in deze periode."
   },
   "info": {
     "title": "Info & updates",
@@ -200,7 +216,7 @@
   "sso": {
     "title": "Rollen & inloggen",
     "subtitle": "Single sign-on met Microsoft 365 (Entra ID) en welke groep welke rol krijgt.",
-    "phaseNote": "Je kunt deze instellingen nu al voorbereiden. Inloggen met Microsoft 365 wordt in fase 1 aangezet.",
+    "phaseNote": "Voeg in de app-registratie onder Tokenconfiguratie de groepsclaim toe (Beveiligingsgroepen), zodat de rollen gelezen kunnen worden. Meerdere groeps-ID's per rol scheid je met komma's; waarden van app-rollen werken ook.",
     "app": "App-registratie in Entra ID",
     "enabled": "Inloggen met Microsoft 365 aanzetten",
     "tenantId": "Directory-ID (tenant)",
@@ -440,6 +456,78 @@
     "passphrase_too_short": "Het wachtwoord moet minimaal 12 tekens hebben.",
     "confirmation_required": "Typ RESTORE om te bevestigen.",
     "invalid_timezone": "Onbekende tijdzone.",
-    "validation_error": "Niet alle velden zijn goed ingevuld."
+    "validation_error": "Niet alle velden zijn goed ingevuld.",
+    "sso_disabled": "Inloggen met Microsoft 365 staat niet aan.",
+    "sso_tenant_required": "Vul je eigen directory-ID (tenant) in; 'common' is niet toegestaan.",
+    "sso_not_configured": "Inloggen met Microsoft 365 is niet volledig ingesteld (client-ID of geheim ontbreekt).",
+    "sso_discovery_failed": "Microsoft 365 is niet bereikbaar. Controleer de tenant-ID en de internettoegang van de server.",
+    "sso_token_failed": "Microsoft 365 weigerde het inloggen. Controleer het clientgeheim en de omleidings-URI.",
+    "sso_invalid_token": "Het antwoord van Microsoft 365 kon niet worden gecontroleerd.",
+    "sso_wrong_tenant": "Dit Microsoft-account hoort bij een andere organisatie.",
+    "sso_state_invalid": "Het inloggen duurde te lang of is in een ander venster gestart. Probeer het opnieuw.",
+    "sso_no_code": "Microsoft 365 gaf geen inlogcode terug.",
+    "sso_no_email": "Je Microsoft-account heeft geen e-mailadres.",
+    "sso_access_denied": "Inloggen is geannuleerd of de toegang is niet verleend.",
+    "sso_failed": "Inloggen met Microsoft 365 is mislukt.",
+    "account_disabled": "Dit account is uitgeschakeld.",
+    "invalid_url": "Vul een volledig adres in dat begint met http:// of https://.",
+    "timeout": "De server antwoordde niet op tijd.",
+    "connection_failed": "Kan geen verbinding maken met de server.",
+    "unauthorized": "Verkeerde gebruikersnaam of wachtwoord.",
+    "not_found": "Niet gevonden op dit adres.",
+    "invalid_response": "De server gaf een onbekend antwoord. Is dit het juiste soort server?",
+    "internal_error": "Onverwachte fout bij het ophalen.",
+    "unsupported_kind": "Dit soort bron wordt nog niet ondersteund.",
+    "kind_cannot_change": "Het soort bron kan niet worden gewijzigd. Voeg een nieuwe bron toe.",
+    "no_webhook": "Deze bron heeft geen webhook."
+  },
+  "sources": {
+    "title": "Bronnen",
+    "subtitle": "Servers en accounts waar de cijfers vandaan komen.",
+    "add": "Bron toevoegen",
+    "edit": "Bron bewerken",
+    "name": "Naam",
+    "kind": "Soort",
+    "url": "Serveradres",
+    "status": "Status",
+    "items": "Streams & uitzendingen",
+    "kinds": {
+      "icecast": "Icecast (radio)",
+      "owncast": "Owncast (video)"
+    },
+    "urlHint": {
+      "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
+      "owncast": "Het adres van je Owncast-server."
+    },
+    "mounts": "Mountpoints",
+    "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
+    "adminUser": "Beheergebruiker",
+    "adminPassword": "Beheerwachtwoord",
+    "passwordHint": {
+      "icecast": "Optioneel. Geeft gemiddelde luistertijd en spelers (IP-adressen worden nooit opgeslagen).",
+      "owncast": "Optioneel. Het Owncast-beheerwachtwoord; zonder wordt de openbare status gebruikt."
+    },
+    "pollSeconds": "Ophalen elke (seconden)",
+    "pollHint": "30 seconden is een goede standaard.",
+    "enabled": "Gegevens ophalen van deze bron",
+    "disabled": "Gepauzeerd",
+    "ok": "Werkt",
+    "waiting": "Wacht op eerste ophaalronde",
+    "pollNow": "Nu ophalen",
+    "confirmDelete": "{{name}} en alle bijbehorende cijfers verwijderen?",
+    "none": "Nog geen bronnen. Voeg een Icecast- of Owncast-server toe om te beginnen.",
+    "webhook": "Webhook voor Owncast",
+    "webhookHint": "Ga in Owncast naar Integrations → Webhooks, voeg deze URL toe en kies Stream started en Stream stopped. Uitzendingen beginnen en eindigen dan op de minuut.",
+    "webhookAfterSave": "Wordt getoond na opslaan.",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "test": "Verbinding testen",
+    "testing": "Bezig met testen…",
+    "testOk": "Verbinding werkt.",
+    "testOffline": "De server antwoordt maar zendt nu niet uit.",
+    "testFailed": "Verbinding mislukt",
+    "mountsFound": "Mounts op deze server",
+    "renew": "Vernieuwen",
+    "renewConfirm": "De oude webhook-URL werkt dan niet meer. Doorgaan?"
   }
 }

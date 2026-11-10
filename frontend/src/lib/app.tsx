@@ -14,6 +14,7 @@ interface AppState {
   loading: boolean;
   theme: Theme | null;
   needsSetup: boolean;
+  sso: { enabled: boolean; localLogin: boolean };
   setSession: (user: User, csrf: string) => void;
   setUser: (user: User) => void;
   logout: () => Promise<void>;
@@ -35,6 +36,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState<Theme | null>(null);
   const [needsSetup, setNeedsSetup] = useState(false);
+  const [sso, setSso] = useState({ enabled: false, localLogin: true });
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const toast = useCallback((kind: Toast["kind"], text: string) => {
@@ -73,10 +75,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         const [status] = await Promise.all([
-          api.get<{ needs_setup: boolean; default_language: "en" | "nl" }>("/api/auth/status"),
+          api.get<{ needs_setup: boolean; sso_enabled: boolean; local_login: boolean; default_language: "en" | "nl" }>("/api/auth/status"),
           reloadTheme().catch(() => undefined),
         ]);
         setNeedsSetup(status.needs_setup);
+        setSso({ enabled: status.sso_enabled, localLogin: status.local_login });
         try {
           const me = await api.get<{ user: User; csrf_token: string }>("/api/auth/me");
           setSession(me.user, me.csrf_token);
@@ -101,8 +104,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [theme, user?.theme]);
 
   const value = useMemo(
-    () => ({ user, loading, theme, needsSetup, setSession, setUser, logout, reloadTheme, toasts, toast }),
-    [user, loading, theme, needsSetup, setSession, setUser, logout, reloadTheme, toasts, toast],
+    () => ({ user, loading, theme, needsSetup, sso, setSession, setUser, logout, reloadTheme, toasts, toast }),
+    [user, loading, theme, needsSetup, sso, setSession, setUser, logout, reloadTheme, toasts, toast],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

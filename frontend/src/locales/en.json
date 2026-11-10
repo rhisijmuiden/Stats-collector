@@ -26,7 +26,8 @@
     "help": "Help",
     "info": "Info & updates",
     "profile": "My profile",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "sources": "Sources"
   },
   "roles": {
     "admin": "Admin",
@@ -50,14 +51,15 @@
     "signIn": "Sign in",
     "signInIntro": "Use your account to open the statistics platform.",
     "signInMicrosoft": "Sign in with Microsoft 365",
-    "ssoSoon": "Microsoft 365 sign-in becomes available in phase 1.",
     "needsSetup": "No account exists yet. Open the setup link that the installer printed to create the first administrator.",
     "email": "Email address",
     "password": "Password",
     "confirmPassword": "Confirm password",
     "passwordRule": "At least 12 characters. A sentence of a few words works well.",
     "totpCode": "Authentication code",
-    "totpHint": "The 6-digit code from your authenticator app."
+    "totpHint": "The 6-digit code from your authenticator app.",
+    "orLocal": "or with a local account",
+    "localAdminsOnly": "Local sign-in below is only for administrators."
   },
   "setup": {
     "title": "Create the first administrator",
@@ -68,42 +70,56 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome, {{name}}.",
-    "emptyTitle": "No data sources connected yet",
-    "emptyText": "The foundation is in place. Connectors for streams, website, video and social media arrive in the next phases.",
-    "roadmap": "Roadmap",
-    "roadmapIntro": "What is being built, phase by phase.",
-    "nextSteps": "Get started",
-    "stepBranding": "Set your logo and colours",
-    "stepEmail": "Configure the mail server",
-    "stepBackup": "Add a backup location",
-    "stepUsers": "Invite colleagues",
-    "stepHelp": "Read the manual",
-    "phases": {
-      "p0": {
-        "title": "Foundation",
-        "text": "Installer, accounts, menu, languages, branding, info and updates, email, backup."
-      },
-      "p1": {
-        "title": "Data and streams",
-        "text": "Data model, background jobs, Owncast and Icecast, first dashboard, Microsoft 365 sign-in."
-      },
-      "p2": {
-        "title": "Website and video",
-        "text": "WordPress plugin, YouTube, articles and editors."
-      },
-      "p3": {
-        "title": "Facebook and dashboard builder",
-        "text": "Facebook and Instagram, stacked and overlaid charts, goals, live wall."
-      },
-      "p4": {
-        "title": "Reports",
-        "text": "Report builder, PDF and interactive HTML, schedules."
-      },
-      "p5": {
-        "title": "Go-live",
-        "text": "Security review and production release."
-      }
-    }
+    "period": "Period",
+    "range": {
+      "24h": "24 hours",
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days"
+    },
+    "rangeLong": {
+      "24h": "last 24 hours",
+      "7d": "last 7 days",
+      "30d": "last 30 days",
+      "90d": "last 90 days"
+    },
+    "noSourcesTitle": "No sources connected yet",
+    "noSourcesText": "Add your Icecast and Owncast servers to see live listeners and viewers here. Website, YouTube and social media follow in the next phases.",
+    "addSource": "Add a source",
+    "readHow": "How it works",
+    "liveNow": "Live now",
+    "sourcesOnline": "{{online}} of {{total}} sources on air",
+    "peakToday": "Peak today",
+    "peakTodayHint": "highest audience per source, added up",
+    "minutes": "Listening and viewing minutes",
+    "peakRange": "Highest peak",
+    "online": "On air",
+    "offline": "Off air",
+    "listenersNow": "listeners now",
+    "viewersNow": "viewers now",
+    "peak": "peak",
+    "audience": "Live audience",
+    "metric": {
+      "live_avg": "Average",
+      "live_peak": "Peak",
+      "live_minutes": "Minutes"
+    },
+    "metricHint": {
+      "live_avg": "Average number of listeners and viewers at the same time.",
+      "live_peak": "Highest number of listeners and viewers at the same time.",
+      "live_minutes": "Total minutes listened and watched."
+    },
+    "mode": {
+      "stacked": "Stacked",
+      "overlay": "Overlay",
+      "separate": "Separate"
+    },
+    "perSource": "Per source",
+    "source": "Source",
+    "topItems": "Top broadcasts and streams",
+    "topItemsHint": "By minutes in this period.",
+    "item": "Broadcast or stream",
+    "noData": "No data in this period yet."
   },
   "info": {
     "title": "Info & updates",
@@ -200,7 +216,7 @@
   "sso": {
     "title": "Roles & sign-in",
     "subtitle": "Microsoft 365 (Entra ID) single sign-on and which group gets which role.",
-    "phaseNote": "You can prepare these settings now. Signing in with Microsoft 365 is switched on in phase 1.",
+    "phaseNote": "In the app registration add the groups claim under Token configuration (Security groups), so roles can be read. Several group IDs per role can be separated by commas; app role values work as well.",
     "app": "Entra ID app registration",
     "enabled": "Enable Microsoft 365 sign-in",
     "tenantId": "Directory (tenant) ID",
@@ -440,6 +456,78 @@
     "passphrase_too_short": "The passphrase must be at least 12 characters.",
     "confirmation_required": "Type RESTORE to confirm.",
     "invalid_timezone": "Unknown time zone.",
-    "validation_error": "Some fields are not filled in correctly."
+    "validation_error": "Some fields are not filled in correctly.",
+    "sso_disabled": "Microsoft 365 sign-in is not switched on.",
+    "sso_tenant_required": "Enter your own directory (tenant) ID; 'common' is not allowed.",
+    "sso_not_configured": "Microsoft 365 sign-in is not fully set up (client ID or secret missing).",
+    "sso_discovery_failed": "Microsoft 365 could not be reached. Check the tenant ID and the server's internet access.",
+    "sso_token_failed": "Microsoft 365 refused the sign-in. Check the client secret and the redirect URI.",
+    "sso_invalid_token": "The sign-in answer from Microsoft 365 could not be verified.",
+    "sso_wrong_tenant": "This Microsoft account belongs to another organisation.",
+    "sso_state_invalid": "The sign-in took too long or was started in another window. Please try again.",
+    "sso_no_code": "Microsoft 365 did not return a sign-in code.",
+    "sso_no_email": "Your Microsoft account has no e-mail address.",
+    "sso_access_denied": "Sign-in was cancelled or access was not granted.",
+    "sso_failed": "Signing in with Microsoft 365 failed.",
+    "account_disabled": "This account has been disabled.",
+    "invalid_url": "Enter a full address starting with http:// or https://.",
+    "timeout": "The server did not answer in time.",
+    "connection_failed": "Could not connect to the server.",
+    "unauthorized": "Wrong user name or password.",
+    "not_found": "Not found at this address.",
+    "invalid_response": "The server gave an answer that is not understood. Is this the right kind of server?",
+    "internal_error": "Unexpected error while collecting.",
+    "unsupported_kind": "This kind of source is not supported yet.",
+    "kind_cannot_change": "The kind of a source cannot be changed. Add a new source instead.",
+    "no_webhook": "This source has no webhook."
+  },
+  "sources": {
+    "title": "Sources",
+    "subtitle": "Servers and accounts the numbers are collected from.",
+    "add": "Add source",
+    "edit": "Edit source",
+    "name": "Name",
+    "kind": "Kind",
+    "url": "Server address",
+    "status": "Status",
+    "items": "Streams & broadcasts",
+    "kinds": {
+      "icecast": "Icecast (radio)",
+      "owncast": "Owncast (video)"
+    },
+    "urlHint": {
+      "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
+      "owncast": "The address of your Owncast server."
+    },
+    "mounts": "Mount points",
+    "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
+    "adminUser": "Admin user",
+    "adminPassword": "Admin password",
+    "passwordHint": {
+      "icecast": "Optional. Adds average listening time and players (IP addresses are never stored).",
+      "owncast": "Optional. The Owncast admin password; the public status is used without it."
+    },
+    "pollSeconds": "Poll every (seconds)",
+    "pollHint": "30 seconds is a good default.",
+    "enabled": "Collect from this source",
+    "disabled": "Paused",
+    "ok": "Working",
+    "waiting": "Waiting for first poll",
+    "pollNow": "Poll now",
+    "confirmDelete": "Delete {{name}} and all its numbers?",
+    "none": "No sources yet. Add an Icecast or Owncast server to start collecting.",
+    "webhook": "Webhook for Owncast",
+    "webhookHint": "In Owncast go to Integrations → Webhooks, add this URL and select Stream started and Stream stopped. Broadcasts then start and end on the minute.",
+    "webhookAfterSave": "Shown after saving.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "test": "Test connection",
+    "testing": "Testing…",
+    "testOk": "Connection works.",
+    "testOffline": "The server answers but is not broadcasting right now.",
+    "testFailed": "Connection failed",
+    "mountsFound": "Mounts on this server",
+    "renew": "Renew",
+    "renewConfirm": "The old webhook URL stops working. Continue?"
   }
 }
