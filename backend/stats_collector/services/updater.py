@@ -111,7 +111,25 @@ def install_release_tree(ctx: JobContext, tarball: Path, version: str) -> Path:
     except Exception:
         shutil.rmtree(target, ignore_errors=True)
         raise
+    ensure_system_packages(ctx)
     return target
+
+
+# Debian packages newer releases need besides the ones the installer put there first.
+SYSTEM_PACKAGES = {"chromium": ["chromium", "fonts-liberation"]}  # command -> packages (PDF reports)
+
+
+def ensure_system_packages(ctx: JobContext) -> None:
+    """Install missing Debian packages for features added after the first install. Never fatal: the
+    feature reports what is missing instead."""
+    missing = [pkg for cmd, pkgs in SYSTEM_PACKAGES.items() if not shutil.which(cmd) for pkg in pkgs]
+    if not missing or not shutil.which("apt-get"):
+        return
+    env = {"DEBIAN_FRONTEND": "noninteractive"}
+    try:
+        ctx.run(["apt-get", "install", "-y", "-qq", *missing], env=env, timeout=1800)
+    except Exception as exc:  # noqa: BLE001 - e.g. no network to the mirror; the update itself goes on
+        ctx.log(f"could not install {' '.join(missing)}: {exc}")
 
 
 def switch_current(target: Path) -> Path | None:

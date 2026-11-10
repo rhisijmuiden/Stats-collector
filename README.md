@@ -2,7 +2,7 @@
 
 Self-hosted statistics and reporting platform for media teams. It collects reach, engagement and audience numbers from WordPress, Facebook, Instagram, YouTube, Owncast and Icecast, combines them in one dashboard, and emails branded reports on demand or on a schedule.
 
-> Status: phase 0 (foundation). Install it on Debian 13 with `install.sh`; see the [manual](docs/manual/en/README.md) ([Nederlands](docs/manual/nl/README.md)).
+> Status: phase 4 (reports). Install it on Debian 13 with `install.sh`; see the [manual](docs/manual/en/README.md) ([Nederlands](docs/manual/nl/README.md)).
 
 - Manual: [English](docs/manual/en/README.md) · [Nederlands](docs/manual/nl/README.md)
 - System design and roadmap: [docs/DESIGN.md](docs/DESIGN.md)

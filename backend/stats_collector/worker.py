@@ -47,6 +47,7 @@ celery_app.conf.update(
             "options": {"expires": 800},
         },
         "livewall": {"task": "stats_collector.livewall", "schedule": 60.0, "options": {"expires": 55}},
+        "reports": {"task": "stats_collector.reports", "schedule": 120.0, "options": {"expires": 110}},
         "goals": {"task": "stats_collector.goals", "schedule": crontab(minute=40), "options": {"expires": 3000}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
@@ -334,3 +335,12 @@ def poll_soon(source_id: int) -> None:
         poll_one.apply_async((source_id,), expires=60, retry=False)
     except Exception:  # noqa: BLE001 - Redis unreachable (development): poll inline
         poll_one(source_id)
+
+
+@celery_app.task(name="stats_collector.reports")
+def reports_task() -> int:
+    """Scheduled reports whose time has come: generate, make the PDF and email them."""
+    from .services.reports import run_due
+
+    with session_factory()() as db:
+        return run_due(db)

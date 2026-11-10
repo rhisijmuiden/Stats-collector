@@ -24,6 +24,7 @@ dependencies = [
   "python-multipart>=0.0.9",
   "celery[redis]>=5.4",
   "pyjwt[crypto]>=2.9",
+  "playwright>=1.45",  # prints reports to PDF with the system Chromium
 ]
 
 [project.optional-dependencies]

@@ -19,6 +19,8 @@ import Help from "./pages/Help";
 import Profile from "./pages/Profile";
 import Content from "./pages/Content";
 import EditorsPage from "./pages/Editors";
+import ReportsPage from "./pages/Reports";
+import PublicReport, { ArchivedReport } from "./pages/ReportView";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useApp();
@@ -45,6 +47,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/setup" element={<Setup />} />
+      <Route path="/r/:token" element={<PublicReport />} />
       <Route element={<RequireAuth><Layout /></RequireAuth>}>
         <Route index element={<Dashboard />} />
         <Route path="content" element={<Content />} />
@@ -52,6 +55,8 @@ export default function App() {
         <Route path="followers" element={<FollowersPage />} />
         <Route path="goals" element={<GoalsPage />} />
         <Route path="dashboards" element={<DashboardsPage />} />
+        <Route path="reports" element={<EditorsOnly><ReportsPage /></EditorsOnly>} />
+        <Route path="reports/runs/:id" element={<EditorsOnly><ArchivedReport /></EditorsOnly>} />
         <Route path="info" element={<InfoPage />} />
         <Route path="help" element={<Help />} />
         <Route path="help/:slug" element={<Help />} />

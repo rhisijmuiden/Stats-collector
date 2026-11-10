@@ -394,3 +394,57 @@ class GoalRevision(Base):
     note: Mapped[str] = mapped_column(String(500), default="")
     changed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     changed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Report(Base):
+    """A report template: blocks (dashboard widgets plus text) filled in for a period, sent on demand
+    or on a schedule (see api/reports.py for the fields)."""
+
+    __tablename__ = "reports"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(String(200), default="")
+    intro: Mapped[str] = mapped_column(Text, default="")
+    blocks: Mapped[Any] = mapped_column(JSON, default=list)
+    period: Mapped[str] = mapped_column(String(20), default="last_month")
+    language: Mapped[str] = mapped_column(String(5), default="en")
+    schedule: Mapped[str] = mapped_column(String(10), default="none")  # none | daily | weekly | monthly
+    send_time: Mapped[str] = mapped_column(String(5), default="08:00")
+    weekday: Mapped[int] = mapped_column(Integer, default=0)  # 0 = Monday
+    monthday: Mapped[int] = mapped_column(Integer, default=1)
+    recipient_users: Mapped[Any] = mapped_column(JSON, default=list)  # user ids
+    recipient_emails: Mapped[Any] = mapped_column(JSON, default=list)
+    attach_pdf: Mapped[bool] = mapped_column(Boolean, default=True)
+    link_days: Mapped[int] = mapped_column(Integer, default=30)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    next_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+
+class ReportRun(Base):
+    """One generated report: the numbers frozen at that moment, its link and who it was sent to."""
+
+    __tablename__ = "report_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    report_id: Mapped[int | None] = mapped_column(
+        ForeignKey("reports.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    title: Mapped[str] = mapped_column(String(200))
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    data: Mapped[Any] = mapped_column(JSON, default=dict)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)  # sha256 of the link token
+    token_enc: Mapped[str] = mapped_column(Text)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    trigger: Mapped[str] = mapped_column(String(10), default="manual")  # manual | schedule
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    recipients: Mapped[Any] = mapped_column(JSON, default=list)
+    status: Mapped[str] = mapped_column(String(10), default="generated")  # generated | sent | failed
+    error: Mapped[str] = mapped_column(String(500), default="")

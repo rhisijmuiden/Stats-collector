@@ -20,6 +20,7 @@ from .api import (
     ingest,
     livewalls,
     meta,
+    reports,
     settings,
     sources,
     system,
@@ -94,6 +95,7 @@ def create_app() -> FastAPI:
         goals,
         dashboards,
         livewalls,
+        reports,
     ):
         app.include_router(module.router)
     app.include_router(settings.public_router)

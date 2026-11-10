@@ -12,7 +12,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 2. [Reverse proxy en HTTPS (Zoraxy)](reverse-proxy.md)
 3. [Eerste keer inloggen, gebruikers en rollen](users-and-roles.md)
 4. [Huisstijl](branding.md)
-5. [E-mail (SMTP)](email.md)
+5. [E-mail](email.md)
 6. [Back-up en herstel](backup.md)
 7. [Info, updates en het productie-/testkanaal](updates.md)
 
@@ -23,6 +23,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 - [Mijn dashboards](dashboards.md)
 - [Volgers en doelen](followers-and-goals.md)
 - [Live wall](live-wall.md)
+- [Rapporten](reports.md)
 
 ## Platforms koppelen
 

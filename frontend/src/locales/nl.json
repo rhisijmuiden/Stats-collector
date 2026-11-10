@@ -33,7 +33,8 @@
     "followers": "Volgers",
     "goals": "Doelen",
     "dashboards": "Mijn dashboards",
-    "livewalls": "Live walls"
+    "livewalls": "Live walls",
+    "reports": "Rapporten"
   },
   "roles": {
     "admin": "Beheerder",
@@ -298,7 +299,7 @@
   },
   "email": {
     "title": "E-mail",
-    "subtitle": "Je eigen SMTP-server voor meldingen en rapporten.",
+    "subtitle": "Hoe meldingen en rapporten worden verstuurd: Microsoft 365 of je eigen SMTP-server.",
     "server": "Mailserver",
     "enabled": "E-mail versturen",
     "presets": "Voorinstellingen",
@@ -329,7 +330,18 @@
     "testIntro": "Slaat de instellingen op en verstuurt een testbericht.",
     "testTo": "Test versturen naar",
     "sendTest": "Testmail versturen",
-    "testOk": "Testmail verstuurd naar {{to}}."
+    "testOk": "Testmail verstuurd naar {{to}}.",
+    "route": "Verzendroute",
+    "routeHint": "Microsoft 365 verstuurt via Microsoft Graph vanuit één mailbox. Elke andere aanbieder gebruikt SMTP.",
+    "transport": {
+      "graph": "Microsoft 365 (Graph)",
+      "smtp": "SMTP-server"
+    },
+    "graphTenant": "Tenant-ID",
+    "graphTenantHint": "Directory-ID (tenant) van de app-registratie in Entra ID.",
+    "graphMailbox": "Mailbox",
+    "graphMailboxHint": "De mailbox waaruit verstuurd wordt, bijvoorbeeld rapporten@jouwdomein. Leeg: het afzenderadres hieronder.",
+    "graphFallback": "De app-registratie heeft de applicatierechten Mail.Send nodig; beperk die tot deze mailbox met een application access policy (zie Help). Is hieronder een SMTP-server ingevuld, dan wordt die gebruikt als Graph faalt."
   },
   "backup": {
     "title": "Back-up & herstel",
@@ -569,7 +581,22 @@
     "x_rate_limit": "X vraagt om het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
     "x_permission": "X weigerde de toegang: controleer de rechten van de app en of het account tegoed heeft (zie Help → X).",
     "x_payment_required": "X vraagt om betaling: vul tegoed aan in de X-ontwikkelaarsconsole.",
-    "x_budget_reached": "Het maandbudget voor X is op; volgende maand wordt er weer gelezen (of verhoog het budget)."
+    "x_budget_reached": "Het maandbudget voor X is op; volgende maand wordt er weer gelezen (of verhoog het budget).",
+    "editors_recipients": "Een rapport met de ranglijst van redacteuren kan alleen naar hoofdredacteuren en beheerders.",
+    "no_recipients": "Kies minstens één ontvanger.",
+    "mail_not_configured": "E-mail is nog niet ingesteld (Beheer › E-mail).",
+    "chromium_missing": "Chromium is niet geïnstalleerd op de server, dus er kan geen pdf worden gemaakt.",
+    "pdf_failed": "De pdf kon niet worden gemaakt.",
+    "pdf_timeout": "Het maken van de pdf duurde te lang.",
+    "link_expired": "Deze link is verlopen.",
+    "editors_block_forbidden": "Alleen hoofdredacteuren en beheerders kunnen de ranglijst van redacteuren toevoegen.",
+    "unknown_user": "Onbekende gebruiker.",
+    "invalid_time": "Vul een tijd in als UU:MM.",
+    "graph_not_configured": "Microsoft Graph is niet ingesteld: vul de tenant-ID, client-ID en het geheim in.",
+    "graph_token_failed": "Microsoft gaf geen token; controleer de tenant-ID, client-ID en het geheim.",
+    "graph_send_failed": "Microsoft Graph weigerde de mail; controleer Mail.Send en de mailbox.",
+    "graph_mailbox_missing": "Vul de mailbox in waaruit verstuurd wordt.",
+    "attachment_too_large": "De bijlage is te groot."
   },
   "sources": {
     "title": "Bronnen",
@@ -1008,7 +1035,8 @@
       "chart": "Grafiek",
       "top": "Topcontent",
       "editors": "Ranglijst redacteuren",
-      "goals": "Doelen"
+      "goals": "Doelen",
+      "text": "Tekst"
     },
     "sizes": {
       "small": "Een derde",
@@ -1109,5 +1137,114 @@
     "proxies": "Adressen van de reverse proxy (optioneel)",
     "proxiesHint": "IP-adressen of netwerken van de proxy voor de walls, als dat een andere machine is dan de hoofdproxy. Nodig zodat Toegestane adressen het echte bezoekersadres ziet.",
     "addressSaved": "Adres opgeslagen. De links hieronder gebruiken het nu; de wall-dienst neemt de proxy binnen twee minuten over."
+  },
+  "reports": {
+    "title": "Rapporten",
+    "subtitle": "Stel een rapport één keer samen, maak het voor elke periode of laat het volgens een schema mailen.",
+    "new": "Nieuw rapport",
+    "edit": "Rapport bewerken",
+    "saved": "Rapport opgeslagen",
+    "name": "Naam",
+    "nameHint": "Voor de lijst met rapporten.",
+    "titleLabel": "Titel",
+    "titleHint": "Staat boven het rapport en in het onderwerp van de mail. Leeg: de naam.",
+    "period": "Periode",
+    "periodHint": "Hele dagen in de tijdzone van de organisatie, teruggerekend vanaf het moment dat het rapport gemaakt wordt.",
+    "language": "Taal",
+    "languageHint": "Taal van de mail, en van de rapportpagina voor lezers die niet zijn ingelogd.",
+    "intro": "Inleiding",
+    "introHint": "Optionele tekst bovenaan het rapport.",
+    "blocks": "Blokken",
+    "blocksHint": "Dezelfde bouwstenen als Mijn dashboards, plus tekst.",
+    "addBlock": "Blok toevoegen",
+    "noBlocks": "Nog geen blokken. Voeg een blok toe om het rapport te vullen.",
+    "text": "Tekst",
+    "textHint": "Een lege regel begint een nieuwe alinea.",
+    "delivery": "Verzending",
+    "deliveryHint": "Wie het rapport krijgt, en wanneer. Nu verzenden werkt altijd, met of zonder schema.",
+    "schedule": "Schema",
+    "weekday": "Dag van de week",
+    "monthday": "Dag van de maand",
+    "monthdayHint": "1 t/m 28, zodat die dag in elke maand bestaat.",
+    "time": "Tijd",
+    "timeHint": "In de tijdzone van de organisatie.",
+    "users": "Gebruikers",
+    "editorsOnly": "Dit rapport bevat de ranglijst van redacteuren, dus alleen hoofdredacteuren en beheerders kunnen het ontvangen.",
+    "emails": "Andere e-mailadressen",
+    "emailsHint": "Gescheiden door komma's of nieuwe regels. Elke ontvanger krijgt een eigen mail.",
+    "linkDays": "Link geldig (dagen)",
+    "linkDaysHint": "Het interactieve rapport in de mail kan tot dan zonder inloggen worden geopend.",
+    "attachPdf": "Pdf bijvoegen",
+    "enabled": "Schema actief",
+    "editorNote": "Redacteuren kunnen rapporten maken en openen; een hoofdredacteur of beheerder verstuurt en plant ze.",
+    "periods": {
+      "yesterday": "Gisteren",
+      "last_week": "Vorige week (ma–zo)",
+      "last_month": "Vorige maand",
+      "last_7d": "Laatste 7 dagen",
+      "last_30d": "Laatste 30 dagen",
+      "last_90d": "Laatste 90 dagen"
+    },
+    "schedules": {
+      "none": "Alleen op verzoek",
+      "daily": "Elke dag",
+      "weekly": "Elke week",
+      "monthly": "Elke maand"
+    },
+    "weekdays": {
+      "0": "maandag",
+      "1": "dinsdag",
+      "2": "woensdag",
+      "3": "donderdag",
+      "4": "vrijdag",
+      "5": "zaterdag",
+      "6": "zondag"
+    },
+    "when": {
+      "daily": "elke dag om {{time}}",
+      "weekly": "elke {{day}} om {{time}}",
+      "monthly": "{{day}} om {{time}}"
+    },
+    "onDay": "elke maand op dag {{day}}",
+    "onDemand": "op verzoek",
+    "nextRun": "Volgende: {{date}}",
+    "paused": "Schema gepauzeerd",
+    "lastRun": "Laatst gemaakt {{date}}",
+    "noRuns": "Nog niet gemaakt",
+    "blockCount_one": "{{count}} blok",
+    "blockCount_other": "{{count}} blokken",
+    "recipientCount_one": "{{count}} ontvanger",
+    "recipientCount_other": "{{count}} ontvangers",
+    "generate": "Maken",
+    "sendNow": "Nu verzenden",
+    "confirmSend": "\"{{name}}\" nu maken en naar de ontvangers mailen?",
+    "sent_one": "Rapport verzonden naar {{count}} ontvanger",
+    "sent_other": "Rapport verzonden naar {{count}} ontvangers",
+    "confirmDelete": "Het rapport \"{{name}}\" verwijderen? Al verzonden rapporten blijven in het archief.",
+    "archive": "Archief",
+    "archiveTitle": "Archief: {{name}}",
+    "made": "Gemaakt",
+    "periodLabel": "Periode",
+    "status": "Status",
+    "recipients": "Ontvangers",
+    "trigger": {
+      "manual": "met de hand",
+      "schedule": "volgens schema"
+    },
+    "statuses": {
+      "generated": "Gemaakt",
+      "sent": "Verzonden",
+      "failed": "Mislukt"
+    },
+    "open": "Openen",
+    "noneTitle": "Nog geen rapporten",
+    "noneText": "Een nieuw rapport begint met bereik, weergaven, interacties, grafieken en de topcontent. Pas het aan zoals je wilt.",
+    "downloadPdf": "Pdf downloaden",
+    "print": "Afdrukken",
+    "generatedAt": "Gemaakt op {{date}}. De cijfers zijn die van dat moment.",
+    "blockFailed": "Dit blok kon niet worden ingevuld.",
+    "expiredTitle": "Deze link is verlopen",
+    "expiredText": "Vraag de afzender om een nieuw rapport.",
+    "missingTitle": "Rapport niet gevonden"
   }
 }

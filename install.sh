@@ -110,12 +110,12 @@ step "Installing packages from the Debian repositories"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 PKGS=(python3 python3-venv python3-pip postgresql postgresql-contrib redis-server pgbackrest rclone git curl
-      ca-certificates tar gzip openssh-client jq)
+      ca-certificates tar gzip openssh-client jq chromium fonts-liberation)
 [ -n "$SOURCE" ] && PKGS+=(nodejs npm)
 [ "$FIREWALL" = 1 ] && PKGS+=(nftables)
 apt-get install -y -qq "${PKGS[@]}" >/dev/null
 PG_VER="$(ls /usr/lib/postgresql | sort -n | tail -1)"
-ok "Python $(python3 -c 'import platform;print(platform.python_version())'), PostgreSQL $PG_VER, Redis, pgBackRest, rclone"
+ok "Python $(python3 -c 'import platform;print(platform.python_version())'), PostgreSQL $PG_VER, Redis, pgBackRest, rclone, Chromium"
 systemctl enable --now redis-server >/dev/null 2>&1 || true
 
 # ----------------------------------------------------------------------------------------------------------

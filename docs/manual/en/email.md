@@ -1,6 +1,8 @@
-# Email (SMTP)
+# Email
 
-Stats Collector sends notifications and (from phase 4) reports through your own SMTP server. Open **Administration → Email**.
+Stats Collector sends notifications and reports through Microsoft 365 (the Graph API) or through your own SMTP server. Open **Administration → Email**.
+
+Under **Sending route** you choose how mail leaves: **Microsoft 365 (Graph)** or **SMTP server**. With Graph, an SMTP server you also set up is used as a fallback when Microsoft refuses a message.
 
 ![Email screen](../images/en-email.png)
 
@@ -42,4 +44,23 @@ Microsoft is switching off basic authentication for SMTP. Use OAuth 2.0 instead:
    - Client ID and client secret from steps 1 and 3
 6. Send a test email.
 
-Sending through the Microsoft Graph API (instead of SMTP) arrives with the reports in phase 4.
+## Microsoft 365 through the Graph API
+
+The Graph route needs no SMTP at all and is the most reliable way to send from Microsoft 365. Stats Collector logs in as an app (client credentials) and sends from one mailbox.
+
+![Graph route](../images/en-email-graph.png)
+
+1. In the [Entra admin center](https://entra.microsoft.com) go to **App registrations → New registration** and name it *Stats Collector mail*. Note the **Application (client) ID** and the **Directory (tenant) ID**.
+2. **API permissions → Add a permission → Microsoft Graph → Application permissions → Mail.Send**. Click **Grant admin consent**.
+3. **Certificates & secrets → New client secret**. Copy the value.
+4. Without further steps the app may send as *any* mailbox. Limit it to the sending mailbox with an application access policy in Exchange Online PowerShell (use a mail-enabled security group that holds the mailbox):
+   ```powershell
+   New-ApplicationAccessPolicy -AppId <client-id> -PolicyScopeGroupId stats-senders@example.org -AccessRight RestrictAccess -Description "Stats Collector mail"
+   Test-ApplicationAccessPolicy -AppId <client-id> -Identity reports@example.org
+   ```
+5. In Stats Collector choose **Microsoft 365 (Graph)** and fill in:
+   - Tenant ID and client ID from step 1, client secret from step 3
+   - Sending mailbox, e.g. `reports@example.org`
+6. Fill in the sender name below, save and send a test email.
+
+Attachments up to 3 MB go with the message; a larger report PDF is left out and the mail only carries the link.

@@ -164,6 +164,7 @@ input, select, textarea {
   border-radius: var(--radius-control); padding: 8px 10px; width: 100%; min-width: 0;
 }
 textarea { min-height: 96px; resize: vertical; font-family: ui-monospace, monospace; font-size: 12.5px; }
+textarea.prose { font-family: inherit; font-size: inherit; min-height: 0; }
 input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
 input[type="color"] { padding: 2px; height: 36px; width: 48px; flex: none; }
 input[type="checkbox"] { width: auto; }
@@ -419,3 +420,47 @@ details.advanced label { display: flex; flex-direction: column; gap: 4px; }
 .wall-mini-now span { font-size: 12px; font-weight: 400; color: rgba(216, 243, 255, 0.6); }
 .wall-mini-bars { height: 56px; display: flex; align-items: flex-end; gap: 3px; }
 .wall-mini-bars i { flex: 1; background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 30%, #060B16)); border-radius: 2px 2px 0 0; box-shadow: 0 0 8px color-mix(in srgb, var(--c) 40%, transparent); }
+
+/* Reports */
+.report-list { display: flex; flex-direction: column; gap: 16px; }
+.report-list .card { margin: 0; }
+.report-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.report-row svg { vertical-align: -2px; }
+.block-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.block-list li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius-control, 8px); }
+.block-list .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.report { max-width: 1120px; margin: 0 auto; padding: 28px 20px 40px; display: flex; flex-direction: column; gap: 16px; }
+.page .report { padding: 0; }
+.report-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.report-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-heading); font-weight: 600; color: var(--muted); }
+.report-brand img { height: 32px; width: auto; }
+.report-actions { display: flex; gap: 8px; }
+.report-title { font-family: var(--font-heading); font-size: 30px; margin: 4px 0 0; }
+.report-period { color: var(--muted); margin: 0; font-size: 15px; }
+.report-text p { margin: 0 0 10px; white-space: pre-wrap; line-height: 1.55; }
+.report-text p:last-child { margin-bottom: 0; }
+.report-text.intro { font-size: 15px; max-width: 760px; }
+.report-foot { margin-top: 8px; }
+.report-missing { max-width: 520px; margin: 12vh auto; padding: 0 16px; text-align: center; }
+.report-missing svg { width: 40px; height: 40px; color: var(--accent); }
+.report .dash-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px; }
+
+@page { size: A4; margin: 10mm 10mm 12mm; }
+html.printing body { background: #fff; }
+html.printing .report { max-width: none; width: auto; padding: 0; gap: 10px; font-size: 12px; }
+html.printing .report-title { font-size: 24px; }
+html.printing .dash-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+html.printing .dash-cell { grid-column: span 3; break-inside: avoid; }
+html.printing .dash-cell.small { grid-column: span 2; }
+html.printing .dash-cell.full, html.printing .dash-cell.block-top, html.printing .dash-cell.block-editors { grid-column: span 6; }
+html.printing .dash-cell.block-top, html.printing .dash-cell.block-editors { break-inside: auto; }
+html.printing .card { box-shadow: none; }
+html.printing .no-print { display: none; }
+html.printing .table-wrap { overflow: visible; }
+html.printing table { font-size: 10.5px; }
+html.printing td:first-child { min-width: 180px; }
+@media print {
+  .no-print, .sidebar, .mobile-bar { display: none !important; }
+  .dash-cell { break-inside: avoid; }
+  .card { box-shadow: none; }
+}
