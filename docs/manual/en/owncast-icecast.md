@@ -22,6 +22,8 @@ The status column shows **Working** after a successful poll, or the reason the l
 
 Stats Collector reads `status-json.xsl`, available in Icecast 2.4 and later.
 
+Some hosting providers remove `status-json.xsl` and change `status.xsl` so it no longer shows the mount points. Stats Collector then reads the same numbers from `admin/stats`, the page Icecast keeps for its own admin interface. That page needs the **admin user and password**: ask your hosting provider for them if you do not have them. Without them the source shows *This server has no public status page*.
+
 ## Owncast
 
 - **Server address**: the address of your Owncast server, e.g. `https://live.example.org`.

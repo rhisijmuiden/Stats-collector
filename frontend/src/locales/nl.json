@@ -533,7 +533,8 @@
     "meta_metric_changed": "Meta heeft de naam van een metric gewijzigd. De namen worden bij de volgende ronde opnieuw opgezocht.",
     "unknown_source": "Een van de gekozen kanalen bestaat niet meer.",
     "end_before_start": "De einddatum moet na de startdatum liggen.",
-    "link_kinds": "Alleen een bericht of video kan aan een artikel gekoppeld worden."
+    "link_kinds": "Alleen een bericht of video kan aan een artikel gekoppeld worden.",
+    "icecast_no_status": "Deze server heeft geen openbare statuspagina (status-json.xsl). Vul de beheerder-gebruikersnaam en het wachtwoord van Icecast in, dan worden de cijfers uit admin/stats gelezen."
   },
   "sources": {
     "title": "Bronnen",

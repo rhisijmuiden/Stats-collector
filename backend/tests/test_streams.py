@@ -50,9 +50,42 @@ def test_icecast_poll(monkeypatch):
     assert [o.external_id for o in res.observations] == ["/jazz"]
 
 
+ADMIN_STATS = """<?xml version="1.0"?>
+<icestats><admin>icemaster@localhost</admin><listeners>7</listeners><server_id>Icecast 2.4.4</server_id>
+<source mount="/mp3"><listeners>7</listeners><listenurl>http://audio.example.org:80/mp3</listenurl>
+<server_name>Streekomroep</server_name><title>Artist - Song</title>
+<stream_start_iso8601>2026-11-10T06:00:00+0100</stream_start_iso8601></source>
+<source mount="/aac"><listeners>2</listeners><server_name>AAC</server_name></source></icestats>"""
+
+
+def test_icecast_without_status_json(monkeypatch):
+    """A host that removed status-json.xsl: admin/stats with the admin login gives the same numbers."""
+
+    def handler(req: httpx.Request):
+        if req.url.path == "/admin/stats":
+            if "authorization" not in req.headers:
+                return httpx.Response(401)
+            return httpx.Response(200, text=ADMIN_STATS)
+        if req.url.path == "/admin/listclients":
+            return httpx.Response(200, text=LISTCLIENTS)
+        return httpx.Response(404, text="<html>not here</html>")
+
+    mock_client(monkeypatch, icecast, handler)
+    with pytest.raises(ConnectorError, match="icecast_no_status"):
+        icecast.IcecastConnector().poll({"url": "https://audio.example.org"}, {})
+    res = icecast.IcecastConnector().poll({"url": "https://audio.example.org"}, {"admin_password": "x"})
+    by_id = {o.external_id: o for o in res.observations}
+    assert set(by_id) == {"/mp3", "/aac"} and by_id["/mp3"].value == 7 and by_id["/aac"].value == 2
+    assert by_id["/mp3"].extra["now_playing"] == "Artist - Song" and by_id["/mp3"].title == "Streekomroep"
+    assert res.info["via"] == "admin-stats" and res.online
+    mock_client(monkeypatch, icecast, lambda r: httpx.Response(401 if r.url.path == "/admin/stats" else 404))
+    with pytest.raises(ConnectorError, match="unauthorized"):
+        icecast.IcecastConnector().poll({"url": "https://audio.example.org"}, {"admin_password": "wrong"})
+
+
 def test_icecast_errors(monkeypatch):
     mock_client(monkeypatch, icecast, lambda r: httpx.Response(404))
-    with pytest.raises(ConnectorError, match="not_found"):
+    with pytest.raises(ConnectorError, match="icecast_no_status"):
         icecast.IcecastConnector().poll({"url": "http://radio.local:8000"}, {})
     with pytest.raises(ConnectorError, match="invalid_url"):
         icecast.IcecastConnector().poll({"url": "radio.local"}, {})

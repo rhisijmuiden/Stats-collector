@@ -533,7 +533,8 @@
     "meta_metric_changed": "Meta changed a metric name. The names are looked up again at the next run.",
     "unknown_source": "One of the chosen channels no longer exists.",
     "end_before_start": "The end date must be after the start date.",
-    "link_kinds": "Only a post or video can be linked to an article."
+    "link_kinds": "Only a post or video can be linked to an article.",
+    "icecast_no_status": "This server has no public status page (status-json.xsl). Enter the Icecast admin user and password, then the numbers are read from admin/stats."
   },
   "sources": {
     "title": "Sources",
