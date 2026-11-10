@@ -41,3 +41,9 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Releases worden gebouwd door een versietag te pushen (`vX.Y.Z-rc.N` voor een testversie, `vX.Y.Z` voor productie).
 - A release created by hand on GitHub (Releases → Draft a new release) is filled in automatically with notes and the package.
   NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
+
+### Fixed
+- **Update now** and **Back up now** start right away again after the installer's first backup; before, the job waited for the hourly run.
+  NL: **Nu bijwerken** en **Nu back-up maken** starten weer direct na de eerste back-up van het installatiescript; eerder wachtte de taak op de uurlijkse ronde.
+- Downloaded update packages are removed after installing, and the pre-update database dump is readable only by the database user.
+  NL: Gedownloade updatepakketten worden na installatie opgeruimd, en de databasedump van voor de update is alleen leesbaar voor de databasegebruiker.

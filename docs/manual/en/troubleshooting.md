@@ -28,7 +28,7 @@ stats-collector restore --target ID --label LABEL   # restore from a remote loca
 
 **I am logged out immediately after signing in.** The public URL starts with `https://` but the proxy sends plain HTTP to the browser, or the other way round. Make `SC_PUBLIC_URL` match the address in the browser.
 
-**A task stays "Queued".** The ops runner is not running: `systemctl status stats-collector-ops.path`. Start it with `systemctl enable --now stats-collector-ops.path`.
+**A task stays "Queued".** The ops runner is not running: `systemctl status stats-collector-ops.path`. Start it with `systemctl enable --now stats-collector-ops.path`. Queued tasks are also picked up by the hourly run (five past the hour); to start them right away, run `sudo stats-collector ops run-pending`.
 
 **"GitHub cannot be reached".** The server needs outgoing HTTPS to `api.github.com` and `github.com` to check for and download updates.
 
