@@ -28,7 +28,7 @@ stats-collector restore --target ID --label LABEL   # terugzetten vanaf een exte
 
 **Ik word direct na het inloggen weer uitgelogd.** De publieke URL begint met `https://` maar de proxy levert gewone HTTP aan de browser, of andersom. Laat `SC_PUBLIC_URL` overeenkomen met het adres in de browser.
 
-**Een taak blijft op "In de wachtrij" staan.** De ops-dienst draait niet: `systemctl status stats-collector-ops.path`. Start hem met `systemctl enable --now stats-collector-ops.path`.
+**Een taak blijft op "In de wachtrij" staan.** De ops-dienst draait niet: `systemctl status stats-collector-ops.path`. Start hem met `systemctl enable --now stats-collector-ops.path`. Taken in de wachtrij worden ook opgepakt door de uurlijkse ronde (vijf over het hele uur); om ze direct te starten voer je `sudo stats-collector ops run-pending` uit.
 
 **"GitHub is niet bereikbaar".** De server heeft uitgaand HTTPS nodig naar `api.github.com` en `github.com` om updates te zoeken en te downloaden.
 
