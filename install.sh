@@ -203,8 +203,13 @@ if [ "$(cat "$ARCHIVE_CONF" 2>/dev/null)" != "$NEW_ARCHIVE" ]; then
   systemctl restart postgresql
   for _ in $(seq 1 30); do runuser -u postgres -- pg_isready -q && break; sleep 1; done
 fi
-runuser -u postgres -- pgbackrest --stanza="$STANZA" stanza-create >/dev/null
-runuser -u postgres -- pgbackrest --stanza="$STANZA" check >/dev/null && ok "WAL archiving and stanza $STANZA"
+pgb() { # run pgBackRest quietly, but show its output when it fails
+  local out
+  out="$(runuser -u postgres -- pgbackrest --stanza="$STANZA" "$@" 2>&1)" || { echo "$out" >&2; die "pgbackrest $* failed"; }
+}
+pgb stanza-create
+pgb check
+ok "WAL archiving and stanza $STANZA"
 
 # ----------------------------------------------------------------------------------------------------------
 step "Installing the application"
