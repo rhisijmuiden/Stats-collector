@@ -336,6 +336,22 @@ class Goal(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class Dashboard(Base):
+    """A saved dashboard: a name and a list of widgets (see api/dashboards.py for their fields)."""
+
+    __tablename__ = "dashboards"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    widgets: Mapped[Any] = mapped_column(JSON, default=list)
+    shared: Mapped[bool] = mapped_column(Boolean, default=False)  # visible to everyone
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+
 class GoalRevision(Base):
     """Every target a goal has had, so reports show what the target was at the time."""
 

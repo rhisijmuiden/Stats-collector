@@ -23,8 +23,14 @@ async function openEditorSocial(page) {
   await page.locator(".modal .kpis").last().scrollIntoViewIfNeeded();
 }
 
+async function editDashboardWidget(page) {
+  await page.locator(".dash-bar .btn.secondary").first().click(); // Edit
+  await page.locator('.dash-cell.full .dash-tools button:has(svg.lucide-pencil)').first().click();
+  await page.waitForTimeout(300);
+}
+
 const SCREENS = [
-  ["/", "dashboard"], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
+  ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
   ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];

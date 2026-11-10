@@ -31,7 +31,8 @@
     "content": "Content",
     "editors": "Editors",
     "followers": "Followers",
-    "goals": "Goals"
+    "goals": "Goals",
+    "dashboards": "My dashboards"
   },
   "roles": {
     "admin": "Admin",
@@ -846,6 +847,104 @@
       "url": "automatic",
       "manual": "by hand",
       "tracking": "tracking"
+    }
+  },
+  "dashboards": {
+    "title": "My dashboards",
+    "subtitle": "Build your own views: totals, charts per platform or source, top lists and editors.",
+    "edit": "Edit",
+    "new": "New dashboard",
+    "newName": "New dashboard",
+    "name": "Dashboard name",
+    "shared": "Shared with everyone",
+    "addWidget": "Add widget",
+    "editWidget": "Edit widget",
+    "saved": "Dashboard saved.",
+    "confirmDelete": "Delete the dashboard \"{{name}}\"?",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "example": "Create an example dashboard",
+    "noneTitle": "No dashboards yet",
+    "noneText": "Start with an example and change it, or build one from scratch with New dashboard.",
+    "emptyTitle": "This dashboard is empty",
+    "emptyText": "Click Edit and add widgets.",
+    "emptyEdit": "Click Add widget to put the first widget on it.",
+    "noData": "No numbers for this period.",
+    "dailyOnly": "YouTube, Facebook and Instagram report whole days only, so they are not in a 24-hour chart.",
+    "noCompare": "No previous period to compare with",
+    "vsPrevious": "vs previous period",
+    "total": "Total",
+    "mode": "View",
+    "editorsHidden": "Editor numbers are not visible for your role.",
+    "widgetType": "Widget",
+    "size": "Width",
+    "widgetTitle": "Title",
+    "widgetTitleHint": "Leave empty to use the measure's name.",
+    "measureLabel": "Measure",
+    "platforms": "Platforms",
+    "sources": "Sources",
+    "allWhenEmpty": "None selected means all.",
+    "split": "Lines per",
+    "chartType": "Chart",
+    "itemKind": "Items",
+    "limit": "Number of rows",
+    "type": {
+      "kpi": "Total (KPI)",
+      "chart": "Chart",
+      "top": "Top content",
+      "editors": "Editors ranking",
+      "goals": "Goals"
+    },
+    "sizes": {
+      "small": "Third",
+      "half": "Half",
+      "full": "Full width"
+    },
+    "measure": {
+      "reach": "Reach",
+      "views": "Views",
+      "interactions": "Interactions",
+      "watch_minutes": "Watch and listen minutes",
+      "followers": "Followers"
+    },
+    "measureHint": {
+      "reach": "Website visitors plus Facebook and Instagram reach.",
+      "views": "Page views, video views and post views.",
+      "interactions": "Likes, reactions, comments, shares and saves.",
+      "watch_minutes": "YouTube watch minutes plus Owncast and Icecast minutes.",
+      "followers": "YouTube subscribers plus Facebook and Instagram followers, per day."
+    },
+    "platform": {
+      "website": "Website",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "owncast": "Owncast",
+      "icecast": "Icecast",
+      "total": "Total"
+    },
+    "splits": {
+      "platform": "Platform",
+      "source": "Source",
+      "none": "One total"
+    },
+    "modes": {
+      "stacked": "Stacked",
+      "overlay": "Overlay",
+      "separate": "Separate"
+    },
+    "charts": {
+      "area": "Area",
+      "line": "Line",
+      "bar": "Bars"
+    },
+    "kinds": {
+      "all": "All",
+      "article": "Articles",
+      "post": "Social posts",
+      "video": "Videos",
+      "broadcast": "Broadcasts",
+      "mount": "Mount points"
     }
   }
 }

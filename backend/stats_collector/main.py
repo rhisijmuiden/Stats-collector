@@ -13,6 +13,7 @@ from .api import (
     backup,
     content,
     dashboard,
+    dashboards,
     entra,
     goals,
     help,
@@ -86,6 +87,7 @@ def create_app() -> FastAPI:
         youtube,
         meta,
         goals,
+        dashboards,
     ):
         app.include_router(module.router)
     app.include_router(settings.public_router)

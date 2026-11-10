@@ -31,7 +31,8 @@
     "content": "Content",
     "editors": "Redacteuren",
     "followers": "Volgers",
-    "goals": "Doelen"
+    "goals": "Doelen",
+    "dashboards": "Mijn dashboards"
   },
   "roles": {
     "admin": "Beheerder",
@@ -846,6 +847,104 @@
       "url": "automatisch",
       "manual": "handmatig",
       "tracking": "tracking"
+    }
+  },
+  "dashboards": {
+    "title": "Mijn dashboards",
+    "subtitle": "Maak je eigen overzichten: totalen, grafieken per platform of bron, toplijsten en redacteuren.",
+    "edit": "Bewerken",
+    "new": "Nieuw dashboard",
+    "newName": "Nieuw dashboard",
+    "name": "Naam van het dashboard",
+    "shared": "Gedeeld met iedereen",
+    "addWidget": "Widget toevoegen",
+    "editWidget": "Widget bewerken",
+    "saved": "Dashboard opgeslagen.",
+    "confirmDelete": "Het dashboard \"{{name}}\" verwijderen?",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "example": "Voorbeelddashboard maken",
+    "noneTitle": "Nog geen dashboards",
+    "noneText": "Begin met een voorbeeld en pas het aan, of bouw er zelf een met Nieuw dashboard.",
+    "emptyTitle": "Dit dashboard is leeg",
+    "emptyText": "Klik op Bewerken en voeg widgets toe.",
+    "emptyEdit": "Klik op Widget toevoegen voor de eerste widget.",
+    "noData": "Geen cijfers voor deze periode.",
+    "dailyOnly": "YouTube, Facebook en Instagram geven alleen hele dagen door, daarom staan ze niet in een grafiek van 24 uur.",
+    "noCompare": "Geen vorige periode om mee te vergelijken",
+    "vsPrevious": "t.o.v. vorige periode",
+    "total": "Totaal",
+    "mode": "Weergave",
+    "editorsHidden": "Cijfers per redacteur zijn niet zichtbaar voor jouw rol.",
+    "widgetType": "Widget",
+    "size": "Breedte",
+    "widgetTitle": "Titel",
+    "widgetTitleHint": "Laat leeg voor de naam van de maatstaf.",
+    "measureLabel": "Maatstaf",
+    "platforms": "Platforms",
+    "sources": "Bronnen",
+    "allWhenEmpty": "Niets gekozen betekent alles.",
+    "split": "Lijnen per",
+    "chartType": "Grafiek",
+    "itemKind": "Items",
+    "limit": "Aantal regels",
+    "type": {
+      "kpi": "Totaal (KPI)",
+      "chart": "Grafiek",
+      "top": "Topcontent",
+      "editors": "Ranglijst redacteuren",
+      "goals": "Doelen"
+    },
+    "sizes": {
+      "small": "Een derde",
+      "half": "Half",
+      "full": "Volle breedte"
+    },
+    "measure": {
+      "reach": "Bereik",
+      "views": "Weergaven",
+      "interactions": "Interacties",
+      "watch_minutes": "Kijk- en luisterminuten",
+      "followers": "Volgers"
+    },
+    "measureHint": {
+      "reach": "Websitebezoekers plus het bereik op Facebook en Instagram.",
+      "views": "Paginaweergaven, videoweergaven en weergaven van berichten.",
+      "interactions": "Likes, reacties (emoji), opmerkingen, keren gedeeld en opgeslagen.",
+      "watch_minutes": "Kijkminuten op YouTube plus minuten via Owncast en Icecast.",
+      "followers": "Abonnees op YouTube plus volgers op Facebook en Instagram, per dag."
+    },
+    "platform": {
+      "website": "Website",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "owncast": "Owncast",
+      "icecast": "Icecast",
+      "total": "Totaal"
+    },
+    "splits": {
+      "platform": "Platform",
+      "source": "Bron",
+      "none": "Eén totaal"
+    },
+    "modes": {
+      "stacked": "Gestapeld",
+      "overlay": "Over elkaar",
+      "separate": "Los"
+    },
+    "charts": {
+      "area": "Vlak",
+      "line": "Lijn",
+      "bar": "Staven"
+    },
+    "kinds": {
+      "all": "Alles",
+      "article": "Artikelen",
+      "post": "Sociale berichten",
+      "video": "Video's",
+      "broadcast": "Uitzendingen",
+      "mount": "Mountpoints"
     }
   }
 }
