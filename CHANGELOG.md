@@ -13,3 +13,5 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Standaard huisstijl met kleuren voor licht en donker thema en logo's (`branding/default/`).
 - Design for the release overview with change notes per release.
   NL: Ontwerp voor het releaseoverzicht met wijzigingen per release.
+- Design for the Help button and the full manual on GitHub Pages.
+  NL: Ontwerp voor de Help-knop en de volledige handleiding op GitHub Pages.

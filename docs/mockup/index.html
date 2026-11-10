@@ -89,6 +89,21 @@ dt{color:var(--muted)}
 .goal .row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;border-radius:99px}
 .goal input{width:110px}
+.relwrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;margin-top:6px}
+.rellist{display:flex;flex-direction:column;gap:6px;max-height:380px;overflow:auto}
+.relitem{all:unset;cursor:pointer;padding:9px 10px;border:1px solid var(--line);border-radius:9px;display:grid;gap:2px}
+.relitem[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.relitem:focus-visible{outline:2px solid var(--accent)}
+.relitem b{font-family:var(--f-display)}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;margin-left:6px}
+.b-prod{background:var(--accent-soft);color:var(--fg)}.b-test{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--fg)}.b-cur{background:var(--fg);color:var(--bg)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:10px 0;flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;padding:7px 10px;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--fg);border-color:var(--accent);font-weight:600}
+.tabs button:focus-visible{outline:2px solid var(--accent)}
+.relbody ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.kind{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-right:6px}
+@media (max-width:640px){.relwrap{grid-template-columns:1fr}}
 .wallbox{background:radial-gradient(ellipse at 50% 0%,#12305a 0%,#060b16 70%);border-radius:14px;padding:18px;color:#d8f3ff;border:1px solid #1d3b66}
 .wallhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .walltitle{font-family:var(--f-display);font-size:22px;letter-spacing:.18em;font-weight:700;color:#7fe7ff;text-shadow:0 0 12px #2fb8ff}
@@ -129,6 +144,7 @@ dt{color:var(--muted)}
     <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5v9M4.5 7L8 10.5 11.5 7M2 14h12"/></svg><span data-i="backup">Backup</span></button>
     <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="6" r="2"/><path d="M0 14c0-2.5 2-4 5-4s5 1.5 5 4z"/></svg><span data-i="users">Users</span></button>
     <div class="spacer"></div>
+    <button class="nav" id="helpBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.2v.4M8 11.6v.2"/></svg><span>Help</span></button>
     <button class="nav" id="infoBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4.5M8 4.5v.5"/></svg><span>Info · v1.4.2</span></button>
   </nav>
 
@@ -257,7 +273,28 @@ dt{color:var(--muted)}
   <dl><dt>Version</dt><dd>1.4.2</dd><dt>Commit</dt><dd>a3f9c21</dd><dt>Channel</dt><dd id="chan">Production (main)</dd><dt>Build</dt><dd>2026-11-03</dd></dl>
   <div class="seg" role="group" aria-label="Update channel"><button id="cProd" aria-pressed="true">Production</button><button id="cTest" aria-pressed="false">Test</button></div>
   <p class="sub" id="updMsg" style="min-height:20px">Last checked 08:42.</p>
-  <div class="controls"><button class="btn ghost" id="chk">Check for updates</button><button class="btn" id="upd" hidden>Update to 1.5.0</button><button class="btn ghost" id="closeInfo">Close</button></div>
+  <div class="controls"><button class="btn ghost" id="chk">Check for updates</button><button class="btn" id="upd" hidden>Update to 1.5.0</button><button class="btn ghost" id="relBtn">Releases and changes</button><button class="btn ghost" id="closeInfo">Close</button></div>
+</dialog>
+
+<dialog id="help" style="max-width:640px">
+  <div class="cardhead"><h2>Help</h2><input type="text" id="helpSearch" placeholder="Search the manual" aria-label="Search the manual"></div>
+  <p class="sub">Opens the full manual on GitHub Pages for version 1.4.2, in your language. Every screen also has a ? icon that jumps straight to its page.</p>
+  <div class="blocks" style="margin-top:10px">
+    <div class="block"><b>Install on Debian 13</b><span>installer, Zoraxy, Let's Encrypt</span></div>
+    <div class="block"><b>Connect Facebook and Instagram</b><span>Meta app, App Review, page token</span></div>
+    <div class="block"><b>Connect YouTube</b><span>Google Cloud project, OAuth consent</span></div>
+    <div class="block"><b>WordPress plugin</b><span>install, site key, test connection</span></div>
+    <div class="block"><b>Owncast and Icecast</b><span>admin access, mounts</span></div>
+    <div class="block"><b>Roles in Microsoft 365</b><span>Entra groups to roles</span></div>
+    <div class="block"><b>Reports, goals and the live wall</b><span>schedules, recipients, wall links</span></div>
+  </div>
+  <div class="controls" style="margin-top:14px;justify-content:flex-end"><a class="btn" href="https://github.com/rhisijmuiden/Stats-collector" target="_blank" rel="noopener">Open full manual</a><button class="btn ghost" id="closeHelp">Close</button></div>
+</dialog>
+
+<dialog id="rel" style="max-width:760px">
+  <div class="cardhead"><h2>Releases</h2><div class="seg" role="group" aria-label="Show channel"><button data-rf="all" aria-pressed="true">All</button><button data-rf="prod" aria-pressed="false">Production</button><button data-rf="test" aria-pressed="false">Test</button></div></div>
+  <div class="relwrap"><div id="relList" class="rellist"></div><div id="relBody" class="relbody"></div></div>
+  <div class="controls" style="margin-top:14px;justify-content:flex-end"><button class="btn ghost" id="closeRel">Close</button></div>
 </dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
@@ -322,7 +359,23 @@ const accents=['#0E9F8E','#3E7BFA','#E5484D','#F5A524','#6C5CE7','#152033'];
 sw.innerHTML=accents.map(a=>`<button class="sw" style="background:${a}" aria-label="Accent ${a}" data-a="${a}"></button>`).join('');
 sw.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.preventDefault();document.documentElement.style.setProperty('--accent',b.dataset.a);prevK.innerHTML=prev()});
 const prev=()=>`<div class="kpi"><div class="l">Total reach</div><div class="v" style="color:var(--accent)">${fmt(482100)}</div></div><div class="kpi"><div class="l">Report header</div><div class="v" style="font-size:16px"><span class="logo" style="display:inline-grid;width:22px;height:22px;vertical-align:middle"></span> Stats Collector</div></div>`;prevK.innerHTML=prev();
-infoBtn.onclick=()=>info.showModal();closeInfo.onclick=()=>info.close();
+const RELS=[
+ {v:'1.5.0-rc.3',ch:'test',d:'2026-11-09',n:{New:['Live wall: Instagram bar with freshness indicator','Goals: forecast date per goal'],Changed:['Reports: PDF cover uses the accent colour from Branding'],Fixed:['Icecast: listeners on mounts with a space in the name were not counted'],Removed:[]}},
+ {v:'1.5.0-rc.2',ch:'test',d:'2026-11-06',n:{New:['Followers and goals screen'],Changed:['Dashboard legend remembers hidden channels per user'],Fixed:[],Removed:['Old CSV export (replaced by Excel export)']}},
+ {v:'1.4.2',ch:'prod',d:'2026-11-03',cur:true,n:{New:[],Changed:[],Fixed:['Owncast: broadcasts shorter than 1 minute no longer appear as items','Dutch translation of the backup screen'],Removed:[]}},
+ {v:'1.4.0',ch:'prod',d:'2026-10-20',n:{New:['Editor performance view','YouTube connector'],Changed:['Stacked charts now start at zero'],Fixed:[],Removed:['Beta Matomo connector']}}];
+let rf='all',rsel=0,rtab='All';
+function relRender(){const list=RELS.map((r,i)=>[r,i]).filter(([r])=>rf==='all'||r.ch===rf);if(!list.find(([,i])=>i===rsel))rsel=list[0][1];
+ relList.innerHTML=list.map(([r,i])=>`<button class="relitem" data-ri="${i}" aria-current="${i===rsel}"><span><b>${r.v}</b><span class="badge ${r.ch==='prod'?'b-prod':'b-test'}">${r.ch==='prod'?'Production':'Test'}</span>${r.cur?'<span class="badge b-cur">Installed</span>':''}</span><span class="sub">${r.d}</span></button>`).join('');
+ relList.querySelectorAll('.relitem').forEach(b=>b.onclick=()=>{rsel=+b.dataset.ri;relRender()});
+ const r=RELS[rsel];const kinds=['New','Changed','Fixed','Removed'];const col={New:'var(--good)',Changed:'var(--c-web)',Fixed:'var(--warn)',Removed:'var(--c-yt)'};
+ const items=rtab==='All'?kinds.flatMap(k=>r.n[k].map(t=>[k,t])):r.n[rtab].map(t=>[rtab,t]);
+ relBody.innerHTML=`<div class="controls" style="justify-content:space-between"><div><h2>${r.v}</h2><div class="sub">${r.ch==='prod'?'Production':'Test'} release · ${r.d}</div></div>${r.cur?'<span class="sub">This version is running</span>':`<button class="btn" id="instRel">Install ${r.v}</button>`}</div><div class="tabs" role="tablist">${['All',...kinds].map(k=>`<button role="tab" data-rt="${k}" aria-selected="${k===rtab}">${k} (${k==='All'?kinds.reduce((a,x)=>a+r.n[x].length,0):r.n[k].length})</button>`).join('')}</div>${items.length?`<ul>${items.map(([k,t])=>`<li><span class="kind" style="color:${col[k]}">${k}</span>${t}</li>`).join('')}</ul>`:'<p class="sub">Nothing in this category for this release.</p>'}<p class="sub" id="instMsg"></p>`;
+ relBody.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{rtab=b.dataset.rt;relRender()});
+ const ib=document.getElementById('instRel');if(ib)ib.onclick=()=>{instMsg.textContent='A backup runs first, then '+r.v+' is installed and the app restarts (sketch only, nothing changes).'};}
+document.querySelectorAll('[data-rf]').forEach(b=>b.onclick=()=>{rf=b.dataset.rf;document.querySelectorAll('[data-rf]').forEach(x=>x.setAttribute('aria-pressed',x===b));relRender()});
+relBtn.onclick=()=>{info.close();relRender();rel.showModal()};closeRel.onclick=()=>rel.close();
+infoBtn.onclick=()=>info.showModal();helpBtn.onclick=()=>help.showModal();closeHelp.onclick=()=>help.close();closeInfo.onclick=()=>info.close();
 cProd.onclick=()=>{cProd.setAttribute('aria-pressed',true);cTest.setAttribute('aria-pressed',false);chan.textContent='Production (main)';upd.hidden=true;updMsg.textContent='Switched to production.'};
 cTest.onclick=()=>{cTest.setAttribute('aria-pressed',true);cProd.setAttribute('aria-pressed',false);chan.textContent='Test (develop)';upd.hidden=true;updMsg.textContent='Switched to test. Check for updates to see the latest test build.'};
 chk.onclick=()=>{updMsg.textContent='Checking GitHub releases…';setTimeout(()=>{const t=cTest.getAttribute('aria-pressed')==='true';upd.textContent=t?'Update to 1.5.0-rc.3':'Update to 1.5.0';updMsg.textContent=(t?'1.5.0-rc.3':'1.5.0')+' is available. A backup runs before the update.';upd.hidden=false},700)};
