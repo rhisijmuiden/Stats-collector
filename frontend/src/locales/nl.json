@@ -9,7 +9,8 @@
     "loading": "Laden…",
     "save": "Opslaan",
     "saved": "Opgeslagen",
-    "secretKept": "Er is een waarde opgeslagen. Laat leeg om die te behouden."
+    "secretKept": "Er is een waarde opgeslagen. Laat leeg om die te behouden.",
+    "copied": "Gekopieerd."
   },
   "nav": {
     "main": "Hoofdmenu",
@@ -241,8 +242,8 @@
   },
   "sso": {
     "title": "Rollen & inloggen",
-    "subtitle": "Single sign-on met Microsoft 365 (Entra ID) en welke groep welke rol krijgt.",
-    "phaseNote": "Voeg in de app-registratie onder Tokenconfiguratie de groepsclaim toe (Beveiligingsgroepen), zodat de rollen gelezen kunnen worden. Meerdere groeps-ID's per rol scheid je met komma's; waarden van app-rollen werken ook.",
+    "subtitle": "Single sign-on met Microsoft 365 (Entra ID) en wie welke rol krijgt.",
+    "phaseNote": "Rollen komen bij elke keer inloggen uit Microsoft 365. Het makkelijkst: maak de app-rollen hieronder aan in de app-registratie en wijs er mensen of groepen aan toe; dan hoef je niets op te zoeken. Object-ID's van groepen werken ook nog.",
     "app": "App-registratie in Entra ID",
     "enabled": "Inloggen met Microsoft 365 aanzetten",
     "tenantId": "Directory-ID (tenant)",
@@ -252,10 +253,17 @@
     "redirectHint": "Voeg deze URI toe aan de app-registratie onder Verificatie → Web.",
     "allowLocal": "Lokale accounts mogen ook inloggen",
     "breakGlass": "Beheerders kunnen altijd met een lokaal account inloggen, zodat je jezelf nooit buitensluit.",
-    "groups": "Rollen uit Microsoft 365-groepen",
-    "groupsIntro": "Plak per rol de object-ID van de Entra-groep. Het lidmaatschap wordt bij elke keer inloggen gelezen.",
+    "groups": "Rollen uit Microsoft 365-groepen (optioneel)",
+    "groupsIntro": "In plaats van app-rollen: plak per rol de object-ID van een Entra-groep (meerdere gescheiden door komma's). Hiervoor is de groepsclaim onder Tokenconfiguratie nodig.",
     "groupIdPlaceholder": "Object-ID van de groep",
-    "defaultRole": "Rol voor alle anderen in de organisatie"
+    "defaultRole": "Rol voor alle anderen in de organisatie",
+    "appRoles": "App-rollen (aanbevolen)",
+    "appRolesIntro": "Maak deze app-rollen aan in de app-registratie (App-rollen), of plak ze in het manifest onder \"appRoles\". Stats Collector herkent de waarden vanzelf.",
+    "copyManifest": "Manifest-JSON kopiëren",
+    "role": "Rol",
+    "appRoleValue": "Waarde",
+    "appRoleName": "Weergavenaam",
+    "appRolesAssign": "Wijs daarna gebruikers of groepen toe aan de rollen onder Bedrijfstoepassingen → Stats Collector → Gebruikers en groepen. Wie meerdere rollen heeft krijgt de hoogste; wie geen rol heeft krijgt de rol voor alle anderen hieronder."
   },
   "branding": {
     "title": "Huisstijl",

@@ -31,4 +31,4 @@ Namen van redacteuren en cijfers per redacteur worden op de server verwijderd vo
 
 ## Microsoft 365
 
-Vanaf fase 1 kunnen collega's inloggen met hun Microsoft 365-account en krijgen ze hun rol uit een Microsoft 365-groep. De instellingen kun je nu al voorbereiden: zie [Microsoft 365](microsoft-365.md).
+Collega's kunnen inloggen met hun Microsoft 365-account en krijgen hun rol uit een app-rol of groep in Microsoft 365: zie [Microsoft 365](microsoft-365.md).

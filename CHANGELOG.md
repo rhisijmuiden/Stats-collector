@@ -7,6 +7,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- Roles & sign-in: Microsoft 365 roles through app roles with fixed values (`StatsCollector.Admin`, `StatsCollector.EditorInChief`, `StatsCollector.Editor`, `StatsCollector.Staff`), recognised without looking up object IDs; the page lists them with copy buttons and copies them as manifest JSON. Group object IDs keep working.
+  NL: Rollen & inloggen: rollen uit Microsoft 365 via app-rollen met vaste waarden (`StatsCollector.Admin`, `StatsCollector.EditorInChief`, `StatsCollector.Editor`, `StatsCollector.Staff`), die herkend worden zonder object-ID's op te zoeken; de pagina toont ze met kopieerknoppen en kopieert ze als manifest-JSON. Object-ID's van groepen blijven werken.
 - Reports: build a report from blocks (totals, charts, top content, editors ranking, goals and text), generate it for a fixed period, and share it as an interactive page behind a link that expires, or as a PDF made from the same page; reports go out daily, weekly or monthly to users and email addresses, and every run is kept in the archive.
   NL: Rapporten: stel een rapport samen uit blokken (totalen, grafieken, topcontent, ranglijst redacteuren, doelen en tekst), maak het voor een vaste periode en deel het als interactieve pagina achter een link die verloopt, of als PDF van dezelfde pagina; rapporten gaan dagelijks, wekelijks of maandelijks naar gebruikers en e-mailadressen, en elke uitvoering blijft bewaard in het archief.
 - Email through Microsoft 365 with the Graph API (app registration with Mail.Send), with the SMTP server as fallback.

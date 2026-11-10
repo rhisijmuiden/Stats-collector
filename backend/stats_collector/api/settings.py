@@ -15,7 +15,7 @@ from ..config import get_settings
 from ..db import get_db
 from ..models import User
 from ..security import current_user, encrypt_secret, require_admin
-from ..services import mail, settings_store
+from ..services import entra, mail, settings_store
 from .common import audit
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
@@ -136,6 +136,7 @@ class SsoIn(BaseModel):
 def get_sso(db: Session = Depends(get_db), _=Depends(require_admin)) -> dict:
     value = settings_store.public_view("sso", settings_store.get_section(db, "sso"))
     value["redirect_uri"] = get_settings().public_url.rstrip("/") + "/api/auth/entra/callback"
+    value["app_roles"] = entra.app_roles()
     return value
 
 

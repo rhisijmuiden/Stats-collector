@@ -129,6 +129,12 @@ def test_resolve_role():
     assert entra.resolve_role(cfg, ["E", "B"], []) == "admin"
     assert entra.resolve_role(cfg, [], ["E"]) == "editor"
     assert entra.resolve_role(cfg, ["x"], []) == "staff"
+    # The fixed app role values work without any mapping; the highest one wins.
+    assert entra.resolve_role({}, [], ["StatsCollector.Editor"]) == "editor"
+    assert entra.resolve_role({}, [], ["statscollector.editor", "StatsCollector.EditorInChief"]) == "editor_in_chief"
+    assert entra.resolve_role(cfg, ["E"], ["StatsCollector.Admin"]) == "admin"
+    roles = entra.app_roles()
+    assert [r["value"] for r in roles][0] == "StatsCollector.Admin" and len({r["id"] for r in roles}) == 4
 
 
 def test_proxy_headers():

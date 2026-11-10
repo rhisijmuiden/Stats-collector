@@ -9,7 +9,8 @@
     "loading": "Loading…",
     "save": "Save",
     "saved": "Saved",
-    "secretKept": "A value is stored. Leave empty to keep it."
+    "secretKept": "A value is stored. Leave empty to keep it.",
+    "copied": "Copied."
   },
   "nav": {
     "main": "Main menu",
@@ -241,8 +242,8 @@
   },
   "sso": {
     "title": "Roles & sign-in",
-    "subtitle": "Microsoft 365 (Entra ID) single sign-on and which group gets which role.",
-    "phaseNote": "In the app registration add the groups claim under Token configuration (Security groups), so roles can be read. Several group IDs per role can be separated by commas; app role values work as well.",
+    "subtitle": "Microsoft 365 (Entra ID) single sign-on and who gets which role.",
+    "phaseNote": "Roles come from Microsoft 365 at every sign-in. Easiest: create the app roles below in the app registration and assign people or groups to them; then nothing has to be looked up. Group object IDs still work as well.",
     "app": "Entra ID app registration",
     "enabled": "Enable Microsoft 365 sign-in",
     "tenantId": "Directory (tenant) ID",
@@ -252,10 +253,17 @@
     "redirectHint": "Add this URI to the app registration under Authentication → Web.",
     "allowLocal": "Also allow local accounts to sign in",
     "breakGlass": "Administrators can always sign in with a local account, so you never lock yourself out.",
-    "groups": "Roles from Microsoft 365 groups",
-    "groupsIntro": "Paste the object ID of the Entra group for each role. Membership is read at every sign-in.",
+    "groups": "Roles from Microsoft 365 groups (optional)",
+    "groupsIntro": "Instead of app roles: paste the object ID of an Entra group per role (several separated by commas). This needs the groups claim under Token configuration.",
     "groupIdPlaceholder": "Group object ID",
-    "defaultRole": "Role for everyone else in the organisation"
+    "defaultRole": "Role for everyone else in the organisation",
+    "appRoles": "App roles (recommended)",
+    "appRolesIntro": "Create these app roles in the app registration (App roles), or paste them into its manifest under \"appRoles\". Stats Collector recognises the values by itself.",
+    "copyManifest": "Copy manifest JSON",
+    "role": "Role",
+    "appRoleValue": "Value",
+    "appRoleName": "Display name",
+    "appRolesAssign": "Then assign users or groups to the roles under Enterprise applications → Stats Collector → Users and groups. Someone with several roles gets the highest; someone without a role gets the role for everyone else below."
   },
   "branding": {
     "title": "Branding",
