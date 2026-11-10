@@ -8,6 +8,7 @@ trigger file. A root-owned systemd unit (``stats-collector-ops.service``, starte
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import shlex
@@ -32,8 +33,31 @@ class JobFailed(Exception):
     pass
 
 
+log = logging.getLogger(__name__)
+
+
 def trigger_file() -> Path:
     return get_settings().ops_dir / "trigger"
+
+
+def poke_runner(job_id: int) -> bool:
+    """Wake the root ops runner by replacing the trigger file.
+
+    The file is written to a temporary name and renamed over the old one, so it works
+    even when the existing trigger belongs to root (the ops directory is group-writable).
+    """
+    path = trigger_file()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(f".trigger-{os.getpid()}-{job_id}")
+        tmp.write_text(str(job_id))
+        os.replace(tmp, path)
+        return True
+    except OSError as exc:
+        # Development machines have no ops directory; on a server this means the runner
+        # will only pick the job up at the next scheduled tick.
+        log.warning("could not wake the ops runner via %s: %s", path, exc)
+        return False
 
 
 def enqueue(db: Session, kind: str, params: dict, user: User | None) -> OpsJob:
@@ -43,12 +67,7 @@ def enqueue(db: Session, kind: str, params: dict, user: User | None) -> OpsJob:
     job = OpsJob(kind=kind, params=params, created_by=user.id if user else None)
     db.add(job)
     db.commit()
-    try:
-        path = trigger_file()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(str(job.id))
-    except OSError:
-        pass  # development without the ops directory; job stays queued
+    poke_runner(job.id)
     return job
 
 

@@ -122,6 +122,7 @@ def run_update(ctx: JobContext, params: dict) -> dict:
     ctx.log(f"updating {current_version} -> {version} ({release.channel})")
 
     work = settings.ops_dir / "downloads"
+    shutil.rmtree(work, ignore_errors=True)  # leftovers from an earlier failed update
     work.mkdir(parents=True, exist_ok=True)
     tarball = work / f"stats-collector-{version}.tar.gz"
     checksum = work / f"stats-collector-{version}.tar.gz.sha256"
@@ -136,10 +137,12 @@ def run_update(ctx: JobContext, params: dict) -> dict:
     dump = settings.backup_dir / "pre-update" / f"{current_version}-to-{version}.dump"
     dump.parent.mkdir(parents=True, exist_ok=True)
     shutil.chown(dump.parent, user="postgres")
+    os.chmod(dump.parent, 0o700)  # the dump holds all application data
     ctx.run(["pg_dump", "-Fc", "-d", _db_name(), "-f", str(dump)], as_user="postgres")
     ctx.log(f"pre-update database dump: {dump}")
 
     target = install_release_tree(ctx, tarball, version)
+    shutil.rmtree(work, ignore_errors=True)
     current_link = settings.install_dir / "current"
     old_root = current_link.resolve() if current_link.is_symlink() else None
 

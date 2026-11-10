@@ -121,3 +121,13 @@ def test_run_job_records_failure(app_env, monkeypatch):
     with session_factory()() as db:
         job = db.get(OpsJob, job_id)
         assert job.status == "failed" and "boom" in job.log and "starting" in job.log
+
+
+def test_poke_runner_replaces_trigger_owned_by_someone_else(app_env):
+    path = ops.trigger_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("1")
+    path.chmod(0o444)  # like a trigger left behind by root: not writable in place
+    assert ops.poke_runner(7)
+    assert path.read_text() == "7"
+    assert [p.name for p in path.parent.iterdir() if p.name.startswith(".trigger")] == []
