@@ -6,6 +6,7 @@ Started by the stats-collector-worker service:
 Schedule:
     every 10 s   find sources whose poll interval has passed and poll them (Icecast, Owncast)
     every 5 min  roll samples up into hourly/daily/monthly metric points
+    every 15 min sync YouTube channels that are due (every 3 hours; while importing history every run)
     daily        delete raw samples older than one year
 """
 
@@ -35,6 +36,7 @@ celery_app.conf.update(
     beat_schedule={
         "poll-due-sources": {"task": "stats_collector.poll_due", "schedule": 10.0, "options": {"expires": 9}},
         "rollup": {"task": "stats_collector.rollup", "schedule": 300.0, "options": {"expires": 290}},
+        "youtube": {"task": "stats_collector.youtube_due", "schedule": 900.0, "options": {"expires": 880}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
 )
@@ -78,6 +80,46 @@ def prune_task() -> int:
 
     with session_factory()() as db:
         return prune_samples(db)
+
+
+@celery_app.task(name="stats_collector.youtube_due")
+def youtube_due() -> int:
+    from .models import Source, utcnow
+    from .services.youtube import is_due
+
+    now = utcnow()
+    with session_factory()() as db:
+        ids = [
+            s.id for s in db.query(Source).filter(Source.kind == "youtube", Source.enabled.is_(True)) if is_due(s, now)
+        ]
+    for source_id in ids:
+        youtube_sync.apply_async((source_id,), expires=850)
+    return len(ids)
+
+
+@celery_app.task(name="stats_collector.youtube_sync")
+def youtube_sync(source_id: int) -> dict | None:
+    from .connectors import ConnectorError
+    from .models import Source
+    from .services import youtube
+
+    with session_factory()() as db:
+        source = db.get(Source, source_id)
+        if source is None or not source.enabled:
+            return None
+        try:
+            return youtube.sync(db, source)
+        except ConnectorError as exc:
+            log.warning("YouTube sync of source %s failed: %s", source_id, exc)
+            return None
+
+
+def youtube_soon(source_id: int) -> None:
+    """Sync a YouTube channel in the background now (after connecting, or "sync now")."""
+    try:
+        youtube_sync.apply_async((source_id,), expires=600, retry=False)
+    except Exception:  # noqa: BLE001 - Redis unreachable (development)
+        log.warning("worker unreachable; YouTube source %s syncs at the next scheduled run", source_id)
 
 
 def poll_soon(source_id: int) -> None:

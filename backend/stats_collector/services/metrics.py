@@ -42,6 +42,17 @@ WEB_COMMENTS = "web_comments"
 WEB_HOUR_METRICS = (WEB_VIEWS, WEB_VISITORS, WEB_READ_SECONDS, WEB_READS, WEB_SHARES, WEB_COMMENTS)
 WEB_SUM_FROM_HOURS = (WEB_VIEWS, WEB_READ_SECONDS, WEB_READS, WEB_SHARES, WEB_COMMENTS)
 
+# YouTube (Analytics API, per day). Subscribers is a gauge: the count at the end of the day.
+YT_VIEWS = "yt_views"
+YT_WATCH_MINUTES = "yt_watch_minutes"
+YT_LIKES = "yt_likes"
+YT_COMMENTS = "yt_comments"
+YT_SHARES = "yt_shares"
+YT_SUBS_GAINED = "yt_subs_gained"
+YT_SUBS_LOST = "yt_subs_lost"
+YT_SUBSCRIBERS = "yt_subscribers"
+YT_DAY_METRICS = (YT_VIEWS, YT_WATCH_MINUTES, YT_LIKES, YT_COMMENTS, YT_SHARES, YT_SUBS_GAINED, YT_SUBS_LOST)
+
 REGISTRY: tuple[Metric, ...] = (
     Metric("icecast", LIVE_AVG, "count", "avg", "live_audience", "Average listeners", "Gemiddeld aantal luisteraars"),
     Metric("icecast", LIVE_PEAK, "count", "max", "live_audience", "Peak listeners", "Piek luisteraars"),
@@ -55,6 +66,14 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("wordpress", WEB_READS, "count", "sum", "interactions", "Engaged reads", "Gelezen artikelen"),
     Metric("wordpress", WEB_SHARES, "count", "sum", "interactions", "Share clicks", "Deelkliks"),
     Metric("wordpress", WEB_COMMENTS, "count", "sum", "interactions", "Comments", "Reacties"),
+    Metric("youtube", YT_VIEWS, "count", "sum", "views", "Views", "Weergaven"),
+    Metric("youtube", YT_WATCH_MINUTES, "minutes", "sum", "watch_time", "Watch time", "Kijktijd"),
+    Metric("youtube", YT_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
+    Metric("youtube", YT_COMMENTS, "count", "sum", "interactions", "Comments", "Reacties"),
+    Metric("youtube", YT_SHARES, "count", "sum", "interactions", "Shares", "Keren gedeeld"),
+    Metric("youtube", YT_SUBS_GAINED, "count", "sum", "followers", "Subscribers gained", "Nieuwe abonnees"),
+    Metric("youtube", YT_SUBS_LOST, "count", "sum", "followers", "Subscribers lost", "Verloren abonnees"),
+    Metric("youtube", YT_SUBSCRIBERS, "count", "gauge", "followers", "Subscribers", "Abonnees"),
 )
 
 

@@ -257,3 +257,71 @@ def summary(range: Range = "7d", db: Session = Depends(get_db), _: User = Depend
         "sources": sources,
         "top_items": top,
     }
+
+
+# ----------------------------------------------------------------------------- website and video
+
+CHANNEL_KINDS = ("wordpress", "youtube")
+VIEW_METRICS = {"wordpress": "web_views", "youtube": "yt_views"}
+
+
+@router.get("/channels")
+def channels(range: Range = "7d", db: Session = Depends(get_db), _: User = Depends(current_user)) -> dict:
+    """Views per website and YouTube channel: totals and a series per hour (24 h) or day."""
+    from .content import period
+
+    start, end, gran, buckets = period(db, range)
+    index = {b: i for i, b in enumerate(buckets)}
+    sources = list(
+        db.execute(select(Source).where(Source.kind.in_(CHANNEL_KINDS)).order_by(Source.kind, Source.name)).scalars()
+    )
+    out = []
+    for s in sources:
+        views_metric = VIEW_METRICS[s.kind]
+        totals = dict(
+            db.execute(
+                select(MetricPoint.metric, func.sum(MetricPoint.value))
+                .where(
+                    MetricPoint.source_id == s.id,
+                    MetricPoint.item_id.is_(None),
+                    MetricPoint.granularity == gran,
+                    MetricPoint.bucket >= start,
+                    MetricPoint.bucket < end,
+                    MetricPoint.metric.in_((views_metric, "web_visitors", "yt_watch_minutes", "yt_subs_gained")),
+                )
+                .group_by(MetricPoint.metric)
+            ).all()
+        )
+        values: list[float | None] = [None] * len(buckets)
+        for bucket, value in db.execute(
+            select(MetricPoint.bucket, MetricPoint.value).where(
+                MetricPoint.source_id == s.id,
+                MetricPoint.item_id.is_(None),
+                MetricPoint.granularity == gran,
+                MetricPoint.metric == views_metric,
+                MetricPoint.bucket >= start,
+                MetricPoint.bucket < end,
+            )
+        ).all():
+            i = index.get(_aware(bucket))
+            if i is not None:
+                values[i] = value
+        out.append(
+            {
+                **_source_brief(s),
+                "views": round(totals.get(views_metric) or 0),
+                "visitors": round(totals.get("web_visitors") or 0),
+                "watch_minutes": round(totals.get("yt_watch_minutes") or 0),
+                "subscribers": (s.config or {}).get("subscribers") if s.kind == "youtube" else None,
+                "subscribers_gained": round(totals.get("yt_subs_gained") or 0),
+                "values": values,
+                "last_ok_at": _aware(s.last_ok_at).isoformat() if s.last_ok_at else None,
+            }
+        )
+    return {
+        "range": range,
+        "granularity": gran,
+        "buckets": [b.isoformat() for b in buckets],
+        "total_views": sum(s["views"] for s in out),
+        "sources": out,
+    }

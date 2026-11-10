@@ -4,6 +4,10 @@ The dashboard is the first screen after signing in. Everyone can open it, whatev
 
 ![Dashboard](../images/en-dashboard.png)
 
+## Website and video
+
+When a WordPress site or a YouTube channel is connected, the dashboard starts with the card **Website and video**: the views of all channels together, a tile per website (page views and visitors) and per YouTube channel (views, minutes watched, subscribers and how many were gained in the period), and a chart with the views per hour (24 hours) or per day, stacked per channel. YouTube numbers arrive one to two days late, so the last days of the chart fill in later. **Top content** opens the [Content](content.md) page.
+
 ## Live now
 
 - **Live now**: everyone listening and watching at this moment, over all sources. The red dot pulses while at least one source is on air.

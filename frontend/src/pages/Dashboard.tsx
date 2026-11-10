@@ -6,6 +6,7 @@ import { api } from "../lib/api";
 import { useApp } from "../lib/app";
 import { Alert, Card, PageHead, useLoad } from "../components/ui";
 import Chart, { cssVar, shade } from "../components/Chart";
+import ChannelsCard, { type Channels } from "../components/ChannelsCard";
 import { errorText } from "../i18n";
 
 type Range = "24h" | "7d" | "30d" | "90d";
@@ -46,6 +47,7 @@ export default function Dashboard() {
   const live = useLoad(() => api.get<Live>("/api/dashboard/live"));
   const series = useLoad(() => api.get<Series>(`/api/dashboard/series?range=${range}&metric=${metric}`), [range, metric]);
   const summary = useLoad(() => api.get<Summary>(`/api/dashboard/summary?range=${range}`), [range]);
+  const channels = useLoad(() => api.get<Channels>(`/api/dashboard/channels?range=${range}`), [range]);
   useInterval(live.reload, 15000);
   useInterval(series.reload, 60000);
   useInterval(summary.reload, 120000);
@@ -97,7 +99,9 @@ export default function Dashboard() {
     };
   };
 
-  const noSources = live.data && sources.length === 0;
+  const hasStreams = sources.length > 0;
+  const hasChannels = (channels.data?.sources.length ?? 0) > 0;
+  const noSources = live.data && channels.data && !hasStreams && !hasChannels;
   return (
     <div className="page">
       <PageHead help="dashboard" title={t("dashboard.title")} subtitle={t("dashboard.welcome", { name: user?.display_name })}
@@ -123,6 +127,8 @@ export default function Dashboard() {
         </Card>
       ) : (
         <>
+          {hasChannels && <ChannelsCard data={channels.data!} rangeLabel={t(`dashboard.rangeLong.${range}`)} />}
+          {hasStreams && <>
           <div className="kpis">
             <div className="kpi">
               <div className="kpi-label"><span className={`live-dot${online ? " on" : ""}`} /> {t("dashboard.liveNow")}</div>
@@ -225,6 +231,7 @@ export default function Dashboard() {
               ) : <p className="muted">{t("dashboard.noData")}</p>}
             </Card>
           </div>
+          </>}
         </>
       )}
     </div>

@@ -4,6 +4,10 @@ Het dashboard is het eerste scherm na het inloggen. Iedereen kan het openen, wel
 
 ![Dashboard](../images/nl-dashboard.png)
 
+## Website en video
+
+Is er een WordPress-site of YouTube-kanaal gekoppeld, dan begint het dashboard met de kaart **Website en video**: de weergaven van alle kanalen samen, een tegel per website (paginaweergaven en bezoekers) en per YouTube-kanaal (weergaven, bekeken minuten, abonnees en hoeveel erbij kwamen in de periode), en een grafiek met de weergaven per uur (24 uur) of per dag, gestapeld per kanaal. YouTube-cijfers komen een tot twee dagen later binnen, dus de laatste dagen van de grafiek vullen zich later aan. **Topcontent** opent de pagina [Content](content.md).
+
 ## Nu live
 
 - **Nu live**: iedereen die op dit moment luistert en kijkt, over alle bronnen samen. De rode stip knippert zolang minstens één bron in de lucht is.

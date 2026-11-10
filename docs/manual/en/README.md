@@ -28,7 +28,7 @@ The same manual opens inside the application through the **Help** button at the 
 | Microsoft 365 sign-in (Entra ID) | [Microsoft 365](microsoft-365.md) | Phase 1 (settings can be prepared now) |
 | Owncast and Icecast | [Owncast and Icecast](owncast-icecast.md) | Phase 1 |
 | WordPress (own plugin) | [WordPress](wordpress.md) | Available |
-| YouTube | [YouTube](youtube.md) | Phase 2 (start Google verification now) |
+| YouTube | [YouTube](youtube.md) | Available |
 | Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Phase 3 (start Meta App Review now) |
 
 ## When something goes wrong

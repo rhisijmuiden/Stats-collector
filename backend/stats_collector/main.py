@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import APP_ROOT, build_info
-from .api import auth, backup, content, dashboard, entra, help, ingest, settings, sources, system, users
+from .api import auth, backup, content, dashboard, entra, help, ingest, settings, sources, system, users, youtube
 from .config import get_settings
 from .proxy import ProxyHeadersMiddleware
 
@@ -56,7 +56,7 @@ def create_app() -> FastAPI:
         info = build_info()
         return {"status": "ok", "version": info["version"]}
 
-    for module in (auth, entra, users, settings, system, backup, help, sources, dashboard, content, ingest):
+    for module in (auth, entra, users, settings, system, backup, help, sources, dashboard, content, ingest, youtube):
         app.include_router(module.router)
     app.include_router(settings.public_router)
     app.include_router(sources.hooks)
