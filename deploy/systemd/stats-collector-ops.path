@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Stats Collector tasks when the web application queues one
+
+[Path]
+PathModified=/var/lib/stats-collector/ops/trigger
+Unit=stats-collector-ops.service
+
+[Install]
+WantedBy=multi-user.target

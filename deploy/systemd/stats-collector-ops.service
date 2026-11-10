@@ -1,0 +1,9 @@
+[Unit]
+Description=Stats Collector privileged tasks (updates, backups, restores)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+Environment=SC_CONFIG_FILE=/etc/stats-collector/config.env
+ExecStart=/opt/stats-collector/current/venv/bin/stats-collector ops run-pending
+TimeoutStartSec=6h

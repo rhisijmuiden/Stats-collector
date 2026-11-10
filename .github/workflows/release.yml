@@ -1,0 +1,41 @@
+name: Release
+
+# Run manually: on "develop" it publishes a test (pre)release, on "main" a production release.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - name: Work out version and channel
+        id: v
+        run: |
+          base="$(cat VERSION)"
+          case "$GITHUB_REF_NAME" in
+            main)    echo "version=$base" >> "$GITHUB_OUTPUT"; echo "channel=production" >> "$GITHUB_OUTPUT"; echo "section=$base" >> "$GITHUB_OUTPUT" ;;
+            develop) echo "version=$base-rc.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"; echo "channel=test" >> "$GITHUB_OUTPUT"; echo "section=Unreleased" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Releases are only built from main or develop" >&2; exit 1 ;;
+          esac
+      - name: Build frontend
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund && npm test && npm run build
+      - name: Package
+        run: bash scripts/package.sh "${{ steps.v.outputs.version }}" "${{ steps.v.outputs.channel }}" "$GITHUB_SHA"
+      - name: Release notes
+        run: bash scripts/release-notes.sh "${{ steps.v.outputs.section }}" > notes.md && cat notes.md
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.v.outputs.version }}"
+          flags=()
+          [ "${{ steps.v.outputs.channel }}" = test ] && flags+=(--prerelease --title "Test build $v") || flags+=(--latest --title "Stats Collector $v")
+          gh release create "v$v" --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" \
+            "dist/stats-collector-$v.tar.gz" "dist/stats-collector-$v.tar.gz.sha256"
