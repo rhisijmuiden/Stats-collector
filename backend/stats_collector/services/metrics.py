@@ -88,6 +88,19 @@ IG_FOLLOWS = "ig_follows"
 IG_FOLLOWERS = "ig_followers"
 IG_DAY_METRICS = (IG_VIEWS, IG_REACH, IG_LIKES, IG_COMMENTS, IG_SHARES, IG_SAVES, IG_PROFILE_VIEWS, IG_FOLLOWS)
 
+# Threads (Threads API, per day). Views per day come from the account insights; likes, replies,
+# reposts, quotes and shares per day are the sums of what the posts gained.
+TH_VIEWS = "th_views"
+TH_LIKES = "th_likes"
+TH_REPLIES = "th_replies"
+TH_REPOSTS = "th_reposts"
+TH_QUOTES = "th_quotes"
+TH_SHARES = "th_shares"
+TH_FOLLOWS = "th_follows"
+TH_FOLLOWERS = "th_followers"
+TH_POST_METRICS = (TH_VIEWS, TH_LIKES, TH_REPLIES, TH_REPOSTS, TH_QUOTES, TH_SHARES)
+TH_DAY_METRICS = (*TH_POST_METRICS, TH_FOLLOWS)
+
 # Bluesky and Mastodon (public APIs, per day). They report no views or reach: only what people did
 # with a post, and the follower count. Daily numbers are the change in each post's totals between
 # syncs; new followers per day is the change in the follower count (net).
@@ -148,6 +161,14 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("instagram", IG_PROFILE_VIEWS, "count", "sum", "views", "Profile visits", "Profielbezoeken"),
     Metric("instagram", IG_FOLLOWS, "count", "sum", "followers", "New followers", "Nieuwe volgers"),
     Metric("instagram", IG_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
+    Metric("threads", TH_VIEWS, "count", "sum", "views", "Views", "Weergaven"),
+    Metric("threads", TH_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
+    Metric("threads", TH_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),
+    Metric("threads", TH_REPOSTS, "count", "sum", "interactions", "Reposts", "Reposts"),
+    Metric("threads", TH_QUOTES, "count", "sum", "interactions", "Quotes", "Citaten"),
+    Metric("threads", TH_SHARES, "count", "sum", "interactions", "Shares", "Keren gedeeld"),
+    Metric("threads", TH_FOLLOWS, "count", "sum", "followers", "New followers (net)", "Nieuwe volgers (netto)"),
+    Metric("threads", TH_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
     Metric("bluesky", BSKY_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
     Metric("bluesky", BSKY_REPOSTS, "count", "sum", "interactions", "Reposts", "Reposts"),
     Metric("bluesky", BSKY_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),

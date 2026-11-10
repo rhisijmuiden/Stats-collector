@@ -30,19 +30,16 @@ De wall werkt zichzelf bij: de server zet elke minuut nieuwe cijfers klaar en st
 | Owncast | Kijkers bij de laatste meting | Gemiddeld aantal kijkers | Live (elke 30 seconden gemeten) |
 | Website | Paginaweergaven in de laatste 5 minuten | Paginaweergaven | Live (de plugin meldt elke minuut) |
 
-De totalen bovenaan tellen alle luisteraars, alle kijkers en alle paginaweergaven op. YouTube, Facebook en Instagram geven alleen hele dagen door, daarom staan ze niet op de wall.
+De totalen bovenaan tellen alle luisteraars, alle kijkers en alle paginaweergaven op. YouTube en de sociale media geven alleen hele dagen door, daarom staan ze niet op de wall.
 
 ## Adres en reverse proxy
 
 De wall draait als eigen kleine dienst, `stats-collector-livewall`, op poort 8081. Die kan niet bij de database of de beheerfuncties: hij leest alleen de cijfers die de worker klaarzet.
 
-1. Maak een DNS-record voor een aparte hostnaam, bijv. `live.example.org`, en een proxyregel in Zoraxy naar `<ip-van-stats-server>:8081` met HTTPS, net als het hoofdadres (zie [Reverse proxy](reverse-proxy.md)).
-2. Zet het adres in `/etc/stats-collector/config.env`:
+1. Maak een DNS-record voor een aparte hostnaam, bijv. `live.example.org`, en een proxyregel naar `<ip-van-stats-server>:8081` met HTTPS, net als het hoofdadres (zie [Reverse proxy](reverse-proxy.md)). Dat kan dezelfde reverse proxy zijn als voor het hoofdadres of een andere.
+2. Vul onder **Beheer → Live walls → Adres van de walls** in:
+    - **Openbaar adres**: het adres dat de proxy doorstuurt naar poort 8081, bijv. `https://live.example.org`. De links van alle walls gebruiken het meteen (bestaande links houden hun geheime deel, dus schermen hebben alleen de nieuwe hostnaam nodig). Leeg betekent `SC_LIVEWALL_URL` uit `/etc/stats-collector/config.env`, of anders de hoofdhostnaam op poort 8081.
+    - **Adressen van de reverse proxy**: alleen als de walls een eigen proxy op een andere machine hebben. Vul het IP-adres (of netwerk) ervan in, zodat de wall-dienst de header `X-Forwarded-For` vertrouwt en **Toegestane adressen** de echte bezoeker ziet. De proxy's in `SC_TRUSTED_PROXIES` worden altijd ook vertrouwd.
+3. Klik op **Opslaan**. De wall-dienst neemt een nieuw proxyadres binnen twee minuten over; opnieuw starten is niet nodig.
 
-   ```
-   SC_LIVEWALL_URL=https://live.example.org
-   ```
-
-   en voer `systemctl restart stats-collector-web` uit. De links onder **Live walls** gebruiken dan dit adres. Zonder deze regel wijzen ze naar de hoofdhostnaam op poort 8081.
-
-Met `--firewall` laat het installatiescript poort 8081 alleen toe vanaf de proxy. Verzoeken zijn beperkt tot 120 per minuut per IP-adres. Server-Sent Events vragen dat de proxy antwoorden niet buffert; Zoraxy geeft ze ongewijzigd door.
+Met `--firewall` laat het installatiescript poort 8081 alleen toe vanaf de proxy's die bij de installatie zijn opgegeven (`--proxy-ips`). Hebben de walls een eigen proxy, voer het installatiescript dan opnieuw uit met dat adres erbij, of open poort 8081 er zelf voor in nftables. Verzoeken zijn beperkt tot 120 per minuut per IP-adres. Server-Sent Events vragen dat de proxy antwoorden niet buffert; Zoraxy geeft ze ongewijzigd door.

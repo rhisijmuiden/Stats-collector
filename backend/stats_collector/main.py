@@ -23,6 +23,7 @@ from .api import (
     settings,
     sources,
     system,
+    threads,
     users,
     youtube,
 )
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
         ingest,
         youtube,
         meta,
+        threads,
         goals,
         dashboards,
         livewalls,

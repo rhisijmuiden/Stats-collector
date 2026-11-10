@@ -30,19 +30,16 @@ The wall updates itself: the server prepares new numbers every minute and pushes
 | Owncast | Viewers at the last poll | Average viewers | Live (polled every 30 seconds) |
 | Website | Page views in the last 5 minutes | Page views | Live (the plugin reports every minute) |
 
-The totals at the top add up all listeners, all viewers and all page views. YouTube, Facebook and Instagram report whole days only, so they are not on the wall.
+The totals at the top add up all listeners, all viewers and all page views. YouTube and the social media report whole days only, so they are not on the wall.
 
 ## Address and reverse proxy
 
 The wall runs as its own small service, `stats-collector-livewall`, on port 8081. It has no access to the database or to the admin functions: it only reads the numbers the worker prepares.
 
-1. Create a DNS record for a separate host name, e.g. `live.example.org`, and a proxy rule in Zoraxy to `<ip-of-stats-server>:8081` with HTTPS, just like the main address (see [Reverse proxy](reverse-proxy.md)).
-2. Add the address to `/etc/stats-collector/config.env`:
+1. Create a DNS record for a separate host name, e.g. `live.example.org`, and a proxy rule to `<ip-of-stats-server>:8081` with HTTPS, just like the main address (see [Reverse proxy](reverse-proxy.md)). This can be the same reverse proxy as the main address or a different one.
+2. Under **Administration → Live walls → Address of the walls** fill in:
+    - **Public address**: the address the proxy forwards to port 8081, e.g. `https://live.example.org`. The links of all walls use it at once (the existing links keep their secret part, so screens only need the new host name). Empty means `SC_LIVEWALL_URL` from `/etc/stats-collector/config.env`, or else the main host name on port 8081.
+    - **Reverse proxy addresses**: only when the walls have their own proxy on another machine. Fill in its IP address (or network), so the wall service trusts its `X-Forwarded-For` header and **Allowed addresses** sees the real visitor. The proxies in `SC_TRUSTED_PROXIES` are always trusted as well.
+3. Click **Save**. The wall service picks up a new proxy address within two minutes; no restart is needed.
 
-   ```
-   SC_LIVEWALL_URL=https://live.example.org
-   ```
-
-   and run `systemctl restart stats-collector-web`. The links under **Live walls** then use this address. Without it they point to the main host name on port 8081.
-
-With `--firewall` the installer allows port 8081 only from the proxy. Requests are limited to 120 per minute per IP address. Server-Sent Events need the proxy not to buffer responses; Zoraxy passes them through as they are.
+With `--firewall` the installer allows port 8081 only from the proxies given at installation (`--proxy-ips`). If the walls have their own proxy, run the installer again with that address added, or open port 8081 for it in nftables yourself. Requests are limited to 120 per minute per IP address. Server-Sent Events need the proxy not to buffer responses; Zoraxy passes them through as they are.

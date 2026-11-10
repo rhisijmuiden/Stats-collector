@@ -220,11 +220,25 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
     }
 
 
+def base_url(db: Session) -> str:
+    """Where screens open the walls: the address set under Live walls, else SC_LIVEWALL_URL or port 8081."""
+    from . import settings_store
+
+    url = (settings_store.get_section(db, "livewall").get("public_url") or "").strip().rstrip("/")
+    return url or get_settings().wall_base_url
+
+
 def publish(db: Session, now: datetime | None = None) -> int:
-    """Compute and store the snapshot of every enabled wall."""
+    """Compute and store the snapshot of every enabled wall, and the wall service's proxy settings."""
     from ..api.settings import effective_theme
+    from . import settings_store
 
     theme = effective_theme(db)
+    try:
+        cfg = settings_store.get_section(db, "livewall")
+        store_put("config", {"trusted_proxies": cfg.get("trusted_proxies") or ""}, ttl=86400)
+    except Exception:  # noqa: BLE001 - the walls themselves matter more
+        log.exception("live wall: storing the proxy settings failed")
     n = 0
     for wall in db.execute(select(LiveWall)).scalars():
         if not wall.enabled:

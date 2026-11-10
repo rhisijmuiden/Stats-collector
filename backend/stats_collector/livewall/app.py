@@ -141,7 +141,26 @@ def create_app() -> FastAPI:
             headers=HEADERS,
         )
 
-    return ProxyHeadersMiddleware(app, cfg.trusted_proxies, cfg.client_ip_header)
+    return WallProxyHeaders(app, cfg.trusted_proxies, cfg.client_ip_header)
+
+
+class WallProxyHeaders(ProxyHeadersMiddleware):
+    """Trusted proxies from the config file plus the ones set under Live walls (read every minute).
+
+    The wall service may sit behind its own reverse proxy on another machine; its address is set
+    in the app, and the worker hands it over through the snapshot store."""
+
+    def __init__(self, app, trusted: str, client_ip_header: str | None = None):
+        super().__init__(app, trusted, client_ip_header)
+        self.base = trusted
+        self.loaded = 0.0
+
+    async def __call__(self, scope, receive, send):
+        if time.monotonic() - self.loaded > 60:
+            self.loaded = time.monotonic()
+            extra = (store_get("config") or {}).get("trusted_proxies") or ""
+            self.nets = parse_networks(",".join(p for p in (self.base, extra) if p))
+        await super().__call__(scope, receive, send)
 
 
 def _escape(text: str) -> str:

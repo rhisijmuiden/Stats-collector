@@ -21,6 +21,7 @@ from ..models import LiveWall, Source, User, utcnow
 from ..proxy import parse_networks
 from ..security import decrypt_secret, encrypt_secret, require_role
 from ..services import livewall as svc
+from ..services import settings_store
 from .common import audit
 from .settings import effective_theme
 
@@ -45,7 +46,29 @@ class WallIn(BaseModel):
         return ", ".join(parts)
 
 
-def _out(w: LiveWall) -> dict:
+class WallConfigIn(BaseModel):
+    public_url: str = Field(default="", max_length=300)
+    trusted_proxies: str = Field(default="", max_length=1000)
+
+    @field_validator("public_url")
+    @classmethod
+    def _url(cls, v: str) -> str:
+        v = v.strip().rstrip("/")
+        if v and (not v.startswith(("http://", "https://")) or len(v) < 10 or "?" in v or "#" in v or " " in v):
+            raise ValueError("invalid_url")
+        return v
+
+    @field_validator("trusted_proxies")
+    @classmethod
+    def _proxies(cls, v: str) -> str:
+        parts = [p.strip() for p in v.replace(";", ",").replace("\n", ",").split(",") if p.strip()]
+        for p in parts:
+            if p == "*" or not parse_networks(p):
+                raise ValueError("invalid_ip")
+        return ", ".join(parts)
+
+
+def _out(w: LiveWall, base: str) -> dict:
     token = decrypt_secret(w.token_enc) or ""
     return {
         "id": w.id,
@@ -54,7 +77,7 @@ def _out(w: LiveWall) -> dict:
         "source_ids": w.source_ids or [],
         "allow_ips": w.allow_ips,
         "enabled": w.enabled,
-        "url": f"{get_settings().wall_base_url}/w/{token}",
+        "url": f"{base}/w/{token}",
         "created_at": w.created_at.isoformat() if w.created_at else None,
         "rotated_at": w.rotated_at.isoformat() if w.rotated_at else None,
     }
@@ -72,14 +95,33 @@ def _refresh() -> None:
     livewall_soon()
 
 
+@router.get("/config")
+def get_config(db: Session = Depends(get_db), _: User = Depends(admin_only)) -> dict:
+    cfg = settings_store.get_section(db, "livewall")
+    return {
+        "public_url": cfg.get("public_url") or "",
+        "trusted_proxies": cfg.get("trusted_proxies") or "",
+        "default_url": get_settings().wall_base_url,
+    }
+
+
+@router.put("/config")
+def put_config(body: WallConfigIn, db: Session = Depends(get_db), user: User = Depends(admin_only)) -> dict:
+    settings_store.update_section(db, "livewall", body.model_dump())
+    audit(db, user, "livewalls.config", body.model_dump())
+    _refresh()
+    return get_config(db, user)
+
+
 @router.get("")
 def list_walls(db: Session = Depends(get_db), _: User = Depends(admin_only)) -> dict:
     walls = db.execute(select(LiveWall).order_by(LiveWall.name)).scalars()
+    base = svc.base_url(db)
     sources = db.execute(select(Source).where(Source.kind.in_(svc.WALL_KINDS)).order_by(Source.kind, Source.name))
     return {
-        "walls": [_out(w) for w in walls],
+        "walls": [_out(w, base) for w in walls],
         "sources": [{"id": s.id, "name": s.name, "kind": s.kind} for s in sources.scalars()],
-        "base_url": get_settings().wall_base_url,
+        "base_url": base,
     }
 
 
@@ -94,7 +136,7 @@ def create_wall(body: WallIn, db: Session = Depends(get_db), user: User = Depend
     db.commit()
     audit(db, user, "livewalls.create", {"id": w.id, "name": w.name})
     _refresh()
-    return _out(w)
+    return _out(w, svc.base_url(db))
 
 
 def _get(db: Session, wall_id: int) -> LiveWall:
@@ -113,7 +155,7 @@ def update_wall(wall_id: int, body: WallIn, db: Session = Depends(get_db), user:
     db.commit()
     audit(db, user, "livewalls.update", {"id": w.id})
     _refresh()
-    return _out(w)
+    return _out(w, svc.base_url(db))
 
 
 @router.post("/{wall_id}/rotate")
@@ -125,7 +167,7 @@ def rotate_wall(wall_id: int, db: Session = Depends(get_db), user: User = Depend
     db.commit()
     audit(db, user, "livewalls.rotate", {"id": w.id})
     _refresh()
-    return _out(w)
+    return _out(w, svc.base_url(db))
 
 
 @router.delete("/{wall_id}")

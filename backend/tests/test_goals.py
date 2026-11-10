@@ -20,9 +20,9 @@ def test_followers(admin):
     _demo()
     data = client.get("/api/followers?range=30d").json()
     kinds = {s["kind"]: s for s in data["sources"]}
-    assert set(kinds) == {"youtube", "facebook", "instagram", "bluesky", "mastodon"}
+    assert set(kinds) == {"youtube", "facebook", "instagram", "threads", "bluesky", "mastodon"}
     assert kinds["facebook"]["current"] == 12840 and kinds["facebook"]["values"][-1] == 12840
-    assert len(data["days"]) == 30 and data["total"] == 12840 + 6310 + 4870 + 2140 + 980
+    assert len(data["days"]) == 30 and data["total"] == 12840 + 6310 + 4870 + 2140 + 980 + 3420
     assert data["total_values"][-1] == data["total"]
     assert kinds["instagram"]["change"] > 0 and kinds["instagram"]["gained"] > 0
 

@@ -529,13 +529,26 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
 
 
 def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = None) -> int:
-    """A Bluesky and a Mastodon account with posts, interactions per day and followers."""
+    """A Bluesky, a Mastodon and a Threads account with posts, interactions per day and followers."""
+    import json
     from zoneinfo import ZoneInfo
 
     from ..models import MetricPoint
+    from ..security import encrypt_secret
     from .followers import day_bucket, rebuild_gauge
     from .meta import months_from_days, sum_posts_into_page
-    from .metrics import BSKY_DAY_METRICS, BSKY_POST_METRICS, MASTO_DAY_METRICS, MASTO_POST_METRICS
+    from .metrics import (
+        BSKY_DAY_METRICS,
+        BSKY_POST_METRICS,
+        MASTO_DAY_METRICS,
+        MASTO_POST_METRICS,
+        TH_DAY_METRICS,
+        TH_POST_METRICS,
+    )
+
+    post_metrics = {"bluesky": BSKY_POST_METRICS, "mastodon": MASTO_POST_METRICS, "threads": TH_POST_METRICS}
+    day_metrics = {"bluesky": BSKY_DAY_METRICS, "mastodon": MASTO_DAY_METRICS, "threads": TH_DAY_METRICS}
+    prefix = {"bluesky": "bsky", "mastodon": "masto", "threads": "th"}
 
     rnd = random.Random(31)
     tz = ZoneInfo("Europe/Amsterdam")
@@ -562,16 +575,39 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
             {"masto_favourites": 0.55, "masto_boosts": 0.25, "masto_replies": 0.07},
             18,
         ),
+        (
+            "threads",
+            "Demo Threads",
+            "@demonews",
+            "https://www.threads.net/@demonews",
+            3420,
+            {
+                "th_views": 22,
+                "th_likes": 0.9,
+                "th_replies": 0.12,
+                "th_reposts": 0.1,
+                "th_quotes": 0.03,
+                "th_shares": 0.08,
+            },
+            30,
+        ),
     ]
     for kind, name, handle, url, followers, shares, base in plans:
         server, account = (
             ("", "demonews.bsky.social") if kind == "bluesky" else ("https://mastodon.example", "demonews")
         )
+        if kind == "threads":
+            server, account = "", ""
         source = Source(
             kind=kind,
             name=name,
+            secret_enc=encrypt_secret(json.dumps({"client_secret": "demo", "token": "demo"}))
+            if kind == "threads"
+            else None,
             config={
                 "demo": True,
+                "client_id": "123456789" if kind == "threads" else None,
+                "history_done": True,
                 "url": server,
                 "account": account,
                 "account_id": f"demo-{kind}",
@@ -628,9 +664,8 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
                 changed.add(day)
                 day += timedelta(days=1)
         db.flush()
-        post_metrics = BSKY_POST_METRICS if kind == "bluesky" else MASTO_POST_METRICS
-        sum_posts_into_page(db, source, changed, post_metrics, tz)
-        follows = "bsky_follows" if kind == "bluesky" else "masto_follows"
+        sum_posts_into_page(db, source, changed, post_metrics[kind], tz)
+        follows = f"{prefix[kind]}_follows"
         day = first
         while day <= today:
             db.add(
@@ -645,8 +680,8 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
             rows += 1
             day += timedelta(days=1)
         db.flush()
-        months_from_days(db, source, first, today, BSKY_DAY_METRICS if kind == "bluesky" else MASTO_DAY_METRICS, tz)
-        gauge = "bsky_followers" if kind == "bluesky" else "masto_followers"
+        months_from_days(db, source, first, today, day_metrics[kind], tz)
+        gauge = f"{prefix[kind]}_followers"
         rebuild_gauge(db, source, gauge, follows, None, {today: followers}, today, tz)
     db.commit()
     return rows

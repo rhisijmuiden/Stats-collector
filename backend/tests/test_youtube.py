@@ -225,7 +225,7 @@ def test_dashboard_channels_with_demo(admin):
         assert create_demo(db) > 0
     data = client.get("/api/dashboard/channels?range=30d").json()
     kinds = {s["kind"]: s for s in data["sources"]}
-    assert set(kinds) == {"wordpress", "youtube", "facebook", "instagram"}
+    assert set(kinds) == {"wordpress", "youtube", "facebook", "instagram", "threads"}
     assert kinds["facebook"]["subscribers"] == 12840 and kinds["instagram"]["reach"] > 0
     assert kinds["youtube"]["views"] > 0 and kinds["youtube"]["subscribers"] == 4870
     assert kinds["wordpress"]["views"] > 0 and kinds["wordpress"]["visitors"] > 0

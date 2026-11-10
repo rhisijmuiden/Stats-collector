@@ -4,8 +4,8 @@ Measures use the canonical categories (see services/goals.GOAL_METRICS), so chan
 into one total: reach, views, interactions, watch/listen minutes and followers. Followers is a count
 per day (carried forward over days without a number); the others are sums per bucket.
 
-YouTube, Facebook, Instagram, Bluesky and Mastodon only report whole days, so a 24-hour period has no hourly numbers for
-them; their series is empty there and marked `daily_only`.
+YouTube, Facebook, Instagram, Threads, Bluesky and Mastodon only report whole days, so a 24-hour period
+has no hourly numbers for them; their series is empty there and marked `daily_only`.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from .goals import GOAL_METRICS
 
 MEASURES = tuple(GOAL_METRICS)
 LEVEL = ("followers",)
-DAILY_ONLY = ("youtube", "facebook", "instagram", "bluesky", "mastodon")
+DAILY_ONLY = ("youtube", "facebook", "instagram", "threads", "bluesky", "mastodon")
 PLATFORM = {"wordpress": "website"}  # source kind → platform (channel colour) name; others are the same
 
 

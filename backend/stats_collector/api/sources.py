@@ -19,14 +19,14 @@ from ..connectors.icecast import normalise_mounts
 from ..db import get_db
 from ..models import ContentItem, Source, User
 from ..security import encrypt_secret, new_token, require_admin
-from ..services import collect, meta, social, wordpress
+from ..services import collect, meta, social, threads, wordpress
 from .common import audit
 
 router = APIRouter(prefix="/api/sources", tags=["sources"])
 hooks = APIRouter(prefix="/api/hooks", tags=["hooks"])
 
-KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon")
-OAUTH_KINDS = ("youtube", "facebook", "instagram")
+KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon")
+OAUTH_KINDS = ("youtube", "facebook", "instagram", "threads")
 YT_KEEP = (
     "channel_id",
     "channel_title",
@@ -43,7 +43,9 @@ PLUGIN_DIR = APP_ROOT / "wordpress-plugin" / "stats-collector"
 
 
 class SourceIn(BaseModel):
-    kind: Literal["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon"]
+    kind: Literal[
+        "icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon"
+    ]
     name: str = Field(min_length=1, max_length=200)
     url: str = Field(default="", max_length=500)
     mounts: list[str] = Field(default_factory=list)
@@ -112,6 +114,11 @@ def _config(body: SourceIn, old: dict | None = None) -> dict:
             "graph_version": body.graph_version.strip(),
             "metric_overrides": body.metric_overrides,
         }
+    if body.kind in threads.KINDS:
+        old = old or {}
+        same_app = old.get("client_id") in (None, body.client_id)
+        keep = {k: v for k, v in old.items() if k not in threads.SETTINGS} if same_app else {}
+        return {**keep, "client_id": body.client_id}
     if body.kind in social.KINDS:
         old = old or {}
         same = old.get("account") == body.account and old.get("url", "") == body.url
@@ -178,6 +185,24 @@ def meta_out(s: Source, secrets: dict) -> dict:
     }
 
 
+def threads_out(s: Source, secrets: dict) -> dict:
+    cfg = s.config or {}
+    return {
+        "client_id": cfg.get("client_id", ""),
+        "client_secret_set": bool(secrets.get("client_secret")),
+        "connected": bool(cfg.get("account_id") and secrets.get("token")),
+        "account_name": cfg.get("account_name"),
+        "account_url": cfg.get("account_url"),
+        "followers": cfg.get("followers"),
+        "history_done": bool(cfg.get("history_done")),
+        "redirect_uri": threads_redirect_uri(),
+    }
+
+
+def threads_redirect_uri() -> str:
+    return f"{get_settings().public_url.rstrip('/')}/api/connectors/threads/callback"
+
+
 def social_out(s: Source, secrets: dict) -> dict:
     cfg = s.config or {}
     return {
@@ -230,6 +255,7 @@ def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
         **(youtube_out(s, secrets) if s.kind == "youtube" else {}),
         **(meta_out(s, secrets) if s.kind in meta.KINDS else {}),
         **(social_out(s, secrets) if s.kind in social.KINDS else {}),
+        **(threads_out(s, secrets) if s.kind in threads.KINDS else {}),
         "last_poll_at": s.last_poll_at.isoformat() if s.last_poll_at else None,
         "last_ok_at": s.last_ok_at.isoformat() if s.last_ok_at else None,
         "last_error": s.last_error,
@@ -247,6 +273,9 @@ def _apply(s: Source, body: SourceIn) -> None:
         secrets = collect.source_secrets(s)
         if s.kind == "youtube" and s.config.get("channel_id") is None:
             secrets.pop("refresh_token", None)
+        if s.kind in threads.KINDS and s.config.get("account_id") is None:
+            secrets.pop("token", None)
+            secrets.pop("token_at", None)
         if s.kind in meta.KINDS and s.config.get("account_id") is None:
             secrets.pop("page_token", None)
             secrets.pop("candidates", None)
@@ -368,7 +397,10 @@ def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(r
     if body.kind == "wordpress":
         raise HTTPException(400, "test_in_wordpress")
     if body.kind in OAUTH_KINDS:
-        raise HTTPException(400, "test_youtube_connect" if body.kind == "youtube" else "test_meta_connect")
+        raise HTTPException(
+            400,
+            {"youtube": "test_youtube_connect", "threads": "test_threads_connect"}.get(body.kind, "test_meta_connect"),
+        )
     secrets: dict = {}
     if body.id is not None:
         secrets = collect.source_secrets(_get(db, body.id))
@@ -424,6 +456,13 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
         from ..worker import social_soon
 
         social_soon(s.id)
+        return source_out(db, s)
+    if s.kind in threads.KINDS:
+        if not (s.config or {}).get("account_id"):
+            raise HTTPException(400, "threads_not_connected")
+        from ..worker import threads_soon
+
+        threads_soon(s.id)
         return source_out(db, s)
     collect.poll_source(db, s)
     return source_out(db, s)

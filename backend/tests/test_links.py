@@ -47,10 +47,10 @@ def test_auto_links_detail_and_editors(admin):
     # Editors are credited with the numbers of posts that link to their articles.
     eds = client.get("/api/editors?range=90d").json()["editors"]
     social = [e["social"] for e in eds]
-    # 12 linked posts and videos (Facebook, YouTube, Bluesky, Mastodon); five of them link to
-    # co-written articles, which both editors get.
-    assert sum(s["posts"] for s in social) == 17 and sum(s["views"] for s in social) > 0
-    assert {k for s in social for k in s["by_kind"]} == {"facebook", "youtube", "bluesky", "mastodon"}
+    # 14 linked posts and videos (Facebook, YouTube, Bluesky, Mastodon, Threads); six of them link
+    # to co-written articles, which both editors get.
+    assert sum(s["posts"] for s in social) == 20 and sum(s["views"] for s in social) > 0
+    assert {k for s in social for k in s["by_kind"]} == {"facebook", "youtube", "bluesky", "mastodon", "threads"}
     anne = next(e for e in eds if e["name"] == "Anne de Vries")
     via = client.get(f"/api/content/top?range=90d&person={anne['id']}&via=social&sort=published").json()["items"]
     assert via and all(i["source"]["kind"] in ("facebook", "youtube") for i in via)
