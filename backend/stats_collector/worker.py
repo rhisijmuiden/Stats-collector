@@ -39,6 +39,7 @@ celery_app.conf.update(
         "youtube": {"task": "stats_collector.youtube_due", "schedule": 900.0, "options": {"expires": 880}},
         "meta": {"task": "stats_collector.meta_due", "schedule": 900.0, "options": {"expires": 880}},
         "threads": {"task": "stats_collector.threads_due", "schedule": 900.0, "options": {"expires": 880}},
+        "x": {"task": "stats_collector.x_due", "schedule": 900.0, "options": {"expires": 880}},
         "social": {"task": "stats_collector.social_due", "schedule": 900.0, "options": {"expires": 880}},
         "links": {
             "task": "stats_collector.links",
@@ -210,6 +211,46 @@ def threads_soon(source_id: int) -> None:
         threads_sync.apply_async((source_id,), expires=600, retry=False)
     except Exception:  # noqa: BLE001 - Redis unreachable (development)
         log.warning("worker unreachable; Threads source %s syncs at the next scheduled run", source_id)
+
+
+@celery_app.task(name="stats_collector.x_due")
+def x_due() -> int:
+    from .models import Source, utcnow
+    from .services.xcom import KINDS, is_due
+
+    now = utcnow()
+    with session_factory()() as db:
+        ids = [
+            s.id for s in db.query(Source).filter(Source.kind.in_(KINDS), Source.enabled.is_(True)) if is_due(s, now)
+        ]
+    for source_id in ids:
+        x_sync.apply_async((source_id,), expires=850)
+    return len(ids)
+
+
+@celery_app.task(name="stats_collector.x_sync")
+def x_sync(source_id: int) -> dict | None:
+    from .connectors import ConnectorError
+    from .models import Source
+    from .services import xcom
+
+    with session_factory()() as db:
+        source = db.get(Source, source_id)
+        if source is None or not source.enabled:
+            return None
+        try:
+            return xcom.sync(db, source)
+        except ConnectorError as exc:
+            log.warning("X sync of source %s failed: %s", source_id, exc)
+            return None
+
+
+def x_soon(source_id: int) -> None:
+    """Sync a X account in the background now."""
+    try:
+        x_sync.apply_async((source_id,), expires=600, retry=False)
+    except Exception:  # noqa: BLE001 - Redis unreachable (development)
+        log.warning("worker unreachable; X source %s syncs at the next scheduled run", source_id)
 
 
 @celery_app.task(name="stats_collector.social_due")

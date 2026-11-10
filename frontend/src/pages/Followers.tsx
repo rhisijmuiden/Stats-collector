@@ -2,19 +2,20 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AtSign, Cloud, Facebook, Instagram, MessageSquare, Users, Youtube } from "lucide-react";
 import { api } from "../lib/api";
+import { XIcon } from "./Content";
 import { useApp } from "../lib/app";
 import { errorText } from "../i18n";
 import { Alert, Card, PageHead, useLoad } from "../components/ui";
 import Chart, { cssVar, shade } from "../components/Chart";
 
-type Kind = "youtube" | "facebook" | "instagram" | "threads" | "bluesky" | "mastodon";
+type Kind = "youtube" | "facebook" | "instagram" | "threads" | "x" | "bluesky" | "mastodon";
 interface Followers {
   range: Range; days: string[]; total: number; total_change: number; total_values: (number | null)[];
   sources: { id: number; name: string; kind: Kind; current: number | null; change: number; gained: number; values: (number | null)[] }[];
 }
 type Range = "30d" | "90d" | "365d";
 
-const ICONS: Record<Kind, JSX.Element> = { youtube: <Youtube size={15} />, facebook: <Facebook size={15} />, instagram: <Instagram size={15} />, threads: <AtSign size={15} />, bluesky: <Cloud size={15} />, mastodon: <MessageSquare size={15} /> };
+const ICONS: Record<Kind, JSX.Element> = { youtube: <Youtube size={15} />, facebook: <Facebook size={15} />, instagram: <Instagram size={15} />, threads: <AtSign size={15} />, x: <XIcon />, bluesky: <Cloud size={15} />, mastodon: <MessageSquare size={15} /> };
 export const fmtInt = (n: number, lang: string) => new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(n);
 const signed = (n: number, lang: string) => (n > 0 ? "+" : n < 0 ? "−" : "±") + fmtInt(Math.abs(n), lang);
 

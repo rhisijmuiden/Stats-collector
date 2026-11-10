@@ -34,6 +34,7 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 | YouTube | [YouTube](youtube.md) | Beschikbaar |
 | Facebook en Instagram | [Meta: Facebook en Instagram](meta.md) | Beschikbaar |
 | Threads | [Threads](threads.md) | Beschikbaar |
+| X | [X](x.md) | Beschikbaar |
 | Bluesky en Mastodon | [Bluesky en Mastodon](bluesky-mastodon.md) | Beschikbaar |
 
 ## Als er iets misgaat

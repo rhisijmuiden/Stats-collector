@@ -54,7 +54,8 @@
     "icecast": "Icecast",
     "bluesky": "Bluesky",
     "mastodon": "Mastodon",
-    "threads": "Threads"
+    "threads": "Threads",
+    "x": "X"
   },
   "auth": {
     "signIn": "Sign in",
@@ -556,7 +557,19 @@
     "threads_token_failed": "Threads did not accept the code: check the Threads App ID, App secret and redirect address.",
     "threads_reconnect": "Access to Threads has ended. Connect again.",
     "threads_rate_limit": "Threads asks to slow down; collecting continues automatically in a while.",
-    "threads_permission": "Threads refused access: a permission is missing or your account is not a tester of the app (see Help → Threads)."
+    "threads_permission": "Threads refused access: a permission is missing or your account is not a tester of the app (see Help → Threads).",
+    "test_x_connect": "Use Connect with X to test an X source.",
+    "x_not_connected": "The X account is not connected.",
+    "x_app_missing": "Fill in the OAuth 2.0 Client ID and Client Secret and save first.",
+    "x_state_invalid": "The sign-in with X took too long or was opened twice. Try again.",
+    "x_access_denied": "Access was not granted on the X screen.",
+    "x_failed": "Connecting with X failed.",
+    "x_token_failed": "X did not accept the code: check the Client ID, Client Secret and callback URL.",
+    "x_reconnect": "Access to X has ended. Connect again.",
+    "x_rate_limit": "X asks to slow down; collecting continues automatically in a while.",
+    "x_permission": "X refused access: check the app's permissions and that the account has credit (see Help → X).",
+    "x_payment_required": "X asks for payment: add credit in the X developer console.",
+    "x_budget_reached": "The monthly budget for X is spent; reading starts again next month (or raise the budget)."
   },
   "sources": {
     "title": "Sources",
@@ -577,7 +590,8 @@
       "instagram": "Instagram (account)",
       "bluesky": "Bluesky (account)",
       "mastodon": "Mastodon (account)",
-      "threads": "Threads (account)"
+      "threads": "Threads (account)",
+      "x": "X (account)"
     },
     "urlHint": {
       "icecast": "The Icecast address, e.g. https://radio.example.org:8000 (without /status-json.xsl).",
@@ -588,7 +602,8 @@
       "instagram": "",
       "bluesky": "",
       "mastodon": "The Mastodon server, e.g. https://mastodon.social. Filled in for you when you enter @name@server.",
-      "threads": ""
+      "threads": "",
+      "x": ""
     },
     "mounts": "Mount points",
     "mountsHint": "Separate with commas. Leave empty to collect every mount the server reports.",
@@ -696,7 +711,23 @@
     "threadsAppSecret": "Threads App secret",
     "threadsAfterSave": "Save first; then you can connect with Threads.",
     "threadsConnectHint": "Not connected yet. Click Connect with Threads.",
-    "threadsConnect": "Connect with Threads"
+    "threadsConnect": "Connect with Threads",
+    "xSteps": "In the X developer console create an app with OAuth 2.0 (type Web App, confidential client, permission Read), paste the redirect address below as callback URL, and fill in the OAuth 2.0 Client ID and Client Secret (see Help → X).",
+    "xRedirect": "Callback URL for X",
+    "xRedirectHint": "Add this exact address under User authentication settings → Callback URI / Redirect URL.",
+    "xAppId": "OAuth 2.0 Client ID",
+    "xAppSecret": "OAuth 2.0 Client Secret",
+    "xAfterSave": "Save first; then you can connect with X.",
+    "xConnectHint": "Not connected yet. Click Connect with X.",
+    "xConnect": "Connect with X",
+    "xCost": "X charges per post that is read (pay per use). Stats Collector keeps to the monthly budget below and stops reading for the rest of the month when it is spent.",
+    "xBudget": "Monthly budget (US dollars)",
+    "xBudgetHint": "About 30 dollars is enough for 20 to 30 posts a day.",
+    "xEvery": "Read every … hours",
+    "xEveryHint": "Posts of the last 24 hours are read this often; posts of the last week once a day.",
+    "xPrice": "Price per post read (US dollars)",
+    "xPriceHint": "For the estimate only; change it when X changes its prices. Your real costs are in the X developer console.",
+    "xSpent": "This month about ${{spent}} of ${{budget}} used ({{posts}} posts read)."
   },
   "content": {
     "title": "Content",
@@ -784,7 +815,8 @@
       "youtube": "YouTube",
       "bluesky": "Bluesky",
       "mastodon": "Mastodon",
-      "threads": "Threads"
+      "threads": "Threads",
+      "x": "X"
     },
     "socialSub_one": "{{count}} post · {{likes}} likes",
     "socialSub_other": "{{count}} posts · {{likes}} likes",
@@ -823,7 +855,17 @@
     "th_quotes": "Quotes",
     "th_shares": "Shares",
     "th_follows": "New followers (net)",
-    "th_followers": "Followers"
+    "th_followers": "Followers",
+    "x_impressions": "Impressions",
+    "x_likes": "Likes",
+    "x_reposts": "Reposts",
+    "x_replies": "Replies",
+    "x_quotes": "Quotes",
+    "x_bookmarks": "Bookmarks",
+    "x_link_clicks": "Link clicks",
+    "x_profile_clicks": "Profile clicks",
+    "x_follows": "New followers (net)",
+    "x_followers": "Followers"
   },
   "followers": {
     "title": "Followers",
@@ -943,7 +985,7 @@
     "emptyText": "Click Edit and add widgets.",
     "emptyEdit": "Click Add widget to put the first widget on it.",
     "noData": "No numbers for this period.",
-    "dailyOnly": "Platforms that report whole days only (YouTube, Facebook, Instagram, Threads, Bluesky, Mastodon) are not in a 24-hour chart.",
+    "dailyOnly": "Platforms that report whole days only (YouTube, Facebook, Instagram, Threads, X, Bluesky, Mastodon) are not in a 24-hour chart.",
     "noCompare": "No previous period to compare with",
     "vsPrevious": "vs previous period",
     "total": "Total",
@@ -997,7 +1039,8 @@
       "total": "Total",
       "bluesky": "Bluesky",
       "mastodon": "Mastodon",
-      "threads": "Threads"
+      "threads": "Threads",
+      "x": "X"
     },
     "splits": {
       "platform": "Platform",

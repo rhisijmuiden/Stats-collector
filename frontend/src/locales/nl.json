@@ -54,7 +54,8 @@
     "icecast": "Icecast",
     "bluesky": "Bluesky",
     "mastodon": "Mastodon",
-    "threads": "Threads"
+    "threads": "Threads",
+    "x": "X"
   },
   "auth": {
     "signIn": "Inloggen",
@@ -556,7 +557,19 @@
     "threads_token_failed": "Threads accepteerde de code niet: controleer de Threads-app-ID, het app-geheim en het doorstuuradres.",
     "threads_reconnect": "De toegang tot Threads is verlopen. Verbind opnieuw.",
     "threads_rate_limit": "Threads vraagt om het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
-    "threads_permission": "Threads weigerde de toegang: er ontbreekt een recht of je account is geen tester van de app (zie Help → Threads)."
+    "threads_permission": "Threads weigerde de toegang: er ontbreekt een recht of je account is geen tester van de app (zie Help → Threads).",
+    "test_x_connect": "Gebruik Verbinden met X om een X-bron te testen.",
+    "x_not_connected": "Het X-account is niet verbonden.",
+    "x_app_missing": "Vul de OAuth 2.0 Client ID en Client Secret in en sla eerst op.",
+    "x_state_invalid": "Het inloggen bij X duurde te lang of is twee keer geopend. Probeer het opnieuw.",
+    "x_access_denied": "Op het X-scherm is geen toegang gegeven.",
+    "x_failed": "Verbinden met X is mislukt.",
+    "x_token_failed": "X accepteerde de code niet: controleer de Client ID, het Client Secret en de callback-URL.",
+    "x_reconnect": "De toegang tot X is verlopen. Verbind opnieuw.",
+    "x_rate_limit": "X vraagt om het rustiger aan te doen; het verzamelen gaat over een tijdje vanzelf verder.",
+    "x_permission": "X weigerde de toegang: controleer de rechten van de app en of het account tegoed heeft (zie Help → X).",
+    "x_payment_required": "X vraagt om betaling: vul tegoed aan in de X-ontwikkelaarsconsole.",
+    "x_budget_reached": "Het maandbudget voor X is op; volgende maand wordt er weer gelezen (of verhoog het budget)."
   },
   "sources": {
     "title": "Bronnen",
@@ -577,7 +590,8 @@
       "instagram": "Instagram (account)",
       "bluesky": "Bluesky (account)",
       "mastodon": "Mastodon (account)",
-      "threads": "Threads (account)"
+      "threads": "Threads (account)",
+      "x": "X (account)"
     },
     "urlHint": {
       "icecast": "Het Icecast-adres, bijv. https://radio.example.org:8000 (zonder /status-json.xsl).",
@@ -588,7 +602,8 @@
       "instagram": "",
       "bluesky": "",
       "mastodon": "De Mastodon-server, bijv. https://mastodon.social. Wordt voor je ingevuld als je @naam@server invult.",
-      "threads": ""
+      "threads": "",
+      "x": ""
     },
     "mounts": "Mountpoints",
     "mountsHint": "Scheid met komma's. Laat leeg om alle mounts te verzamelen die de server meldt.",
@@ -696,7 +711,23 @@
     "threadsAppSecret": "Threads-app-geheim",
     "threadsAfterSave": "Sla eerst op; daarna kun je verbinden met Threads.",
     "threadsConnectHint": "Nog niet verbonden. Klik op Verbinden met Threads.",
-    "threadsConnect": "Verbinden met Threads"
+    "threadsConnect": "Verbinden met Threads",
+    "xSteps": "Maak in de X-ontwikkelaarsconsole een app met OAuth 2.0 (type Web App, confidential client, recht Read), plak het doorstuuradres hieronder als callback-URL en vul de OAuth 2.0 Client ID en Client Secret in (zie Help → X).",
+    "xRedirect": "Callback-URL voor X",
+    "xRedirectHint": "Voeg precies dit adres toe onder User authentication settings → Callback URI / Redirect URL.",
+    "xAppId": "OAuth 2.0 Client ID",
+    "xAppSecret": "OAuth 2.0 Client Secret",
+    "xAfterSave": "Sla eerst op; daarna kun je verbinden met X.",
+    "xConnectHint": "Nog niet verbonden. Klik op Verbinden met X.",
+    "xConnect": "Verbinden met X",
+    "xCost": "X rekent per gelezen bericht (pay per use). Stats Collector houdt zich aan het maandbudget hieronder en stopt voor de rest van de maand met lezen als het op is.",
+    "xBudget": "Maandbudget (Amerikaanse dollars)",
+    "xBudgetHint": "Ongeveer 30 dollar is genoeg voor 20 tot 30 berichten per dag.",
+    "xEvery": "Lezen elke … uur",
+    "xEveryHint": "Berichten van de laatste 24 uur worden zo vaak gelezen; berichten van de laatste week één keer per dag.",
+    "xPrice": "Prijs per gelezen bericht (Amerikaanse dollars)",
+    "xPriceHint": "Alleen voor de schatting; pas aan als X de prijzen verandert. Je echte kosten staan in de X-ontwikkelaarsconsole.",
+    "xSpent": "Deze maand ongeveer ${{spent}} van ${{budget}} gebruikt ({{posts}} berichten gelezen)."
   },
   "content": {
     "title": "Content",
@@ -784,7 +815,8 @@
       "youtube": "YouTube",
       "bluesky": "Bluesky",
       "mastodon": "Mastodon",
-      "threads": "Threads"
+      "threads": "Threads",
+      "x": "X"
     },
     "socialSub_one": "{{count}} bericht · {{likes}} likes",
     "socialSub_other": "{{count}} berichten · {{likes}} likes",
@@ -823,7 +855,17 @@
     "th_quotes": "Citaten",
     "th_shares": "Keren gedeeld",
     "th_follows": "Nieuwe volgers (netto)",
-    "th_followers": "Volgers"
+    "th_followers": "Volgers",
+    "x_impressions": "Weergaven",
+    "x_likes": "Likes",
+    "x_reposts": "Reposts",
+    "x_replies": "Antwoorden",
+    "x_quotes": "Citaten",
+    "x_bookmarks": "Bladwijzers",
+    "x_link_clicks": "Linkkliks",
+    "x_profile_clicks": "Profielkliks",
+    "x_follows": "Nieuwe volgers (netto)",
+    "x_followers": "Volgers"
   },
   "followers": {
     "title": "Volgers",
@@ -943,7 +985,7 @@
     "emptyText": "Klik op Bewerken en voeg widgets toe.",
     "emptyEdit": "Klik op Widget toevoegen voor de eerste widget.",
     "noData": "Geen cijfers voor deze periode.",
-    "dailyOnly": "Platforms die alleen hele dagen doorgeven (YouTube, Facebook, Instagram, Threads, Bluesky, Mastodon) staan niet in een grafiek van 24 uur.",
+    "dailyOnly": "Platforms die alleen hele dagen doorgeven (YouTube, Facebook, Instagram, Threads, X, Bluesky, Mastodon) staan niet in een grafiek van 24 uur.",
     "noCompare": "Geen vorige periode om mee te vergelijken",
     "vsPrevious": "t.o.v. vorige periode",
     "total": "Totaal",
@@ -997,7 +1039,8 @@
       "total": "Totaal",
       "bluesky": "Bluesky",
       "mastodon": "Mastodon",
-      "threads": "Threads"
+      "threads": "Threads",
+      "x": "X"
     },
     "splits": {
       "platform": "Platform",

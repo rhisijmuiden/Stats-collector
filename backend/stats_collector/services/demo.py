@@ -529,7 +529,7 @@ def create_demo_social(db: Session, days: int = 60, now: datetime | None = None)
 
 
 def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = None) -> int:
-    """A Bluesky, a Mastodon and a Threads account with posts, interactions per day and followers."""
+    """A Bluesky, a Mastodon, a Threads and an X account with posts, interactions per day and followers."""
     import json
     from zoneinfo import ZoneInfo
 
@@ -544,11 +544,23 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
         MASTO_POST_METRICS,
         TH_DAY_METRICS,
         TH_POST_METRICS,
+        X_DAY_METRICS,
+        X_POST_METRICS,
     )
 
-    post_metrics = {"bluesky": BSKY_POST_METRICS, "mastodon": MASTO_POST_METRICS, "threads": TH_POST_METRICS}
-    day_metrics = {"bluesky": BSKY_DAY_METRICS, "mastodon": MASTO_DAY_METRICS, "threads": TH_DAY_METRICS}
-    prefix = {"bluesky": "bsky", "mastodon": "masto", "threads": "th"}
+    post_metrics = {
+        "bluesky": BSKY_POST_METRICS,
+        "mastodon": MASTO_POST_METRICS,
+        "threads": TH_POST_METRICS,
+        "x": X_POST_METRICS,
+    }
+    day_metrics = {
+        "bluesky": BSKY_DAY_METRICS,
+        "mastodon": MASTO_DAY_METRICS,
+        "threads": TH_DAY_METRICS,
+        "x": X_DAY_METRICS,
+    }
+    prefix = {"bluesky": "bsky", "mastodon": "masto", "threads": "th", "x": "x"}
 
     rnd = random.Random(31)
     tz = ZoneInfo("Europe/Amsterdam")
@@ -591,22 +603,40 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
             },
             30,
         ),
+        (
+            "x",
+            "Demo X",
+            "@demonews",
+            "https://x.com/demonews",
+            5120,
+            {
+                "x_impressions": 30,
+                "x_likes": 0.7,
+                "x_reposts": 0.15,
+                "x_replies": 0.08,
+                "x_quotes": 0.02,
+                "x_bookmarks": 0.05,
+                "x_link_clicks": 0.4,
+                "x_profile_clicks": 0.3,
+            },
+            35,
+        ),
     ]
     for kind, name, handle, url, followers, shares, base in plans:
         server, account = (
             ("", "demonews.bsky.social") if kind == "bluesky" else ("https://mastodon.example", "demonews")
         )
-        if kind == "threads":
+        if kind in ("threads", "x"):
             server, account = "", ""
         source = Source(
             kind=kind,
             name=name,
-            secret_enc=encrypt_secret(json.dumps({"client_secret": "demo", "token": "demo"}))
-            if kind == "threads"
+            secret_enc=encrypt_secret(json.dumps({"client_secret": "demo", "token": "demo", "refresh_token": "demo"}))
+            if kind in ("threads", "x")
             else None,
             config={
                 "demo": True,
-                "client_id": "123456789" if kind == "threads" else None,
+                "client_id": "123456789" if kind in ("threads", "x") else None,
                 "history_done": True,
                 "url": server,
                 "account": account,
@@ -635,7 +665,7 @@ def create_demo_open_social(db: Session, days: int = 60, now: datetime | None = 
                 kind="post",
                 external_id=f"demo-{kind}-{n}",
                 title=title,
-                url=f"{url}/post/{n}" if kind == "bluesky" else f"{url}/{n}",
+                url={"bluesky": f"{url}/post/{n}", "x": f"{url}/status/{n}"}.get(kind, f"{url}/{n}"),
                 published_at=datetime.combine(published, datetime.min.time(), tz).astimezone(UTC)
                 + timedelta(hours=rnd.randint(7, 20)),
                 meta=meta,

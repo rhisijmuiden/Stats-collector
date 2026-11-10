@@ -7,6 +7,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
 ## [Unreleased]
 
 ### Added
+- X accounts as sources through the X API v2 (OAuth 2.0): impressions, likes, reposts, replies, quotes, bookmarks, link and profile clicks per post and per day, and the follower count, with a monthly budget per source because X charges per post read.
+  NL: X-accounts als bron via de X API v2 (OAuth 2.0): weergaven, likes, reposts, antwoorden, citaten, bladwijzers, link- en profielkliks per bericht en per dag, en het aantal volgers, met een maandbudget per bron omdat X per gelezen bericht rekent.
 - Threads accounts as sources through the Threads API of the Meta app: views per day for the account, views, likes, replies, reposts, quotes and shares per post and per day, and the follower count; the token is renewed every week.
   NL: Threads-accounts als bron via de Threads API van de Meta-app: weergaven per dag voor het account, weergaven, likes, antwoorden, reposts, citaten en keren gedeeld per bericht en per dag, en het aantal volgers; het token wordt elke week vernieuwd.
 - Live walls: the public address of the walls and the address of their own reverse proxy can be set under Live walls, instead of only with `SC_LIVEWALL_URL`.

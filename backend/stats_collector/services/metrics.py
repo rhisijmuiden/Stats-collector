@@ -101,6 +101,21 @@ TH_FOLLOWERS = "th_followers"
 TH_POST_METRICS = (TH_VIEWS, TH_LIKES, TH_REPLIES, TH_REPOSTS, TH_QUOTES, TH_SHARES)
 TH_DAY_METRICS = (*TH_POST_METRICS, TH_FOLLOWS)
 
+# X (API v2, pay per use). Per post: impressions and public counts; link and profile clicks are
+# only given for posts of the last 30 days. Account per day = the sum of its posts.
+X_IMPRESSIONS = "x_impressions"
+X_LIKES = "x_likes"
+X_REPOSTS = "x_reposts"
+X_REPLIES = "x_replies"
+X_QUOTES = "x_quotes"
+X_BOOKMARKS = "x_bookmarks"
+X_LINK_CLICKS = "x_link_clicks"
+X_PROFILE_CLICKS = "x_profile_clicks"
+X_FOLLOWS = "x_follows"
+X_FOLLOWERS = "x_followers"
+X_POST_METRICS = (X_IMPRESSIONS, X_LIKES, X_REPOSTS, X_REPLIES, X_QUOTES, X_BOOKMARKS, X_LINK_CLICKS, X_PROFILE_CLICKS)
+X_DAY_METRICS = (*X_POST_METRICS, X_FOLLOWS)
+
 # Bluesky and Mastodon (public APIs, per day). They report no views or reach: only what people did
 # with a post, and the follower count. Daily numbers are the change in each post's totals between
 # syncs; new followers per day is the change in the follower count (net).
@@ -169,6 +184,16 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("threads", TH_SHARES, "count", "sum", "interactions", "Shares", "Keren gedeeld"),
     Metric("threads", TH_FOLLOWS, "count", "sum", "followers", "New followers (net)", "Nieuwe volgers (netto)"),
     Metric("threads", TH_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
+    Metric("x", X_IMPRESSIONS, "count", "sum", "views", "Impressions", "Weergaven"),
+    Metric("x", X_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
+    Metric("x", X_REPOSTS, "count", "sum", "interactions", "Reposts", "Reposts"),
+    Metric("x", X_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),
+    Metric("x", X_QUOTES, "count", "sum", "interactions", "Quotes", "Citaten"),
+    Metric("x", X_BOOKMARKS, "count", "sum", "interactions", "Bookmarks", "Bladwijzers"),
+    Metric("x", X_LINK_CLICKS, "count", "sum", "interactions", "Link clicks", "Linkkliks"),
+    Metric("x", X_PROFILE_CLICKS, "count", "sum", "views", "Profile clicks", "Profielkliks"),
+    Metric("x", X_FOLLOWS, "count", "sum", "followers", "New followers (net)", "Nieuwe volgers (netto)"),
+    Metric("x", X_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
     Metric("bluesky", BSKY_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
     Metric("bluesky", BSKY_REPOSTS, "count", "sum", "interactions", "Reposts", "Reposts"),
     Metric("bluesky", BSKY_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),

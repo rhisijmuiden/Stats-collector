@@ -2,7 +2,7 @@
 
 ## Followers
 
-**Analytics → Followers** shows how the number of YouTube subscribers and Facebook, Instagram, Threads, Bluesky and Mastodon followers grows, per channel and for all channels together. Everyone can open it.
+**Analytics → Followers** shows how the number of YouTube subscribers and Facebook, Instagram, Threads, X, Bluesky and Mastodon followers grows, per channel and for all channels together. Everyone can open it.
 
 ![Followers](../images/en-followers.png)
 

@@ -20,7 +20,7 @@
   },
   "channels": {
     "website": "#3E7BFA", "facebook": "#6C5CE7", "instagram": "#E14FD0", "youtube": "#E5484D",
-    "owncast": "#F5A524", "icecast": "#12A594", "threads": "#F97316", "bluesky": "#22C3E6", "mastodon": "#8AC926"
+    "owncast": "#F5A524", "icecast": "#12A594", "threads": "#F97316", "x": "#64748B", "bluesky": "#22C3E6", "mastodon": "#8AC926"
   },
   "radius": { "card": 12, "control": 8 },
   "liveWall": { "background": "#060B16", "glow": "#2FB8FF", "text": "#D8F3FF" }

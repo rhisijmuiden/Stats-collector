@@ -19,7 +19,11 @@ def test_data_split_and_compare(admin):
 
     # Followers: a count per day, also for 24 hours; the total is today's count.
     f = client.get("/api/dashboards/data?measure=followers&range=24h&split=source").json()
-    assert f["kind"] == "level" and f["granularity"] == "day" and f["total"] == 12840 + 6310 + 4870 + 2140 + 980 + 3420
+    assert (
+        f["kind"] == "level"
+        and f["granularity"] == "day"
+        and f["total"] == 12840 + 6310 + 4870 + 2140 + 980 + 3420 + 5120
+    )
     assert all(v is not None for s in f["series"] for v in s["values"][-3:])
 
     # 24 hours: social media only report days, their hourly values stay empty.

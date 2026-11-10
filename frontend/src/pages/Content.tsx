@@ -34,10 +34,16 @@ export const fmtSeconds = (s: number) => {
   return m ? `${m}:${String(Math.round(s % 60)).padStart(2, "0")}` : `${Math.round(s)} s`;
 };
 export const channel = (kind: string) => (kind === "wordpress" ? "website" : kind);
+/** X has no neutral icon in the icon set (its "X" means close), so the letter is drawn. */
+export const XIcon = ({ size = 15 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden="true">
+    <path d="M5 4l14 16M19 4L5 20" /><path d="M4 4h4l12 16h-4z" strokeWidth={1.4} />
+  </svg>
+);
 export const kindIcon = (kind: string | undefined) =>
   kind === "owncast" ? <Tv size={15} /> : kind === "icecast" ? <Radio size={15} /> : kind === "youtube" ? <Youtube size={15} />
     : kind === "facebook" ? <Facebook size={15} /> : kind === "instagram" ? <Instagram size={15} /> : kind === "bluesky" ? <Cloud size={15} />
-    : kind === "mastodon" ? <MessageSquare size={15} /> : kind === "threads" ? <AtSign size={15} /> : <Globe size={15} />;
+    : kind === "mastodon" ? <MessageSquare size={15} /> : kind === "threads" ? <AtSign size={15} /> : kind === "x" ? <XIcon /> : <Globe size={15} />;
 
 export function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   const { t } = useTranslation();
@@ -168,7 +174,7 @@ export function ItemModal({ id: first, range, onClose }: { id: number; range: Ra
   const video = it?.source?.kind === "youtube";
   const social = it?.source?.kind === "facebook" || it?.source?.kind === "instagram";
   const fedi = it?.source?.kind === "bluesky" || it?.source?.kind === "mastodon";
-  const th = it?.source?.kind === "threads";
+  const th = it?.source?.kind === "threads" || it?.source?.kind === "x";
   const kpis: MetricKey[] = web ? ["views", "visitors", "reads", "shares"] : video ? ["views", "minutes", "likes", "comments", "shares"]
     : fedi ? ["likes", "shares", "comments"] : th ? ["views", "likes", "comments", "shares"] : social ? ["views", "reach", "likes", "comments", "shares", it?.source?.kind === "instagram" ? "saves" : "clicks"] : ["minutes", "peak"];
   return (

@@ -167,6 +167,7 @@ GAUGES = {
     "facebook": "fb_followers",
     "instagram": "ig_followers",
     "threads": "th_followers",
+    "x": "x_followers",
     "bluesky": "bsky_followers",
     "mastodon": "masto_followers",
 }
@@ -175,6 +176,7 @@ GAINED = {
     "facebook": "fb_follows",
     "instagram": "ig_follows",
     "threads": "th_follows",
+    "x": "x_follows",
     "bluesky": "bsky_follows",
     "mastodon": "masto_follows",
 }

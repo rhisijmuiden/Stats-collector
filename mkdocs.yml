@@ -79,5 +79,6 @@ nav:
       - youtube.md
       - meta.md
       - threads.md
+      - x.md
       - bluesky-mastodon.md
   - troubleshooting.md

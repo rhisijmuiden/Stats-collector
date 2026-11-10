@@ -38,7 +38,7 @@ async function openLiveWall(page) {
 
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/branding", "branding"],
 ];
 
