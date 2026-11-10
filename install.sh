@@ -275,7 +275,7 @@ ln -sfn "$TARGET" "$INSTALL_DIR/current.new" && mv -T "$INSTALL_DIR/current.new"
 cat > /usr/local/bin/stats-collector <<'EOF'
 #!/bin/sh
 # Wrapper: runs the CLI as the application user (root-only commands like "ops" run as root).
-case "$1" in ops|restore) exec env SC_CONFIG_FILE=/etc/stats-collector/config.env /opt/stats-collector/current/venv/bin/stats-collector "$@" ;; esac
+case "$1" in ops|backup|restore) exec env SC_CONFIG_FILE=/etc/stats-collector/config.env /opt/stats-collector/current/venv/bin/stats-collector "$@" ;; esac
 exec runuser -u statscollector -- env SC_CONFIG_FILE=/etc/stats-collector/config.env /opt/stats-collector/current/venv/bin/stats-collector "$@"
 EOF
 chmod 755 /usr/local/bin/stats-collector
