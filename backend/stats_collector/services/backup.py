@@ -179,6 +179,7 @@ def run_backup(ctx: JobContext, params: dict) -> dict:
     cfg = settings_store.get_section(db, "backup")
     kind = params["type"]
     bdir = settings.backup_dir
+    os.umask(0o077)  # backup files contain the configuration with secrets: owner-only
     for sub in ("files", "manifests"):
         (bdir / sub).mkdir(parents=True, exist_ok=True)
 
