@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13", cache: pip, cache-dependency-path: backend/pyproject.toml }
+      - run: pip install -e '.[dev]'
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run build
+
+  manual:
+    # Every change to a screen or feature must update the manual (docs/manual) and the changelog.
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'no-docs-needed')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Manual and changelog updated
+        run: |
+          base="origin/${{ github.base_ref }}"
+          changed="$(git diff --name-only "$base"...HEAD)"
+          code="$(echo "$changed" | grep -E '^(frontend/src/|backend/stats_collector/)' | grep -vE '(^|/)tests?/' || true)"
+          if [ -n "$code" ]; then
+            echo "$changed" | grep -q '^docs/manual/' || { echo "::error::Code changed but docs/manual was not updated (add label no-docs-needed if nothing user-visible changed)"; exit 1; }
+            echo "$changed" | grep -q '^CHANGELOG.md$' || { echo "::error::Code changed but CHANGELOG.md was not updated"; exit 1; }
+          fi
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -q -r docs/requirements.txt && mkdocs build --strict
+
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck -S warning install.sh scripts/*.sh

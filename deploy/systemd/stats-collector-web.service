@@ -1,0 +1,28 @@
+[Unit]
+Description=Stats Collector web application and API
+After=network-online.target postgresql.service redis-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=statscollector
+Group=statscollector
+EnvironmentFile=/etc/stats-collector/config.env
+Environment=SC_CONFIG_FILE=/etc/stats-collector/config.env
+WorkingDirectory=/opt/stats-collector/current
+ExecStart=/bin/sh -c 'exec /opt/stats-collector/current/venv/bin/uvicorn stats_collector.main:app --host "$SC_HOST" --port "$SC_PORT" --workers 2 --proxy-headers --forwarded-allow-ips "$SC_TRUSTED_PROXIES" --no-server-header'
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/stats-collector /var/log/stats-collector
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Stats Collector scheduled backup check
+After=postgresql.service
+
+[Service]
+Type=oneshot
+Environment=SC_CONFIG_FILE=/etc/stats-collector/config.env
+ExecStart=/opt/stats-collector/current/venv/bin/stats-collector ops tick
+TimeoutStartSec=6h
