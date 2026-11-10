@@ -2,7 +2,7 @@
 
 Stats Collector collects reach, engagement and audience numbers from your website, social media and streams, and combines them in one dashboard and in reports. This manual explains how to install it, how to set everything up, and how to connect each platform.
 
-The same manual opens inside the application through the **Help** button at the bottom of the left menu. The version there always matches the installed version.
+The same manual opens inside the application through the **Help** button at the bottom of the left menu. The version there always matches the installed version. The online manual keeps every production version; test builds share one test version, which always describes the newest test build.
 
 > This manual grows with every release. Pages for connectors that are not built yet describe the preparation you can already do, so the accounts are ready when the connector arrives.
 

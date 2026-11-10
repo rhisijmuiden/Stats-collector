@@ -2,7 +2,7 @@
 
 Stats Collector verzamelt bereik, interactie en publieksaantallen van je website, social media en streams, en brengt die samen in één dashboard en in rapporten. Deze handleiding legt uit hoe je het installeert, hoe je alles instelt en hoe je elk platform koppelt.
 
-Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het linkermenu. Die versie hoort altijd bij de geïnstalleerde versie.
+Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het linkermenu. Die versie hoort altijd bij de geïnstalleerde versie. De online handleiding bewaart elke productieversie; testbuilds delen één testversie, die altijd de nieuwste testbuild beschrijft.
 
 > Deze handleiding groeit mee met elke release. Pagina's over koppelingen die nog niet gebouwd zijn beschrijven de voorbereiding die je nu al kunt doen, zodat de accounts klaarstaan als de koppeling komt.
 
