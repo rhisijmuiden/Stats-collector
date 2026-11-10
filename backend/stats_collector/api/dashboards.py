@@ -36,7 +36,7 @@ router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 Measure = Literal["reach", "views", "interactions", "watch_minutes", "followers"]
 Split = Literal["none", "platform", "source"]
 Platform = Literal[
-    "website", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon", "owncast", "icecast"
+    "website", "youtube", "facebook", "instagram", "threads", "x", "bluesky", "mastodon", "owncast", "icecast"
 ]
 MANAGES_SHARED = ("admin", "editor_in_chief")
 

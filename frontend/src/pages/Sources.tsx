@@ -6,9 +6,10 @@ import { useApp } from "../lib/app";
 import { errorText } from "../i18n";
 import { formatDate } from "../lib/format";
 import { Alert, Card, Field, Modal, PageHead, Switch, useLoad } from "../components/ui";
+import { XIcon } from "./Content";
 
-type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram" | "threads" | "bluesky" | "mastodon";
-const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon"];
+type Kind = "icecast" | "owncast" | "wordpress" | "youtube" | "facebook" | "instagram" | "threads" | "x" | "bluesky" | "mastodon";
+const KINDS: Kind[] = ["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "x", "bluesky", "mastodon"];
 interface Source {
   id?: number; kind: Kind; name: string; url: string; mounts: string[]; admin_user: string; admin_password_set?: boolean;
   verify_tls: boolean; poll_seconds: number; enabled: boolean; webhook_url?: string | null; items?: number;
@@ -22,15 +23,17 @@ interface Source {
   account_url?: string | null; page_name?: string | null; followers?: number | null;
   // Bluesky / Mastodon
   account?: string; access_token_set?: boolean; handle?: string | null;
+  // X
+  budget_usd?: number; price_per_post?: number; every_hours?: number; spent_usd?: number; posts_read?: number;
 }
 interface TestResult { ok: boolean; error?: string; online?: boolean; info?: Record<string, unknown>; items?: { id: string; title: string; value: number; online: boolean }[] }
 
 const EMPTY: Source = { kind: "icecast", name: "", url: "", mounts: [], admin_user: "admin", verify_tls: true, poll_seconds: 30, enabled: true };
 
-const oauth = (k: Kind) => k === "youtube" || k === "facebook" || k === "instagram" || k === "threads";
-const social = (k: Kind) => k === "facebook" || k === "instagram" || k === "threads";
+const oauth = (k: Kind) => k === "youtube" || k === "facebook" || k === "instagram" || k === "threads" || k === "x";
+const social = (k: Kind) => k === "facebook" || k === "instagram" || k === "threads" || k === "x";
 const fedi = (k: Kind) => k === "bluesky" || k === "mastodon";
-const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, threads: <AtSign size={16} />, bluesky: <Cloud size={16} />, mastodon: <MessageSquare size={16} />, icecast: <Radio size={16} /> })[k];
+const icon = (k: Kind) => ({ owncast: <Tv size={16} />, wordpress: <Globe size={16} />, youtube: <Youtube size={16} />, facebook: <Facebook size={16} />, instagram: <Instagram size={16} />, threads: <AtSign size={16} />, x: <XIcon size={16} />, bluesky: <Cloud size={16} />, mastodon: <MessageSquare size={16} />, icecast: <Radio size={16} /> })[k];
 
 export default function Sources() {
   const { t, i18n } = useTranslation();
@@ -48,11 +51,11 @@ export default function Sources() {
     const q = new URLSearchParams(window.location.search);
     if (q.has("yt_connected")) toast("success", t("sources.ytConnected"));
     if (q.has("meta_connected")) toast("success", t("sources.metaConnected"));
-    if (q.has("threads_connected")) toast("success", t("sources.metaConnected"));
-    const err = q.get("yt_error") ?? q.get("meta_error") ?? q.get("threads_error");
+    if (q.has("threads_connected") || q.has("x_connected")) toast("success", t("sources.metaConnected"));
+    const err = q.get("yt_error") ?? q.get("meta_error") ?? q.get("threads_error") ?? q.get("x_error");
     if (err) toast("error", errorText(err));
     if (q.has("meta_choose") || err) setReopen(Number(q.get("source")) || null);
-    if ([...q.keys()].some((k) => k.startsWith("yt_") || k.startsWith("meta_") || k.startsWith("threads_"))) window.history.replaceState(null, "", window.location.pathname);
+    if ([...q.keys()].some((k) => k.startsWith("yt_") || k.startsWith("meta_") || k.startsWith("threads_") || k.startsWith("x_"))) window.history.replaceState(null, "", window.location.pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
@@ -99,10 +102,12 @@ export default function Sources() {
 
   const web = draft?.kind === "wordpress";
   const yt = draft?.kind === "youtube";
-  const th = draft?.kind === "threads";
+  const xs = draft?.kind === "x";
+  const th = draft?.kind === "threads" || xs;
   const fbig = draft?.kind === "facebook" || draft?.kind === "instagram" || th;
   const fediDraft = draft ? fedi(draft.kind) : false;
-  const connector = yt ? "youtube" : th ? "threads" : "meta";
+  const connector = yt ? "youtube" : xs ? "x" : th ? "threads" : "meta";
+  const pfx = xs ? "x" : "threads";
   const disconnect = async () => {
     if (!window.confirm(t(yt ? "sources.ytDisconnectConfirm" : "sources.metaDisconnectConfirm"))) return;
     try { open(await api.post<Source>(`/api/connectors/${connector}/${draft!.id}/disconnect`)); list.reload(); }
@@ -220,16 +225,27 @@ export default function Sources() {
             )}
             {fbig && (
               <div className="stack">
-                <Alert kind="info">{t(th ? "sources.threadsSteps" : "sources.metaSteps")}</Alert>
-                <Field label={t(th ? "sources.threadsRedirect" : "sources.metaRedirect")} hint={t(th ? "sources.threadsRedirectHint" : "sources.metaRedirectHint")}>
+                <Alert kind="info">{t(th ? `sources.${pfx}Steps` : "sources.metaSteps")}</Alert>
+                <Field label={t(th ? `sources.${pfx}Redirect` : "sources.metaRedirect")} hint={t(th ? `sources.${pfx}RedirectHint` : "sources.metaRedirectHint")}>
                   <div className="copy-field"><input readOnly value={draft.redirect_uri ?? `${window.location.origin}/api/connectors/${connector}/callback`} onFocus={(e) => e.target.select()} /><button type="button" className="btn secondary" onClick={() => copy(draft.redirect_uri ?? `${window.location.origin}/api/connectors/${connector}/callback`)}><Copy /> {t("sources.copy")}</button></div>
                 </Field>
                 <div className="grid two">
-                  <Field label={t(th ? "sources.threadsAppId" : "sources.metaAppId")}><input required inputMode="numeric" value={draft.client_id ?? ""} onChange={(e) => setDraft({ ...draft, client_id: e.target.value })} placeholder="1234567890123456" /></Field>
-                  <Field label={t(th ? "sources.threadsAppSecret" : "sources.metaAppSecret")} hint={draft.client_secret_set ? t("common.secretKept") : undefined}>
+                  <Field label={t(th ? `sources.${pfx}AppId` : "sources.metaAppId")}><input required inputMode={xs ? "text" : "numeric"} value={draft.client_id ?? ""} onChange={(e) => setDraft({ ...draft, client_id: e.target.value })} placeholder="1234567890123456" /></Field>
+                  <Field label={t(th ? `sources.${pfx}AppSecret` : "sources.metaAppSecret")} hint={draft.client_secret_set ? t("common.secretKept") : undefined}>
                     <input type="password" autoComplete="new-password" required={!draft.client_secret_set} value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder={draft.client_secret_set ? "••••••••" : ""} />
                   </Field>
                 </div>
+                {xs && (
+                  <div className="stack">
+                    <Alert kind="warning">{t("sources.xCost")}</Alert>
+                    <div className="grid two">
+                      <Field label={t("sources.xBudget")} hint={t("sources.xBudgetHint")}><input type="number" min={1} max={10000} step={1} value={draft.budget_usd ?? 30} onChange={(e) => setDraft({ ...draft, budget_usd: Number(e.target.value) })} /></Field>
+                      <Field label={t("sources.xEvery")} hint={t("sources.xEveryHint")}><input type="number" min={1} max={24} value={draft.every_hours ?? 6} onChange={(e) => setDraft({ ...draft, every_hours: Number(e.target.value) })} /></Field>
+                    </div>
+                    <Field label={t("sources.xPrice")} hint={t("sources.xPriceHint")}><input type="number" min={0.0001} max={1} step={0.0001} value={draft.price_per_post ?? 0.005} onChange={(e) => setDraft({ ...draft, price_per_post: Number(e.target.value) })} /></Field>
+                    {draft.id && <div className="muted small">{t("sources.xSpent", { spent: (draft.spent_usd ?? 0).toFixed(2), budget: (draft.budget_usd ?? 30).toFixed(2), posts: draft.posts_read ?? 0 })}</div>}
+                  </div>
+                )}
                 <Switch checked={draft.enabled} onChange={(v) => setDraft({ ...draft, enabled: v })} label={t("sources.enabled")} />
                 {draft.id ? (draft.connected ? (
                   <Alert kind="success">
@@ -243,7 +259,7 @@ export default function Sources() {
                       <button type="button" key={c.id} className="btn secondary" onClick={() => choose(c.id)}>{draft.kind === "facebook" ? <Facebook /> : <Instagram />} {c.name}{c.page ? <span className="muted small"> · {c.page}</span> : null}</button>
                     ))}</div>
                   </Field>
-                ) : <Alert kind="warning">{t(th ? "sources.threadsConnectHint" : "sources.metaConnectHint")}</Alert>) : <Alert kind="info">{t(th ? "sources.threadsAfterSave" : "sources.metaAfterSave")}</Alert>}
+                ) : <Alert kind="warning">{t(th ? `sources.${pfx}ConnectHint` : "sources.metaConnectHint")}</Alert>) : <Alert kind="info">{t(th ? `sources.${pfx}AfterSave` : "sources.metaAfterSave")}</Alert>}
                 {!th && <details className="advanced">
                   <summary>{t("sources.metaAdvanced")}</summary>
                   <div className="stack">
@@ -319,7 +335,7 @@ export default function Sources() {
               {web && <a className="btn secondary" href="/api/sources/wordpress-plugin.zip" download><Download /> {t("sources.downloadPlugin")}</a>}
               {(yt || fbig) && draft.id && draft.client_secret_set && (draft.connected
                 ? <button type="button" className="btn ghost" onClick={disconnect}><Unlink /> {t("sources.ytDisconnect")}</button>
-                : <a className="btn secondary" href={`/api/connectors/${connector}/start?source=${draft.id}`}><Link2 /> {t(yt ? "sources.ytConnect" : th ? "sources.threadsConnect" : "sources.metaConnect")}</a>)}
+                : <a className="btn secondary" href={`/api/connectors/${connector}/start?source=${draft.id}`}><Link2 /> {t(yt ? "sources.ytConnect" : th ? `sources.${pfx}Connect` : "sources.metaConnect")}</a>)}
               {!web && !yt && !fbig && <button type="button" className="btn secondary" disabled={busy || !(fediDraft ? draft.account : draft.url)} onClick={runTest}><PlugZap /> {busy ? t("sources.testing") : t("sources.test")}</button>}
               <button type="button" className="btn secondary" onClick={() => setDraft(null)}>{t("common.cancel")}</button>
               <button className="btn">{t("common.save")}</button>

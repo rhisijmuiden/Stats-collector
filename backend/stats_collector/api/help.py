@@ -32,6 +32,7 @@ ORDER = [
     "youtube",
     "meta",
     "threads",
+    "x",
     "bluesky-mastodon",
     "troubleshooting",
 ]

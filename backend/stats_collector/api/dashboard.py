@@ -261,13 +261,14 @@ def summary(range: Range = "7d", db: Session = Depends(get_db), _: User = Depend
 
 # ----------------------------------------------------------------------------- website and video
 
-CHANNEL_KINDS = ("wordpress", "youtube", "facebook", "instagram", "threads")
+CHANNEL_KINDS = ("wordpress", "youtube", "facebook", "instagram", "threads", "x")
 VIEW_METRICS = {
     "wordpress": "web_views",
     "youtube": "yt_views",
     "facebook": "fb_views",
     "instagram": "ig_views",
     "threads": "th_views",
+    "x": "x_impressions",
 }
 REACH_METRICS = {"wordpress": "web_visitors", "facebook": "fb_reach", "instagram": "ig_reach"}
 GAINED_METRICS = {
@@ -275,9 +276,16 @@ GAINED_METRICS = {
     "facebook": "fb_follows",
     "instagram": "ig_follows",
     "threads": "th_follows",
+    "x": "x_follows",
 }
-DAILY_ONLY = ("youtube", "facebook", "instagram", "threads")
-FOLLOWER_CONFIG = {"youtube": "subscribers", "facebook": "followers", "instagram": "followers", "threads": "followers"}
+DAILY_ONLY = ("youtube", "facebook", "instagram", "threads", "x")
+FOLLOWER_CONFIG = {
+    "youtube": "subscribers",
+    "facebook": "followers",
+    "instagram": "followers",
+    "threads": "followers",
+    "x": "followers",
+}
 
 
 @router.get("/channels")

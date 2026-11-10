@@ -17,16 +17,16 @@ from ..config import get_settings
 from ..connectors import ConnectorError
 from ..connectors.icecast import normalise_mounts
 from ..db import get_db
-from ..models import ContentItem, Source, User
+from ..models import ContentItem, Source, User, utcnow
 from ..security import encrypt_secret, new_token, require_admin
-from ..services import collect, meta, social, threads, wordpress
+from ..services import collect, meta, social, threads, wordpress, xcom
 from .common import audit
 
 router = APIRouter(prefix="/api/sources", tags=["sources"])
 hooks = APIRouter(prefix="/api/hooks", tags=["hooks"])
 
-KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon")
-OAUTH_KINDS = ("youtube", "facebook", "instagram", "threads")
+KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "x", "bluesky", "mastodon")
+OAUTH_KINDS = ("youtube", "facebook", "instagram", "threads", "x")
 YT_KEEP = (
     "channel_id",
     "channel_title",
@@ -44,7 +44,7 @@ PLUGIN_DIR = APP_ROOT / "wordpress-plugin" / "stats-collector"
 
 class SourceIn(BaseModel):
     kind: Literal[
-        "icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "bluesky", "mastodon"
+        "icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "threads", "x", "bluesky", "mastodon"
     ]
     name: str = Field(min_length=1, max_length=200)
     url: str = Field(default="", max_length=500)
@@ -60,7 +60,10 @@ class SourceIn(BaseModel):
     graph_version: str = Field(default="", max_length=10, pattern=r"^(v?\d{1,3}\.\d{1,2})?$")
     metric_overrides: dict[str, str] = Field(default_factory=dict)  # Meta: our metric -> Graph name
     account: str = Field(default="", max_length=300)  # Bluesky handle, Mastodon @name@server
-    access_token: str | None = Field(default=None, max_length=500)  # Mastodon (optional); None = keep, "" = remove
+    access_token: str | None = Field(default=None, max_length=500)  # Mastodon (optional); None = keep
+    budget_usd: float = Field(default=xcom.DEFAULT_BUDGET, ge=1, le=10000)  # X: monthly budget
+    price_per_post: float = Field(default=xcom.DEFAULT_PRICE, gt=0, le=1)  # X: price per post read
+    every_hours: int = Field(default=xcom.DEFAULT_EVERY_HOURS, ge=1, le=24)  # X: hours between reads
 
     @model_validator(mode="after")
     def _check(self):
@@ -113,6 +116,17 @@ def _config(body: SourceIn, old: dict | None = None) -> dict:
             "config_id": body.config_id.strip(),
             "graph_version": body.graph_version.strip(),
             "metric_overrides": body.metric_overrides,
+        }
+    if body.kind in xcom.KINDS:
+        old = old or {}
+        same_app = old.get("client_id") in (None, body.client_id)
+        keep = {k: v for k, v in old.items() if k not in xcom.SETTINGS} if same_app else {}
+        return {
+            **keep,
+            "client_id": body.client_id,
+            "budget_usd": body.budget_usd,
+            "price_per_post": body.price_per_post,
+            "every_hours": body.every_hours,
         }
     if body.kind in threads.KINDS:
         old = old or {}
@@ -199,6 +213,30 @@ def threads_out(s: Source, secrets: dict) -> dict:
     }
 
 
+def x_out(s: Source, secrets: dict) -> dict:
+    cfg = s.config or {}
+    now = utcnow()
+    return {
+        "client_id": cfg.get("client_id", ""),
+        "client_secret_set": bool(secrets.get("client_secret")),
+        "connected": bool(cfg.get("account_id") and secrets.get("refresh_token")),
+        "account_name": cfg.get("account_name"),
+        "account_url": cfg.get("account_url"),
+        "followers": cfg.get("followers"),
+        "history_done": bool(cfg.get("history_done")),
+        "budget_usd": xcom.budget(cfg),
+        "price_per_post": float(cfg.get("price_per_post") or xcom.DEFAULT_PRICE),
+        "every_hours": int(cfg.get("every_hours") or xcom.DEFAULT_EVERY_HOURS),
+        "spent_usd": round(xcom.spent(cfg, now), 2),
+        "posts_read": int((cfg.get("usage") or {}).get("posts", 0)) if xcom.spent(cfg, now) else 0,
+        "redirect_uri": x_redirect_uri(),
+    }
+
+
+def x_redirect_uri() -> str:
+    return f"{get_settings().public_url.rstrip('/')}/api/connectors/x/callback"
+
+
 def threads_redirect_uri() -> str:
     return f"{get_settings().public_url.rstrip('/')}/api/connectors/threads/callback"
 
@@ -256,6 +294,7 @@ def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
         **(meta_out(s, secrets) if s.kind in meta.KINDS else {}),
         **(social_out(s, secrets) if s.kind in social.KINDS else {}),
         **(threads_out(s, secrets) if s.kind in threads.KINDS else {}),
+        **(x_out(s, secrets) if s.kind in xcom.KINDS else {}),
         "last_poll_at": s.last_poll_at.isoformat() if s.last_poll_at else None,
         "last_ok_at": s.last_ok_at.isoformat() if s.last_ok_at else None,
         "last_error": s.last_error,
@@ -273,6 +312,9 @@ def _apply(s: Source, body: SourceIn) -> None:
         secrets = collect.source_secrets(s)
         if s.kind == "youtube" and s.config.get("channel_id") is None:
             secrets.pop("refresh_token", None)
+        if s.kind in xcom.KINDS and s.config.get("account_id") is None:
+            for key in ("access_token", "refresh_token", "expires_at"):
+                secrets.pop(key, None)
         if s.kind in threads.KINDS and s.config.get("account_id") is None:
             secrets.pop("token", None)
             secrets.pop("token_at", None)
@@ -399,7 +441,9 @@ def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(r
     if body.kind in OAUTH_KINDS:
         raise HTTPException(
             400,
-            {"youtube": "test_youtube_connect", "threads": "test_threads_connect"}.get(body.kind, "test_meta_connect"),
+            {"youtube": "test_youtube_connect", "threads": "test_threads_connect", "x": "test_x_connect"}.get(
+                body.kind, "test_meta_connect"
+            ),
         )
     secrets: dict = {}
     if body.id is not None:
@@ -456,6 +500,13 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
         from ..worker import social_soon
 
         social_soon(s.id)
+        return source_out(db, s)
+    if s.kind in xcom.KINDS:
+        if not (s.config or {}).get("account_id"):
+            raise HTTPException(400, "x_not_connected")
+        from ..worker import x_soon
+
+        x_soon(s.id)
         return source_out(db, s)
     if s.kind in threads.KINDS:
         if not (s.config or {}).get("account_id"):

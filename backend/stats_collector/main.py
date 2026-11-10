@@ -25,6 +25,7 @@ from .api import (
     system,
     threads,
     users,
+    xcom,
     youtube,
 )
 from .config import get_settings
@@ -89,6 +90,7 @@ def create_app() -> FastAPI:
         youtube,
         meta,
         threads,
+        xcom,
         goals,
         dashboards,
         livewalls,

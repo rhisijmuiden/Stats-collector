@@ -53,6 +53,13 @@ from ..services.metrics import (
     WEB_SHARES,
     WEB_VIEWS,
     WEB_VISITORS,
+    X_BOOKMARKS,
+    X_IMPRESSIONS,
+    X_LIKES,
+    X_LINK_CLICKS,
+    X_QUOTES,
+    X_REPLIES,
+    X_REPOSTS,
     YT_COMMENTS,
     YT_LIKES,
     YT_SHARES,
@@ -106,6 +113,13 @@ METRIC_NAMES = {
     IG_LIKES: "likes",
     IG_SAVES: "saves",
     TH_VIEWS: "views",
+    X_IMPRESSIONS: "views",
+    X_LIKES: "likes",
+    X_REPOSTS: "shares",
+    X_QUOTES: "shares",
+    X_REPLIES: "comments",
+    X_BOOKMARKS: "saves",
+    X_LINK_CLICKS: "clicks",
     TH_LIKES: "likes",
     TH_REPOSTS: "shares",
     TH_QUOTES: "shares",
@@ -126,7 +140,7 @@ METRIC_NAMES = {
 TOTALS = tuple(dict.fromkeys(METRIC_NAMES.values()))
 SEES_ALL = ("admin", "editor_in_chief")
 can_link = require_role("admin", "editor_in_chief", "editor")
-SOCIAL_SOURCES = ("facebook", "instagram", "threads", "youtube", "bluesky", "mastodon")
+SOCIAL_SOURCES = ("facebook", "instagram", "threads", "x", "youtube", "bluesky", "mastodon")
 
 
 def _aware(dt: datetime) -> datetime:

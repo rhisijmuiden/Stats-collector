@@ -34,6 +34,7 @@ The same manual opens inside the application through the **Help** button at the 
 | YouTube | [YouTube](youtube.md) | Available |
 | Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Available |
 | Threads | [Threads](threads.md) | Available |
+| X | [X](x.md) | Available |
 | Bluesky and Mastodon | [Bluesky and Mastodon](bluesky-mastodon.md) | Available |
 
 ## When something goes wrong

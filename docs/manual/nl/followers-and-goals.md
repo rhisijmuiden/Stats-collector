@@ -2,7 +2,7 @@
 
 ## Volgers
 
-**Analyse → Volgers** toont hoe het aantal YouTube-abonnees en Facebook-, Instagram-, Threads-, Bluesky- en Mastodon-volgers groeit, per kanaal en voor alle kanalen samen. Iedereen kan deze pagina openen.
+**Analyse → Volgers** toont hoe het aantal YouTube-abonnees en Facebook-, Instagram-, Threads-, X-, Bluesky- en Mastodon-volgers groeit, per kanaal en voor alle kanalen samen. Iedereen kan deze pagina openen.
 
 ![Volgers](../images/nl-followers.png)
 
