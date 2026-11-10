@@ -35,3 +35,7 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Back-up & herstel: volledige en incrementele back-ups van database en bestanden, versleutelde kopieën naar FTP-, FTPS- en SCP/SFTP-locaties, planning en bewaartermijn, herstellen vanaf een externe locatie.
 - Help button with the full manual in English and Dutch, also published on GitHub.
   NL: Helpknop met de volledige handleiding in het Engels en Nederlands, ook gepubliceerd op GitHub.
+
+### Changed
+- Releases are built by pushing a version tag (`vX.Y.Z-rc.N` for a test build, `vX.Y.Z` for production).
+  NL: Releases worden gebouwd door een versietag te pushen (`vX.Y.Z-rc.N` voor een testversie, `vX.Y.Z` voor productie).

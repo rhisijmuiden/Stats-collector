@@ -1,7 +1,12 @@
 name: Release
 
-# Run manually: on "develop" it publishes a test (pre)release, on "main" a production release.
+# Triggered by pushing a version tag:
+#   vX.Y.Z-rc.N on develop -> test build (prerelease, test channel)
+#   vX.Y.Z      on main    -> production release
+# (workflow_dispatch on main or develop does the same, numbering test builds by run number.)
 on:
+  push:
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -25,11 +30,21 @@ jobs:
         id: v
         run: |
           base="$(cat VERSION)"
-          case "$GITHUB_REF_NAME" in
-            main)    echo "version=$base" >> "$GITHUB_OUTPUT"; echo "channel=production" >> "$GITHUB_OUTPUT"; echo "section=$base" >> "$GITHUB_OUTPUT" ;;
-            develop) echo "version=$base-rc.$GITHUB_RUN_NUMBER" >> "$GITHUB_OUTPUT"; echo "channel=test" >> "$GITHUB_OUTPUT"; echo "section=Unreleased" >> "$GITHUB_OUTPUT" ;;
-            *) echo "Releases are only built from main or develop" >&2; exit 1 ;;
-          esac
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            v="${GITHUB_REF_NAME#v}"
+            case "$v" in
+              *-rc.*|*-test.*) ch=test; section=Unreleased ;;
+              *) ch=production; section="$v" ;;
+            esac
+            [ "${v%%-*}" = "$base" ] || { echo "Tag $v does not match VERSION $base" >&2; exit 1; }
+          else
+            case "$GITHUB_REF_NAME" in
+              main)    v="$base"; ch=production; section="$base" ;;
+              develop) v="$base-rc.$GITHUB_RUN_NUMBER"; ch=test; section=Unreleased ;;
+              *) echo "Releases are only built from main or develop" >&2; exit 1 ;;
+            esac
+          fi
+          { echo "version=$v"; echo "channel=$ch"; echo "section=$section"; } >> "$GITHUB_OUTPUT"
       - name: Build frontend
         working-directory: frontend
         run: npm ci --no-audit --no-fund && npm test && npm run build
@@ -44,7 +59,7 @@ jobs:
           v="${{ steps.v.outputs.version }}"
           flags=()
           [ "${{ steps.v.outputs.channel }}" = test ] && flags+=(--prerelease --title "Test build $v") || flags+=(--latest --title "Stats Collector $v")
-          gh release create "v$v" --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" \
+          gh release create "v$v" --verify-tag=false --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" \
             "dist/stats-collector-$v.tar.gz" "dist/stats-collector-$v.tar.gz.sha256"
 
   # Manual on GitHub Pages, one version per release (mike), with fresh screenshots.
