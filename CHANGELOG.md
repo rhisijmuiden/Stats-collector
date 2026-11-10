@@ -113,6 +113,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
 
 ### Fixed
+- The online manual is published again with every release: its screenshot run now also starts the live wall service.
+  NL: De online handleiding wordt weer bij elke release gepubliceerd: de screenshotronde start nu ook de livewall-dienst.
 - Icecast servers without `status-json.xsl` (some hosting providers remove it): the numbers are now read from `admin/stats` with the admin user and password.
   NL: Icecast-servers zonder `status-json.xsl` (sommige hostingpartijen halen die weg): de cijfers worden nu uit `admin/stats` gelezen met de beheerder-gebruikersnaam en het wachtwoord.
 - **Update now** and **Back up now** start right away again after the installer's first backup; before, the job waited for the hourly run.

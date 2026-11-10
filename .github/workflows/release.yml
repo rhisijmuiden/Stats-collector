@@ -96,6 +96,9 @@ jobs:
           echo "SETUP_LINK=$(SC_PUBLIC_URL=http://127.0.0.1:8080 stats-collector setup-link)" >> "$GITHUB_ENV"
           nohup uvicorn stats_collector.main:app --app-dir backend --port 8080 > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 30); do curl -fs http://127.0.0.1:8080/api/health && break; sleep 1; done
+          # The live wall screenshot needs the wall service as well.
+          nohup uvicorn stats_collector.livewall.app:app --app-dir backend --port 8081 > "$RUNNER_TEMP/wall.log" 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8081/ && break; sleep 1; done
         env:
           SC_CONFIG_FILE: /nonexistent
       - name: Screenshots
