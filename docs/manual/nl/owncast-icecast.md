@@ -22,6 +22,8 @@ In de kolom Status staat **Werkt** na een geslaagde ophaalronde, of de reden waa
 
 Stats Collector leest `status-json.xsl`, beschikbaar vanaf Icecast 2.4.
 
+Sommige hostingpartijen halen `status-json.xsl` weg en passen `status.xsl` zo aan dat de mountpoints er niet meer op staan. Stats Collector leest dezelfde cijfers dan uit `admin/stats`, de pagina die Icecast voor zijn eigen beheeromgeving heeft. Daarvoor zijn de **beheerder-gebruikersnaam en het wachtwoord** nodig: vraag die op bij je hostingpartij als je ze niet hebt. Zonder die gegevens meldt de bron *Deze server heeft geen openbare statuspagina*.
+
 ## Owncast
 
 - **Serveradres**: het adres van je Owncast-server, bijv. `https://live.example.org`.
