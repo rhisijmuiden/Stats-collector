@@ -59,8 +59,14 @@ jobs:
           v="${{ steps.v.outputs.version }}"
           flags=()
           [ "${{ steps.v.outputs.channel }}" = test ] && flags+=(--prerelease --title "Test build $v") || flags+=(--latest --title "Stats Collector $v")
-          gh release create "v$v" --verify-tag=false --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" \
-            "dist/stats-collector-$v.tar.gz" "dist/stats-collector-$v.tar.gz.sha256"
+          assets=("dist/stats-collector-$v.tar.gz" "dist/stats-collector-$v.tar.gz.sha256")
+          if gh release view "v$v" >/dev/null 2>&1; then
+            # Release made by hand on GitHub (which pushed the tag): fill in notes and assets.
+            gh release edit "v$v" --notes-file notes.md "${flags[@]}"
+            gh release upload "v$v" --clobber "${assets[@]}"
+          else
+            gh release create "v$v" --verify-tag=false --target "$GITHUB_SHA" --notes-file notes.md "${flags[@]}" "${assets[@]}"
+          fi
 
   # Manual on GitHub Pages, one version per release (mike), with fresh screenshots.
   docs:
