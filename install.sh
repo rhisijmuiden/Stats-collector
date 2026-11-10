@@ -114,9 +114,12 @@ systemctl enable --now redis-server >/dev/null 2>&1 || true
 step "Creating user and directories"
 id "$APP_USER" >/dev/null 2>&1 || useradd --system --home-dir "$DATA_DIR" --shell /usr/sbin/nologin "$APP_USER"
 install -d -m 755 "$INSTALL_DIR" "$INSTALL_DIR/releases"
-install -d -m 750 -o "$APP_USER" -g "$APP_USER" "$DATA_DIR" "$DATA_DIR/uploads" "$LOG_DIR"
+# 711 on the data and backup folders: other users (postgres for pgBackRest) may pass through but not list them.
+install -d -m 711 -o "$APP_USER" -g "$APP_USER" "$DATA_DIR"
+install -d -m 750 -o "$APP_USER" -g "$APP_USER" "$DATA_DIR/uploads" "$LOG_DIR"
 install -d -m 770 -o root -g "$APP_USER" "$DATA_DIR/ops"
-install -d -m 750 -o root -g root "$DATA_DIR/backup" "$DATA_DIR/backup/files" "$DATA_DIR/backup/manifests"
+install -d -m 711 -o root -g root "$DATA_DIR/backup"
+install -d -m 750 -o root -g root "$DATA_DIR/backup/files" "$DATA_DIR/backup/manifests"
 install -d -m 750 -o postgres -g postgres "$DATA_DIR/backup/pgbackrest" "$DATA_DIR/backup/pre-update"
 install -d -m 750 -o root -g "$APP_USER" "$CONF_DIR"
 ok "$INSTALL_DIR, $DATA_DIR, $CONF_DIR"
@@ -185,6 +188,7 @@ log-level-file=detail
 
 [$STANZA]
 pg1-path=$PG_DATA
+pg1-socket-path=/var/run/postgresql
 EOF
 chown postgres:postgres /etc/pgbackrest/pgbackrest.conf; chmod 640 /etc/pgbackrest/pgbackrest.conf
 PG_CONF_D="/etc/postgresql/$PG_VER/main/conf.d"
