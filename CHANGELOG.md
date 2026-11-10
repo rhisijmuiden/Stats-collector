@@ -113,6 +113,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
 
 ### Fixed
+- The online manual keeps only the newest test version, so the GitHub Pages deploy no longer times out; **Help** in a test build opens that test manual.
+  NL: De online handleiding bewaart alleen de nieuwste testversie, zodat het publiceren op GitHub Pages niet meer vastloopt; **Help** in een testbuild opent die testhandleiding.
 - New live walls with a stream channel (Icecast or Owncast) showed "This wall does not exist or was switched off" on PostgreSQL: the snapshot query used `max()` on a yes/no column, which PostgreSQL does not have. The tests now also run against PostgreSQL.
   NL: Nieuwe livewalls met een streamkanaal (Icecast of Owncast) toonden "This wall does not exist or was switched off" op PostgreSQL: de snapshot-query gebruikte `max()` op een ja/nee-kolom, die PostgreSQL niet kent. De tests draaien nu ook tegen PostgreSQL.
 - The online manual is published again with every release: its screenshot run now also starts the live wall service.
