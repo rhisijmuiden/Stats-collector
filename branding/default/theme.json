@@ -1,0 +1,27 @@
+{
+  "name": "Stats Collector default",
+  "version": 1,
+  "logo": { "light": "logo.svg", "dark": "logo-dark.svg", "favicon": "logo.svg" },
+  "fonts": {
+    "heading": { "family": "Space Grotesk", "fallback": "system-ui, sans-serif" },
+    "body": { "family": "Inter", "fallback": "system-ui, sans-serif" }
+  },
+  "colors": {
+    "light": {
+      "background": "#F3F5F8", "surface": "#FFFFFF", "sidebar": "#0F1B2D", "sidebarText": "#C9D3E3",
+      "text": "#152033", "muted": "#5D6B80", "border": "#E2E7EF",
+      "accent": "#0E9F8E", "accentSoft": "#E0F4F1", "good": "#1E9E5A", "warning": "#C98A00", "critical": "#D93036"
+    },
+    "dark": {
+      "background": "#0B1220", "surface": "#121B2C", "sidebar": "#070D18", "sidebarText": "#9FB0C8",
+      "text": "#E6ECF5", "muted": "#93A3BA", "border": "#22304A",
+      "accent": "#2CC4B0", "accentSoft": "#103A37", "good": "#3CCB7F", "warning": "#E3AE2B", "critical": "#FF6B6F"
+    }
+  },
+  "channels": {
+    "website": "#3E7BFA", "facebook": "#6C5CE7", "instagram": "#E14FD0", "youtube": "#E5484D",
+    "owncast": "#F5A524", "icecast": "#12A594"
+  },
+  "radius": { "card": 12, "control": 8 },
+  "liveWall": { "background": "#060B16", "glow": "#2FB8FF", "text": "#D8F3FF" }
+}

@@ -1,0 +1,333 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stats Collector UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: fixed left admin rail + scrolling workspace; cards only for charts and panels */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --rail:#0F1B2D; --rail-fg:#C9D3E3; --rail-active:#1D2D47;
+  --fg:#152033; --muted:#5D6B80; --line:#E2E7EF; --accent:#0E9F8E; --accent-soft:#E0F4F1;
+  --c-web:#3E7BFA; --c-fb:#6C5CE7; --c-yt:#E5484D; --c-oc:#F5A524; --c-ic:#12A594;
+  --good:#1E9E5A; --warn:#C98A00;
+  --f-display:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1220; --surface:#121B2C; --rail:#070D18; --rail-fg:#9FB0C8; --rail-active:#16233A;
+  --fg:#E6ECF5; --muted:#93A3BA; --line:#22304A; --accent:#2CC4B0; --accent-soft:#103A37;
+  --c-web:#6A9BFF; --c-fb:#9488FF; --c-yt:#FF6B6F; --c-oc:#FFBE4D; --c-ic:#35C9B5; --good:#3CCB7F; --warn:#E3AE2B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#121B2C; --rail:#070D18; --rail-fg:#9FB0C8; --rail-active:#16233A;
+  --fg:#E6ECF5; --muted:#93A3BA; --line:#22304A; --accent:#2CC4B0; --accent-soft:#103A37;
+  --c-web:#6A9BFF; --c-fb:#9488FF; --c-yt:#FF6B6F; --c-oc:#FFBE4D; --c-ic:#35C9B5; --good:#3CCB7F; --warn:#E3AE2B; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--rail);color:var(--rail-fg);padding:20px 12px;padding-left:max(12px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;color:#fff;font-family:var(--f-display);font-weight:700;font-size:17px}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);display:grid;place-items:center}
+.navlabel{font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.6;padding:14px 10px 6px}
+.nav{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--rail-fg)}
+.nav:hover{background:var(--rail-active)}
+.nav[aria-current="true"]{background:var(--rail-active);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.nav:focus-visible{outline:2px solid var(--accent)}
+.nav svg{width:16px;height:16px;flex:none}
+.rail .spacer{flex:1}
+.main{min-width:0;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+h1{font-family:var(--f-display);font-size:24px;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-size:16px;margin:0}
+.sub{color:var(--muted);font-size:13px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{all:unset;cursor:pointer;padding:6px 11px;border-radius:6px;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--fg);font-weight:600}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent)}
+.btn{all:unset;cursor:pointer;padding:8px 14px;border-radius:8px;background:var(--accent);color:#fff;font-weight:600;font-size:13px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+select,input[type=text],input[type=time],input[type=email]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi .v{font-family:var(--f-display);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:12px;color:var(--good);font-weight:600}
+.kpi .l{font-size:12px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.cardhead{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:8px}
+.chart{height:340px;width:100%}
+.multi{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.multi .chart{height:180px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:12.5px}
+.chip i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.chip[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+.chip:focus-visible{outline:2px solid var(--accent)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:600;color:#fff}
+.example{font-size:11.5px;color:var(--warn);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.blocks{display:flex;flex-direction:column;gap:8px}
+.block{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:10px;background:var(--bg)}
+.block b{font-weight:600}
+.block span{color:var(--muted);font-size:12.5px;margin-left:auto}
+.form{display:grid;gap:12px}
+.form label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.tag{display:inline-flex;gap:6px;align-items:center;padding:4px 9px;background:var(--accent-soft);border-radius:999px;font-size:12.5px;margin:2px}
+.view[hidden]{display:none}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:22px;max-width:440px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(5,10,20,.5)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:14px 0;font-size:13px}
+dt{color:var(--muted)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:36px;height:36px;border-radius:9px;border:2px solid var(--line);cursor:pointer}
+.goal{display:grid;gap:6px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.goal .row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;border-radius:99px}
+.goal input{width:110px}
+.wallbox{background:radial-gradient(ellipse at 50% 0%,#12305a 0%,#060b16 70%);border-radius:14px;padding:18px;color:#d8f3ff;border:1px solid #1d3b66}
+.wallhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.walltitle{font-family:var(--f-display);font-size:22px;letter-spacing:.18em;font-weight:700;color:#7fe7ff;text-shadow:0 0 12px #2fb8ff}
+.wallsub{font-size:12px;color:#7d9cc0}
+.wallclock{font-family:var(--f-display);font-size:28px;font-variant-numeric:tabular-nums;color:#fff}
+.stage{height:400px;display:flex;align-items:flex-end;justify-content:space-around;gap:8px;padding:30px 20px 24px;perspective:900px;background:linear-gradient(transparent 0 calc(100% - 60px),rgba(47,184,255,.08) 100%),repeating-linear-gradient(90deg,rgba(47,184,255,.08) 0 1px,transparent 1px 48px);border-bottom:1px solid #1d3b66;margin:12px 0 14px;overflow:hidden}
+.b3{position:relative;width:min(70px,11vw);transform-style:preserve-3d;transition:height .9s cubic-bezier(.2,.8,.2,1)}
+.b3 .fr{position:absolute;inset:0;background:linear-gradient(0deg,color-mix(in srgb,var(--c) 35%,#000) 0%,var(--c) 100%);box-shadow:0 0 28px color-mix(in srgb,var(--c) 60%,transparent);border-radius:2px}
+.b3 .sd{position:absolute;top:0;bottom:0;left:100%;width:18px;background:color-mix(in srgb,var(--c) 45%,#000);transform-origin:left;transform:skewY(-40deg)}
+.b3 .tp{position:absolute;left:0;right:-18px;top:-15px;height:15px;background:color-mix(in srgb,var(--c) 70%,#fff);transform-origin:bottom;transform:skewX(-50deg);transform:translateX(9px) skewX(-50deg) ;opacity:.95}
+.b3 .lb{position:absolute;top:-44px;left:-20px;right:-20px;text-align:center;font-family:var(--f-display);font-weight:700;font-size:18px;color:#fff;text-shadow:0 0 10px var(--c);font-variant-numeric:tabular-nums}
+.b3 .nm{position:absolute;bottom:-22px;left:-20px;right:-20px;text-align:center;font-size:12px;color:#bfe9ff}
+.wallrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.wcell{border:1px solid #1d3b66;border-radius:10px;padding:10px;background:rgba(10,25,50,.6)}
+.wcell .n{font-size:12px;color:#7d9cc0}.wcell .v{font-family:var(--f-display);font-size:24px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}.wcell .f{font-size:11px}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px))}
+  .navlabel,.rail .spacer{display:none}.brand{padding:4px 10px;width:100%}
+  .grid2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand"><span class="logo"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"><path d="M3 15l4-5 3 3 6-8"/></svg></span>Stats Collector</div>
+    <div class="navlabel" data-i="analytics">Analytics</div>
+    <button class="nav" data-view="dash" aria-current="true"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg><span data-i="dashboards">Dashboards</span></button>
+    <button class="nav" data-view="editors"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5 6-5s6 1.7 6 5z"/></svg><span data-i="editors">Editors</span></button>
+    <button class="nav" data-view="reports"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1h7l3 3v11H3z" opacity=".9"/></svg><span data-i="reports">Reports</span></button>
+    <button class="nav" data-view="goals"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r=".6" fill="currentColor"/></svg><span>Followers &amp; goals</span></button>
+    <button class="nav" data-view="wall"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="9" width="3" height="6"/><rect x="6.5" y="4" width="3" height="11"/><rect x="12" y="1" width="3" height="14"/></svg><span>Live wall</span></button>
+    <div class="navlabel" data-i="admin">Administration</div>
+    <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8h4M10 8h4M6 5v6h4V5z"/></svg><span data-i="sources">Sources</span></button>
+    <button class="nav" data-view="branding"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" opacity=".35"/><circle cx="5.5" cy="6" r="1.5"/><circle cx="10.5" cy="6" r="1.5"/><circle cx="8" cy="10.5" r="1.5"/></svg><span data-i="branding">Branding</span></button>
+    <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M2 4l6 5 6-5"/></svg><span data-i="email">Email</span></button>
+    <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5v9M4.5 7L8 10.5 11.5 7M2 14h12"/></svg><span data-i="backup">Backup</span></button>
+    <button class="nav" data-view="sources"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="6" r="2"/><path d="M0 14c0-2.5 2-4 5-4s5 1.5 5 4z"/></svg><span data-i="users">Users</span></button>
+    <div class="spacer"></div>
+    <button class="nav" id="infoBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4.5M8 4.5v.5"/></svg><span>Info · v1.4.2</span></button>
+  </nav>
+
+  <main class="main">
+    <div class="wrap">
+      <div class="top">
+        <div><h1 id="pageTitle">Total reach</h1><div class="sub"><span class="example" data-i="ex">Example data</span> · <span data-i="period">Last 30 days, all channels</span></div></div>
+        <div class="controls">
+          <select id="period" aria-label="Period"><option>Last 30 days</option><option>This month</option><option>Last month</option><option>Custom…</option></select>
+          <div class="seg" role="group" aria-label="Language"><button id="lEN" aria-pressed="true">EN</button><button id="lNL" aria-pressed="false">NL</button></div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <section class="view" id="v-dash">
+        <div class="wrap" style="gap:18px">
+          <div class="kpis" id="kpis"></div>
+          <div class="card">
+            <div class="cardhead">
+              <div><h2 data-i="reachTitle">Reach per channel</h2><div class="sub" data-i="reachSub">Click a channel below to hide or show it</div></div>
+              <div class="seg" role="group" aria-label="Chart mode">
+                <button data-mode="stack" aria-pressed="true" data-i="stacked">Stacked total</button>
+                <button data-mode="overlay" aria-pressed="false" data-i="overlay">Overlay</button>
+                <button data-mode="split" aria-pressed="false" data-i="split">Separate</button>
+              </div>
+            </div>
+            <div id="mainChart" class="chart"></div>
+            <div id="multi" class="multi" hidden></div>
+            <div class="legend" id="legend"></div>
+          </div>
+          <div class="grid2">
+            <div class="card"><div class="cardhead"><h2 data-i="topContent">Top content</h2><span class="sub" data-i="allPlat">All platforms</span></div>
+              <div class="tbl"><table><thead><tr><th data-i="item">Item</th><th data-i="channel">Channel</th><th data-i="editor">Editor</th><th class="n" data-i="reach">Reach</th><th class="n" data-i="inter">Interactions</th></tr></thead><tbody id="topRows"></tbody></table></div></div>
+            <div class="card"><div class="cardhead"><h2 data-i="live">Live streams</h2><span class="sub">Owncast · Icecast</span></div>
+              <div id="streamChart" class="chart" style="height:250px"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EDITORS -->
+      <section class="view" id="v-editors" hidden>
+        <div class="grid2">
+          <div class="card"><div class="cardhead"><h2 data-i="byEditor">Reach by editor, stacked per platform</h2></div><div id="editorChart" class="chart"></div></div>
+          <div class="card"><div class="cardhead"><h2 data-i="editors">Editors</h2><select aria-label="Filter"><option>All categories</option><option>News</option><option>Sport</option></select></div>
+            <div class="tbl"><table><thead><tr><th data-i="editor">Editor</th><th class="n" data-i="articles">Articles</th><th class="n" data-i="views">Web views</th><th class="n" data-i="social">Social reach</th></tr></thead><tbody id="edRows"></tbody></table></div></div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="view" id="v-reports" hidden>
+        <div class="grid2">
+          <div class="card"><div class="cardhead"><div><h2>Monthly media report</h2><div class="sub" data-i="dragHint">Drag blocks to reorder</div></div><button class="btn ghost">+ <span data-i="addBlock">Add block</span></button></div>
+            <div class="blocks">
+              <div class="block">⋮⋮ <b data-i="bKpi">KPI row</b><span>Reach · Views · Interactions · Listening time</span></div>
+              <div class="block">⋮⋮ <b data-i="bChart">Chart</b><span>Reach per channel, stacked</span></div>
+              <div class="block">⋮⋮ <b data-i="bTop">Top 10 content</b><span>All platforms</span></div>
+              <div class="block">⋮⋮ <b data-i="bEditors">Editor ranking</b><span>Web + social</span></div>
+              <div class="block">⋮⋮ <b data-i="bStream">Streams</b><span>Owncast broadcasts, Icecast mounts</span></div>
+              <div class="block">⋮⋮ <b data-i="bText">Text</b><span>Editorial comment</span></div>
+            </div>
+          </div>
+          <div class="card"><h2 data-i="schedule">Schedule and delivery</h2>
+            <div class="form" style="margin-top:12px">
+              <label><span data-i="freq">Frequency</span><select id="freq"><option>Monthly, on day 1</option><option>Weekly, Monday</option><option>Daily</option></select></label>
+              <label><span data-i="time">Send at</span><input type="time" id="sendAt" value="07:00"></label>
+              <label><span data-i="format">Format</span><select id="fmt"><option>PDF + interactive link</option><option>PDF only</option><option>Interactive link only</option></select></label>
+              <label><span data-i="recips">Recipients</span><div><span class="tag">Management team</span><span class="tag">editor-in-chief@example.org</span><span class="tag">+ add</span></div></label>
+              <label><span data-i="via">Send via</span><select id="via"><option>Microsoft 365 (Graph)</option><option>SMTP</option></select></label>
+              <div class="controls"><button class="btn" data-i="sendNow">Generate and send now</button><button class="btn ghost" data-i="preview">Preview PDF</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GOALS -->
+      <section class="view" id="v-goals" hidden>
+        <div class="grid2">
+          <div class="card"><div class="cardhead"><div><h2>Facebook followers</h2><div class="sub">Daily count with goal line and trend forecast</div></div></div><div id="folChart" class="chart"></div></div>
+          <div class="card"><h2>Goals</h2><div class="sub" style="margin-bottom:10px">Change a target and press Enter; earlier targets stay in the history.</div><div id="goalList" class="blocks"></div></div>
+        </div>
+      </section>
+
+      <!-- LIVE WALL -->
+      <section class="view" id="v-wall" hidden>
+        <div class="wallbox">
+          <div class="wallhead"><div><div class="walltitle">NEWSROOM · LIVE</div><div class="wallsub">Last 60 minutes · updates every 60 s · port 8081 · no login</div></div><div class="wallclock" id="clock">09:06</div></div>
+          <div id="wall3d" class="stage"></div>
+          <div class="wallrow" id="wallRow"></div>
+        </div>
+        <p class="sub">This is what the TV shows full screen at its own unique URL, e.g. https://live.example.org/w/k7Qp… Bars grow and shrink as new numbers arrive. Social values are approximate and marked with their delay.</p>
+      </section>
+
+      <!-- BRANDING -->
+      <section class="view" id="v-branding" hidden>
+        <div class="grid2">
+          <div class="card"><h2 data-i="branding">Branding</h2>
+            <div class="form" style="margin-top:12px">
+              <label><span data-i="logo">Logo (light and dark)</span><input type="text" id="logoF" value="logo.svg · logo-dark.svg" readonly></label>
+              <label><span data-i="accent">Accent colour</span><div class="swatches" id="sw"></div></label>
+              <label><span data-i="font">Heading font</span><select id="fontSel"><option>Space Grotesk</option><option>Inter</option><option>System</option></select></label>
+              <div class="sub" data-i="applies">Applies to the app, PDF reports, interactive reports and emails.</div>
+            </div></div>
+          <div class="card"><h2 data-i="previewH">Preview</h2><div class="kpis" style="margin-top:12px" id="prevK"></div></div>
+        </div>
+      </section>
+
+      <!-- SOURCES -->
+      <section class="view" id="v-sources" hidden>
+        <div class="card"><div class="cardhead"><h2 data-i="sources">Sources</h2><button class="btn">+ <span data-i="addSource">Add source</span></button></div>
+          <div class="tbl"><table><thead><tr><th>Source</th><th>Type</th><th>Last sync</th><th>Status</th></tr></thead><tbody>
+            <tr><td>news-site.example (WordPress plugin)</td><td>Push</td><td>2 min ago</td><td><span class="pill" style="background:var(--good)">OK</span></td></tr>
+            <tr><td>Facebook page</td><td>Graph API</td><td>14 min ago</td><td><span class="pill" style="background:var(--good)">OK</span></td></tr>
+            <tr><td>YouTube channel</td><td>Data + Analytics API</td><td>1 h ago</td><td><span class="pill" style="background:var(--good)">OK</span></td></tr>
+            <tr><td>Owncast TV stream</td><td>Admin API</td><td>30 s ago</td><td><span class="pill" style="background:var(--good)">Live</span></td></tr>
+            <tr><td>Icecast /radio.mp3</td><td>status-json</td><td>30 s ago</td><td><span class="pill" style="background:var(--warn)">Token expires in 6 days</span></td></tr>
+          </tbody></table></div>
+          <p class="sub">The Email, Backup and Users screens sit in the same admin menu; they are left out of this sketch.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<dialog id="info">
+  <h2>Stats Collector</h2>
+  <dl><dt>Version</dt><dd>1.4.2</dd><dt>Commit</dt><dd>a3f9c21</dd><dt>Channel</dt><dd id="chan">Production (main)</dd><dt>Build</dt><dd>2026-11-03</dd></dl>
+  <div class="seg" role="group" aria-label="Update channel"><button id="cProd" aria-pressed="true">Production</button><button id="cTest" aria-pressed="false">Test</button></div>
+  <p class="sub" id="updMsg" style="min-height:20px">Last checked 08:42.</p>
+  <div class="controls"><button class="btn ghost" id="chk">Check for updates</button><button class="btn" id="upd" hidden>Update to 1.5.0</button><button class="btn ghost" id="closeInfo">Close</button></div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<script>
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const CH=[{k:'web',n:'Website',v:'--c-web',base:5200},{k:'fb',n:'Facebook',v:'--c-fb',base:7800},{k:'yt',n:'YouTube',v:'--c-yt',base:4100},{k:'oc',n:'Owncast',v:'--c-oc',base:900},{k:'ic',n:'Icecast',v:'--c-ic',base:1600}];
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+const days=[...Array(30)].map((_,i)=>{const d=new Date(Date.UTC(2026,9,11+i));return d.toISOString().slice(5,10)});
+const data={};CH.forEach(c=>{data[c.k]=days.map((d,i)=>Math.round(c.base*(1+.35*Math.sin(i/3+c.base)+.25*rnd()+(i%7>4?.2:0))))});
+const on={};CH.forEach(c=>on[c.k]=true);
+let mode='stack',lang='en';
+const T={nl:{analytics:'Analyse',dashboards:'Dashboards',editors:'Redacteuren',reports:'Rapporten',admin:'Beheer',sources:'Bronnen',branding:'Huisstijl',email:'E-mail',backup:'Back-up',users:'Gebruikers',ex:'Voorbeelddata',period:'Laatste 30 dagen, alle kanalen',reachTitle:'Bereik per kanaal',reachSub:'Klik hieronder op een kanaal om het te verbergen of te tonen',stacked:'Gestapeld totaal',overlay:'Over elkaar',split:'Los',topContent:'Best presterende content',allPlat:'Alle platformen',item:'Item',channel:'Kanaal',editor:'Redacteur',reach:'Bereik',inter:'Interacties',live:'Livestreams',byEditor:'Bereik per redacteur, gestapeld per platform',articles:'Artikelen',views:'Webweergaven',social:'Social bereik',dragHint:'Sleep blokken om de volgorde te wijzigen',addBlock:'Blok toevoegen',bKpi:'KPI-rij',bChart:'Grafiek',bTop:'Top 10 content',bEditors:'Ranglijst redacteuren',bStream:'Streams',bText:'Tekst',schedule:'Planning en verzending',freq:'Frequentie',time:'Versturen om',format:'Formaat',recips:'Ontvangers',via:'Versturen via',sendNow:'Nu genereren en versturen',preview:'PDF bekijken',logo:'Logo (licht en donker)',accent:'Accentkleur',font:'Lettertype koppen',applies:'Geldt voor de app, PDF-rapporten, interactieve rapporten en e-mails.',previewH:'Voorbeeld',addSource:'Bron toevoegen'}};
+const EN={};document.querySelectorAll('[data-i]').forEach(e=>EN[e.dataset.i]=e.textContent);
+function applyLang(){document.querySelectorAll('[data-i]').forEach(e=>{const k=e.dataset.i;e.textContent=lang==='nl'?(T.nl[k]||EN[k]):EN[k]});lEN.setAttribute('aria-pressed',lang==='en');lNL.setAttribute('aria-pressed',lang==='nl');setTitle()}
+lEN.onclick=()=>{lang='en';applyLang()};lNL.onclick=()=>{lang='nl';applyLang()};
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n);
+function axisStyle(){return{axisLine:{lineStyle:{color:css('--line')}},axisLabel:{color:css('--muted'),fontSize:11},splitLine:{lineStyle:{color:css('--line')}}}}
+function baseOpt(){return{animationDuration:400,grid:{left:48,right:16,top:16,bottom:28},tooltip:{trigger:'axis',backgroundColor:css('--surface'),borderColor:css('--line'),textStyle:{color:css('--fg')}},xAxis:{type:'category',data:days,boundaryGap:false,...axisStyle(),splitLine:{show:false}},yAxis:{type:'value',...axisStyle(),axisLabel:{color:css('--muted'),formatter:fmt}}}}
+const main=echarts.init(mainChart);let multis=[];
+function draw(){
+  const vis=CH.filter(c=>on[c.k]);
+  if(mode==='split'){mainChart.hidden=true;multi.hidden=false;multi.innerHTML='';multis.forEach(m=>m.dispose());multis=[];
+    vis.forEach(c=>{const box=document.createElement('div');box.innerHTML=`<div class="sub" style="font-weight:600;color:var(--fg)">${c.n}</div><div class="chart"></div>`;multi.appendChild(box);const m=echarts.init(box.lastChild);const o=baseOpt();o.grid.top=10;o.series=[{type:'line',data:data[c.k],smooth:true,symbol:'none',lineStyle:{color:css(c.v),width:2},areaStyle:{color:css(c.v),opacity:.15}}];m.setOption(o);multis.push(m)});return}
+  mainChart.hidden=false;multi.hidden=true;main.resize();
+  const o=baseOpt();o.series=vis.map(c=>({name:c.n,type:'line',smooth:true,symbol:'none',stack:mode==='stack'?'t':undefined,data:data[c.k],lineStyle:{color:css(c.v),width:mode==='stack'?1:2.2},itemStyle:{color:css(c.v)},areaStyle:mode==='stack'?{color:css(c.v),opacity:.75}:{color:css(c.v),opacity:.06},emphasis:{focus:'series'}}));
+  main.setOption(o,true);
+}
+function legend(){legendEl.innerHTML='';CH.forEach(c=>{const b=document.createElement('button');b.className='chip';b.setAttribute('aria-pressed',on[c.k]);const tot=data[c.k].reduce((a,b)=>a+b,0);b.innerHTML=`<i style="background:var(${c.v})"></i>${c.n} <span class="sub">${fmt(tot)}</span>`;b.onclick=()=>{on[c.k]=!on[c.k];legend();draw();kpis()};legendEl.appendChild(b)})}
+const legendEl=document.getElementById('legend');
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',x===b));draw()});
+function kpis(){const vis=CH.filter(c=>on[c.k]);const tot=vis.reduce((a,c)=>a+data[c.k].reduce((x,y)=>x+y,0),0);
+  const K=[[fmt(tot),lang==='nl'?'Totaal bereik':'Total reach','+12.4%'],[fmt(Math.round(tot*.083)),lang==='nl'?'Interacties':'Interactions','+8.1%'],['3,412 h',lang==='nl'?'Kijk- en luistertijd':'Watch and listen time','+5.6%'],['612',lang==='nl'?'Piek gelijktijdige luisteraars':'Peak concurrent listeners','+21%']];
+  document.getElementById('kpis').innerHTML=K.map(k=>`<div class="kpi"><div class="l">${k[1]}</div><div class="v">${k[0]}</div><div class="d">${k[2]} vs prev.</div></div>`).join('')}
+const topItems=[['Council approves new town square plan','web','A. de Vries',48210,3120],['Derby highlights (video)','yt','M. Jansen',41880,2650],['Storm update: roads closed','fb','A. de Vries',39400,5210],['Interview with the mayor','yt','S. Bakker',22950,1180],['Election night live broadcast','oc','Studio',9800,640],['Market day photo series','fb','S. Bakker',18760,2240]];
+topRows.innerHTML=topItems.map(r=>{const c=CH.find(x=>x.k===r[1]);return `<tr><td>${r[0]}</td><td><span class="pill" style="background:var(${c.v})">${c.n}</span></td><td>${r[2]}</td><td class="n">${r[3].toLocaleString('en')}</td><td class="n">${r[4].toLocaleString('en')}</td></tr>`}).join('');
+const eds=[['A. de Vries',34,182400,241800],['S. Bakker',27,121300,156200],['M. Jansen',19,98200,188900],['L. Smit',22,76400,64300],['R. Visser',11,41100,38800]];
+edRows.innerHTML=eds.map(e=>`<tr><td>${e[0]}</td><td class="n">${e[1]}</td><td class="n">${e[2].toLocaleString('en')}</td><td class="n">${e[3].toLocaleString('en')}</td></tr>`).join('');
+let ed,st;
+function drawEditors(){if(!ed)ed=echarts.init(editorChart);const o=baseOpt();o.grid.left=86;o.tooltip.trigger='axis';o.xAxis={type:'value',...axisStyle(),axisLabel:{color:css('--muted'),formatter:fmt}};o.yAxis={type:'category',data:eds.map(e=>e[0]).reverse(),...axisStyle(),splitLine:{show:false}};
+  const split=[['Website','--c-web',e=>e[2]],['Facebook','--c-fb',e=>Math.round(e[3]*.6)],['YouTube','--c-yt',e=>Math.round(e[3]*.4)]];
+  o.series=split.map(s=>({name:s[0],type:'bar',stack:'e',barWidth:18,itemStyle:{color:css(s[1])},data:eds.map(s[2]).reverse()}));o.legend={bottom:0,textStyle:{color:css('--muted')}};o.grid.bottom=36;ed.setOption(o,true);ed.resize()}
+function drawStream(){if(!st)st=echarts.init(streamChart);const hrs=[...Array(24)].map((_,i)=>String(i).padStart(2,'0')+':00');const o=baseOpt();o.xAxis.data=hrs;o.series=[{name:'Owncast viewers',type:'line',smooth:true,symbol:'none',data:hrs.map((_,i)=>Math.round(40+180*Math.max(0,Math.sin((i-15)/3))+15*rnd())),lineStyle:{color:css('--c-oc'),width:2},itemStyle:{color:css('--c-oc')}},{name:'Icecast listeners',type:'line',smooth:true,symbol:'none',data:hrs.map((_,i)=>Math.round(120+380*Math.max(0,Math.sin((i-5)/4))+20*rnd())),lineStyle:{color:css('--c-ic'),width:2},itemStyle:{color:css('--c-ic')}}];st.setOption(o,true)}
+const WALL=[['Website','#3E7BFA',2840,'live'],['YouTube','#FF4D57',1960,'~10 min'],['Instagram','#E14FD0',1420,'~1 h'],['Facebook','#8C7CFF',1180,'~1 h'],['Icecast','#19D3B8',640,'live'],['Owncast','#FFB02E',212,'live']];
+const w3={resize(){}};function drawWall(){const t=Date.now()/1000;const vals=WALL.map((w,i)=>Math.round(w[2]*(1+.06*Math.sin(t/7+i))));const mx=Math.max(...vals)*1.1;
+  if(!wall3d.children.length)wall3d.innerHTML=WALL.map(w=>`<div class="b3" style="--c:${w[1]};height:0"><div class="fr"></div><div class="sd"></div><div class="tp"></div><div class="lb"></div><div class="nm">${w[0]}</div></div>`).join('');
+  [...wall3d.children].forEach((b,i)=>{b.style.height=Math.max(6,vals[i]/mx*300)+'px';b.querySelector('.lb').textContent=vals[i].toLocaleString('en')});
+  if(false)
+  ({setOption(){}}).setOption({tooltip:{},xAxis3D:{type:'category',data:WALL.map(w=>w[0]),axisLabel:{color:'#bfe9ff',fontSize:13},axisLine:{lineStyle:{color:'#2a5a8f'}}},yAxis3D:{type:'category',data:[''],axisLabel:{show:false},axisLine:{lineStyle:{color:'#2a5a8f'}}},zAxis3D:{type:'value',axisLabel:{color:'#7d9cc0'},axisLine:{lineStyle:{color:'#2a5a8f'}},splitLine:{lineStyle:{color:'#16345a'}}},
+  grid3D:{boxWidth:200,boxDepth:30,viewControl:{alpha:18,beta:12,distance:230,autoRotate:false},light:{main:{intensity:1.3,shadow:true},ambient:{intensity:.35}},axisPointer:{show:false},splitLine:{lineStyle:{color:'#16345a'}}},
+  series:[{type:'bar3D',shading:'lambert',bevelSize:.3,barSize:[12,12],data:vals.map((v,i)=>({value:[i,0,v],itemStyle:{color:WALL[i][1],opacity:.92}})),label:{show:true,formatter:p=>p.value[2].toLocaleString('en'),textStyle:{color:'#fff',fontSize:14,backgroundColor:'transparent'}}}]});
+  wallRow.innerHTML=WALL.map((w,i)=>`<div class="wcell"><div class="n">${w[0]}</div><div class="v">${vals[i].toLocaleString('en')}</div><div class="f" style="color:${w[3]==='live'?'#5CF2A0':'#FFC861'}">● ${w[3]}</div></div>`).join('');
+  const d=new Date();clock.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+setInterval(()=>{if(cur==='wall')drawWall()},4000);
+const GOALS=[{n:'Facebook followers',c:'--c-fb',now:4120,t:5000,f:'14 Mar 2027'},{n:'Instagram followers',c:'--c-fb',now:2380,t:3000,f:'2 Feb 2027'},{n:'YouTube subscribers',c:'--c-yt',now:1610,t:2500,f:'Oct 2027'},{n:'Total reach this quarter (all channels)',c:'--accent',now:1820000,t:2000000,f:'21 Dec 2026'}];
+function drawGoals(){goalList.innerHTML=GOALS.map((g,i)=>{const p=Math.min(100,Math.round(g.now/g.t*100));return `<div class="goal"><div class="row"><b>${g.n}</b><label class="sub">Target <input type="text" id="g${i}" value="${g.t.toLocaleString('en')}" aria-label="Target for ${g.n}"></label></div><div class="bar"><i style="width:${p}%;background:var(${g.c})"></i></div><div class="row sub"><span>${g.now.toLocaleString('en')} of ${g.t.toLocaleString('en')} (${p}%)</span><span>At this pace: ${g.f}</span></div></div>`}).join('');
+  GOALS.forEach((g,i)=>document.getElementById('g'+i).onkeydown=e=>{if(e.key==='Enter'){const v=parseInt(e.target.value.replace(/\D/g,''));if(v>0){g.t=v;drawGoals();drawFol()}}});}
+let fol;function drawFol(){if(!fol)fol=echarts.init(folChart);const ds=[...Array(90)].map((_,i)=>{const d=new Date(Date.UTC(2026,7,12+i));return d.toISOString().slice(5,10)});const vals=ds.map((_,i)=>Math.round(3480+i*7.1+40*Math.sin(i/6)));const fc=[...Array(30)].map((_,i)=>vals.at(-1)+Math.round((i+1)*7.1));const all=ds.concat([...Array(30)].map((_,i)=>{const d=new Date(Date.UTC(2026,10,10+i));return d.toISOString().slice(5,10)}));const o=baseOpt();o.xAxis.data=all;o.yAxis.min=3000;o.yAxis.max=Math.max(5200,GOALS[0].t+200);o.series=[{name:'Followers',type:'line',smooth:true,symbol:'none',data:vals,lineStyle:{color:css('--c-fb'),width:2.2},areaStyle:{color:css('--c-fb'),opacity:.08},markLine:{symbol:'none',lineStyle:{type:'dashed',color:css('--accent'),width:1.5},label:{formatter:'Goal '+GOALS[0].t.toLocaleString('en'),color:css('--fg'),position:'insideEndTop'},data:[{yAxis:GOALS[0].t}]}},{name:'Forecast',type:'line',symbol:'none',data:Array(89).fill(null).concat([vals.at(-1)],fc),lineStyle:{color:css('--c-fb'),type:'dotted',width:2}}];fol.setOption(o,true);fol.resize()}
+const titles={goals:['Followers and goals','Volgers en doelen'],wall:['Live wall','Live wall'],dash:['Total reach','Totaal bereik'],editors:['Editor performance','Prestaties redacteuren'],reports:['Report builder','Rapportbouwer'],branding:['Branding','Huisstijl'],sources:['Sources','Bronnen']};
+let cur='dash';function setTitle(){pageTitle.textContent=titles[cur][lang==='nl'?1:0];kpis()}
+document.querySelectorAll('.nav[data-view]').forEach(b=>b.onclick=()=>{cur=b.dataset.view;document.querySelectorAll('.nav[data-view]').forEach(x=>x.setAttribute('aria-current',x===b));document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='v-'+cur);setTitle();if(cur==='editors')drawEditors();if(cur==='wall'){drawWall();w3.resize()}if(cur==='goals'){drawGoals();drawFol()}if(cur==='dash'){main.resize();st&&st.resize()}});
+const accents=['#0E9F8E','#3E7BFA','#E5484D','#F5A524','#6C5CE7','#152033'];
+sw.innerHTML=accents.map(a=>`<button class="sw" style="background:${a}" aria-label="Accent ${a}" data-a="${a}"></button>`).join('');
+sw.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.preventDefault();document.documentElement.style.setProperty('--accent',b.dataset.a);prevK.innerHTML=prev()});
+const prev=()=>`<div class="kpi"><div class="l">Total reach</div><div class="v" style="color:var(--accent)">${fmt(482100)}</div></div><div class="kpi"><div class="l">Report header</div><div class="v" style="font-size:16px"><span class="logo" style="display:inline-grid;width:22px;height:22px;vertical-align:middle"></span> Stats Collector</div></div>`;prevK.innerHTML=prev();
+infoBtn.onclick=()=>info.showModal();closeInfo.onclick=()=>info.close();
+cProd.onclick=()=>{cProd.setAttribute('aria-pressed',true);cTest.setAttribute('aria-pressed',false);chan.textContent='Production (main)';upd.hidden=true;updMsg.textContent='Switched to production.'};
+cTest.onclick=()=>{cTest.setAttribute('aria-pressed',true);cProd.setAttribute('aria-pressed',false);chan.textContent='Test (develop)';upd.hidden=true;updMsg.textContent='Switched to test. Check for updates to see the latest test build.'};
+chk.onclick=()=>{updMsg.textContent='Checking GitHub releases…';setTimeout(()=>{const t=cTest.getAttribute('aria-pressed')==='true';upd.textContent=t?'Update to 1.5.0-rc.3':'Update to 1.5.0';updMsg.textContent=(t?'1.5.0-rc.3':'1.5.0')+' is available. A backup runs before the update.';upd.hidden=false},700)};
+upd.onclick=()=>{updMsg.textContent='Backup done · migrating database · restarting (sketch only, nothing changes)';upd.hidden=true};
+legend();draw();kpis();drawStream();applyLang();
+addEventListener('resize',()=>{main.resize();st&&st.resize();ed&&ed.resize();multis.forEach(m=>m.resize())});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{draw();drawStream();ed&&drawEditors()});
+</script>
