@@ -1,4 +1,4 @@
-"""Admin → Sources: Icecast and Owncast servers, WordPress sites, YouTube channels, Facebook and Instagram."""
+"""Admin → Sources: Icecast and Owncast servers, WordPress sites, YouTube, Facebook, Instagram, Bluesky, Mastodon."""
 
 from __future__ import annotations
 
@@ -19,13 +19,13 @@ from ..connectors.icecast import normalise_mounts
 from ..db import get_db
 from ..models import ContentItem, Source, User
 from ..security import encrypt_secret, new_token, require_admin
-from ..services import collect, meta, wordpress
+from ..services import collect, meta, social, wordpress
 from .common import audit
 
 router = APIRouter(prefix="/api/sources", tags=["sources"])
 hooks = APIRouter(prefix="/api/hooks", tags=["hooks"])
 
-KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram")
+KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon")
 OAUTH_KINDS = ("youtube", "facebook", "instagram")
 YT_KEEP = (
     "channel_id",
@@ -43,7 +43,7 @@ PLUGIN_DIR = APP_ROOT / "wordpress-plugin" / "stats-collector"
 
 
 class SourceIn(BaseModel):
-    kind: Literal["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram"]
+    kind: Literal["icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon"]
     name: str = Field(min_length=1, max_length=200)
     url: str = Field(default="", max_length=500)
     mounts: list[str] = Field(default_factory=list)
@@ -57,6 +57,8 @@ class SourceIn(BaseModel):
     config_id: str = Field(default="", max_length=100)  # Meta: Facebook Login for Business configuration
     graph_version: str = Field(default="", max_length=10, pattern=r"^(v?\d{1,3}\.\d{1,2})?$")
     metric_overrides: dict[str, str] = Field(default_factory=dict)  # Meta: our metric -> Graph name
+    account: str = Field(default="", max_length=300)  # Bluesky handle, Mastodon @name@server
+    access_token: str | None = Field(default=None, max_length=500)  # Mastodon (optional); None = keep, "" = remove
 
     @model_validator(mode="after")
     def _check(self):
@@ -71,6 +73,17 @@ class SourceIn(BaseModel):
                 for k, v in self.metric_overrides.items()
                 if k in meta.ALL_METRIC_KEYS and v.strip() and len(v) <= 80 and v.replace("_", "").strip().isalnum()
             }
+        elif self.kind == "bluesky":
+            self.account = social.clean_handle(self.account)
+            if not self.account:
+                raise ValueError("invalid_handle")
+            self.url = ""
+        elif self.kind == "mastodon":
+            self.url, self.account = social.clean_account(self.account, self.url)
+            if not self.account:
+                raise ValueError("invalid_account")
+            if not self.url.startswith("https://") or len(self.url) < 12:
+                raise ValueError("invalid_url")
         elif not self.url.startswith(("http://", "https://")) or len(self.url) < 8:
             raise ValueError("invalid_url")
         return self
@@ -99,6 +112,11 @@ def _config(body: SourceIn, old: dict | None = None) -> dict:
             "graph_version": body.graph_version.strip(),
             "metric_overrides": body.metric_overrides,
         }
+    if body.kind in social.KINDS:
+        old = old or {}
+        same = old.get("account") == body.account and old.get("url", "") == body.url
+        keep = {k: v for k, v in old.items() if k not in ("url", "account")} if same else {}
+        return {**keep, "url": body.url, "account": body.account}
     if body.kind == "wordpress":
         keep = {
             k: v for k, v in (old or {}).items() if k in ("site_name", "plugin_version", "wp_version", "site_timezone")
@@ -160,6 +178,20 @@ def meta_out(s: Source, secrets: dict) -> dict:
     }
 
 
+def social_out(s: Source, secrets: dict) -> dict:
+    cfg = s.config or {}
+    return {
+        "account": cfg.get("account", ""),
+        "access_token_set": bool(secrets.get("access_token")),
+        "account_name": cfg.get("account_name"),
+        "account_url": cfg.get("account_url"),
+        "handle": cfg.get("handle"),
+        "followers": cfg.get("followers"),
+        "connected": bool(cfg.get("account_id")),
+        "history_done": bool(cfg.get("posts_done")),
+    }
+
+
 def meta_redirect_uri() -> str:
     return f"{get_settings().public_url.rstrip('/')}/api/connectors/meta/callback"
 
@@ -197,6 +229,7 @@ def source_out(db: Session, s: Source, secret: str | None = None) -> dict:
         ),
         **(youtube_out(s, secrets) if s.kind == "youtube" else {}),
         **(meta_out(s, secrets) if s.kind in meta.KINDS else {}),
+        **(social_out(s, secrets) if s.kind in social.KINDS else {}),
         "last_poll_at": s.last_poll_at.isoformat() if s.last_poll_at else None,
         "last_ok_at": s.last_ok_at.isoformat() if s.last_ok_at else None,
         "last_error": s.last_error,
@@ -221,7 +254,16 @@ def _apply(s: Source, body: SourceIn) -> None:
             secrets["client_secret"] = body.client_secret.strip()
         s.secret_enc = encrypt_secret(json.dumps(secrets)) if secrets else None
         s.poll_seconds = 3600
-    if body.admin_password is not None and s.kind not in ("wordpress", *OAUTH_KINDS):
+    if s.kind in social.KINDS:
+        s.poll_seconds = 3600
+        if body.access_token is not None:
+            secrets = collect.source_secrets(s)
+            if body.access_token.strip():
+                secrets["access_token"] = body.access_token.strip()
+            else:
+                secrets.pop("access_token", None)
+            s.secret_enc = encrypt_secret(json.dumps(secrets)) if secrets else None
+    elif body.admin_password is not None and s.kind not in ("wordpress", *OAUTH_KINDS):
         secrets = collect.source_secrets(s)
         if body.admin_password:
             secrets["admin_password"] = body.admin_password
@@ -246,6 +288,10 @@ def create_source(body: SourceIn, db: Session = Depends(get_db), admin: User = D
     db.add(s)
     db.commit()
     audit(db, admin, "sources.create", {"id": s.id, "kind": s.kind, "name": s.name})
+    if s.kind in social.KINDS and s.enabled:
+        from ..worker import social_soon
+
+        social_soon(s.id)
     return source_out(db, s, secret)
 
 
@@ -326,6 +372,19 @@ def test_source(body: TestIn, db: Session = Depends(get_db), _: User = Depends(r
     secrets: dict = {}
     if body.id is not None:
         secrets = collect.source_secrets(_get(db, body.id))
+    if body.kind in social.KINDS:
+        if body.access_token is not None:
+            secrets = {"access_token": body.access_token.strip()} if body.access_token.strip() else {}
+        try:
+            account = social.lookup(body.kind, _config(body), secrets)
+        except ConnectorError as exc:
+            return {"ok": False, "error": str(exc)}
+        return {
+            "ok": True,
+            "online": True,
+            "info": {"server": account["handle"], "account": account["name"], "followers": account["followers"]},
+            "items": [],
+        }
     if body.admin_password is not None:
         secrets = {**secrets, "admin_password": body.admin_password} if body.admin_password else {}
     try:
@@ -360,6 +419,11 @@ def poll_now(source_id: int, db: Session = Depends(get_db), _: User = Depends(re
         from ..worker import meta_soon
 
         meta_soon(s.id)
+        return source_out(db, s)
+    if s.kind in social.KINDS:
+        from ..worker import social_soon
+
+        social_soon(s.id)
         return source_out(db, s)
     collect.poll_source(db, s)
     return source_out(db, s)

@@ -88,6 +88,25 @@ IG_FOLLOWS = "ig_follows"
 IG_FOLLOWERS = "ig_followers"
 IG_DAY_METRICS = (IG_VIEWS, IG_REACH, IG_LIKES, IG_COMMENTS, IG_SHARES, IG_SAVES, IG_PROFILE_VIEWS, IG_FOLLOWS)
 
+# Bluesky and Mastodon (public APIs, per day). They report no views or reach: only what people did
+# with a post, and the follower count. Daily numbers are the change in each post's totals between
+# syncs; new followers per day is the change in the follower count (net).
+BSKY_LIKES = "bsky_likes"
+BSKY_REPOSTS = "bsky_reposts"
+BSKY_REPLIES = "bsky_replies"
+BSKY_QUOTES = "bsky_quotes"
+BSKY_FOLLOWS = "bsky_follows"
+BSKY_FOLLOWERS = "bsky_followers"
+BSKY_POST_METRICS = (BSKY_LIKES, BSKY_REPOSTS, BSKY_REPLIES, BSKY_QUOTES)
+BSKY_DAY_METRICS = (*BSKY_POST_METRICS, BSKY_FOLLOWS)
+MASTO_FAVOURITES = "masto_favourites"
+MASTO_BOOSTS = "masto_boosts"
+MASTO_REPLIES = "masto_replies"
+MASTO_FOLLOWS = "masto_follows"
+MASTO_FOLLOWERS = "masto_followers"
+MASTO_POST_METRICS = (MASTO_FAVOURITES, MASTO_BOOSTS, MASTO_REPLIES)
+MASTO_DAY_METRICS = (*MASTO_POST_METRICS, MASTO_FOLLOWS)
+
 REGISTRY: tuple[Metric, ...] = (
     Metric("icecast", LIVE_AVG, "count", "avg", "live_audience", "Average listeners", "Gemiddeld aantal luisteraars"),
     Metric("icecast", LIVE_PEAK, "count", "max", "live_audience", "Peak listeners", "Piek luisteraars"),
@@ -129,6 +148,17 @@ REGISTRY: tuple[Metric, ...] = (
     Metric("instagram", IG_PROFILE_VIEWS, "count", "sum", "views", "Profile visits", "Profielbezoeken"),
     Metric("instagram", IG_FOLLOWS, "count", "sum", "followers", "New followers", "Nieuwe volgers"),
     Metric("instagram", IG_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
+    Metric("bluesky", BSKY_LIKES, "count", "sum", "interactions", "Likes", "Likes"),
+    Metric("bluesky", BSKY_REPOSTS, "count", "sum", "interactions", "Reposts", "Reposts"),
+    Metric("bluesky", BSKY_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),
+    Metric("bluesky", BSKY_QUOTES, "count", "sum", "interactions", "Quotes", "Citaten"),
+    Metric("bluesky", BSKY_FOLLOWS, "count", "sum", "followers", "New followers (net)", "Nieuwe volgers (netto)"),
+    Metric("bluesky", BSKY_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
+    Metric("mastodon", MASTO_FAVOURITES, "count", "sum", "interactions", "Favourites", "Favorieten"),
+    Metric("mastodon", MASTO_BOOSTS, "count", "sum", "interactions", "Boosts", "Boosts"),
+    Metric("mastodon", MASTO_REPLIES, "count", "sum", "interactions", "Replies", "Antwoorden"),
+    Metric("mastodon", MASTO_FOLLOWS, "count", "sum", "followers", "New followers (net)", "Nieuwe volgers (netto)"),
+    Metric("mastodon", MASTO_FOLLOWERS, "count", "gauge", "followers", "Followers", "Volgers"),
 )
 
 

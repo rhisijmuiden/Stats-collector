@@ -2,7 +2,7 @@
 
 ## Followers
 
-**Analytics → Followers** shows how the number of YouTube subscribers and Facebook and Instagram followers grows, per channel and for all channels together. Everyone can open it.
+**Analytics → Followers** shows how the number of YouTube subscribers and Facebook, Instagram, Bluesky and Mastodon followers grows, per channel and for all channels together. Everyone can open it.
 
 ![Followers](../images/en-followers.png)
 
@@ -25,7 +25,7 @@ A goal measures one of these, over all channels or the channels you pick:
 | Followers | the number of followers and subscribers reaches the target |
 | Views | page, video and post views since the start date add up to the target |
 | Reach | website visitors and social reach per day since the start date add up to the target |
-| Interactions | likes, reactions, comments, shares and saves since the start date add up to the target |
+| Interactions | likes, reactions, comments, shares and saves (Bluesky and Mastodon: likes or favourites, reposts or boosts, replies and quotes) since the start date add up to the target |
 | Listening and watching minutes | live minutes and YouTube watch time since the start date add up to the target |
 
 Each goal card shows the value now, the target, a progress bar and a status:

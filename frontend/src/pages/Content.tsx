@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink, Facebook, FileText, Globe, Instagram, Link2, Plus, Radio, Search, Tv, Unlink, Youtube } from "lucide-react";
+import { AtSign, Cloud, ExternalLink, Facebook, FileText, Globe, Instagram, Link2, Plus, Radio, Search, Tv, Unlink, Youtube } from "lucide-react";
 import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
 import { Alert, Card, Modal, PageHead, useLoad } from "../components/ui";
@@ -36,7 +36,8 @@ export const fmtSeconds = (s: number) => {
 export const channel = (kind: string) => (kind === "wordpress" ? "website" : kind);
 export const kindIcon = (kind: string | undefined) =>
   kind === "owncast" ? <Tv size={15} /> : kind === "icecast" ? <Radio size={15} /> : kind === "youtube" ? <Youtube size={15} />
-    : kind === "facebook" ? <Facebook size={15} /> : kind === "instagram" ? <Instagram size={15} /> : <Globe size={15} />;
+    : kind === "facebook" ? <Facebook size={15} /> : kind === "instagram" ? <Instagram size={15} /> : kind === "bluesky" ? <Cloud size={15} />
+    : kind === "mastodon" ? <AtSign size={15} /> : <Globe size={15} />;
 
 export function RangePicker({ value, onChange }: { value: Range; onChange: (r: Range) => void }) {
   const { t } = useTranslation();
@@ -166,8 +167,9 @@ export function ItemModal({ id: first, range, onClose }: { id: number; range: Ra
   const web = it?.source?.kind === "wordpress";
   const video = it?.source?.kind === "youtube";
   const social = it?.source?.kind === "facebook" || it?.source?.kind === "instagram";
+  const fedi = it?.source?.kind === "bluesky" || it?.source?.kind === "mastodon";
   const kpis: MetricKey[] = web ? ["views", "visitors", "reads", "shares"] : video ? ["views", "minutes", "likes", "comments", "shares"]
-    : social ? ["views", "reach", "likes", "comments", "shares", it?.source?.kind === "instagram" ? "saves" : "clicks"] : ["minutes", "peak"];
+    : fedi ? ["likes", "shares", "comments"] : social ? ["views", "reach", "likes", "comments", "shares", it?.source?.kind === "instagram" ? "saves" : "clicks"] : ["minutes", "peak"];
   return (
     <Modal title={it?.title ?? t("content.loading")} onClose={onClose}>
       {detail.error && <Alert kind="error">{errorText(detail.error)}</Alert>}

@@ -35,7 +35,7 @@ router = APIRouter(prefix="/api/dashboards", tags=["dashboards"])
 
 Measure = Literal["reach", "views", "interactions", "watch_minutes", "followers"]
 Split = Literal["none", "platform", "source"]
-Platform = Literal["website", "youtube", "facebook", "instagram", "owncast", "icecast"]
+Platform = Literal["website", "youtube", "facebook", "instagram", "bluesky", "mastodon", "owncast", "icecast"]
 MANAGES_SHARED = ("admin", "editor_in_chief")
 
 
@@ -46,7 +46,7 @@ class Widget(BaseModel):
     size: Literal["small", "half", "full"] = "half"
     measure: Measure = "reach"
     sources: list[int] = Field(default_factory=list, max_length=100)
-    platforms: list[Platform] = Field(default_factory=list, max_length=6)
+    platforms: list[Platform] = Field(default_factory=list, max_length=12)
     split: Split = "platform"
     mode: Literal["stacked", "overlay", "separate"] = "stacked"
     chart: Literal["line", "area", "bar"] = "area"
@@ -179,7 +179,7 @@ def data(
     range: Range = "30d",
     split: Split = "platform",
     sources: Annotated[list[int], Query(max_length=100)] = [],  # noqa: B006 - FastAPI query list
-    platforms: Annotated[list[Platform], Query(max_length=6)] = [],  # noqa: B006
+    platforms: Annotated[list[Platform], Query(max_length=12)] = [],  # noqa: B006
     compare: bool = True,
     db: Session = Depends(get_db),
     _: User = Depends(current_user),

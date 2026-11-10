@@ -163,7 +163,7 @@ class BackupRecord(Base):
 
 BIGID = BigInteger().with_variant(Integer, "sqlite")
 
-SOURCE_KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram")
+SOURCE_KINDS = ("icecast", "owncast", "wordpress", "youtube", "facebook", "instagram", "bluesky", "mastodon")
 
 # Canonical categories every platform metric is mapped to, so channels can be stacked.
 CATEGORIES = ("live_audience", "reach", "views", "interactions", "watch_time", "followers")

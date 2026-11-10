@@ -33,6 +33,7 @@ The same manual opens inside the application through the **Help** button at the 
 | WordPress (own plugin) | [WordPress](wordpress.md) | Available |
 | YouTube | [YouTube](youtube.md) | Available |
 | Facebook and Instagram | [Meta: Facebook and Instagram](meta.md) | Available |
+| Bluesky and Mastodon | [Bluesky and Mastodon](bluesky-mastodon.md) | Available |
 
 ## When something goes wrong
 
