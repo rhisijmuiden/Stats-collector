@@ -1104,7 +1104,7 @@
   },
   "livewalls": {
     "title": "Live walls",
-    "subtitle": "Alleen-lezen schermen voor de redactie: het afgelopen uur per kanaal, op poort 8081.",
+    "subtitle": "Alleen-lezen schermen voor de redactie: live publiek, social media en de topverhalen van vandaag, op poort 8081.",
     "add": "Nieuwe live wall",
     "edit": "Live wall bewerken",
     "defaultName": "Redactie",
@@ -1123,8 +1123,8 @@
     "confirmRotate": "Een nieuwe link maken voor \"{{name}}\"? Schermen met de oude link tonen hem dan niet meer.",
     "confirmDelete": "De live wall \"{{name}}\" verwijderen? De link werkt dan niet meer.",
     "channels": "Kanalen",
-    "allChannels": "alle radio, tv en websites",
-    "channelsHint": "Icecast, Owncast en websites. Niets gekozen betekent alles.",
+    "allChannels": "alle live en social kanalen",
+    "channelsHint": "Radio, tv, websites en social media. Niets gekozen betekent alles.",
     "allowIps": "Toegestane adressen",
     "everyone": "iedereen met de link",
     "allowIpsHint": "Optioneel: IP-adressen of netwerken (met komma's) die de wall mogen openen, bijv. het openbare IP-adres van de redactie.",
@@ -1136,7 +1136,9 @@
     "unit": {
       "listeners": "luisteraars",
       "viewers": "kijkers",
-      "views": "weergaven (5 min)"
+      "views": "weergaven (5 min)",
+      "viewsDay": "weergaven (dag)",
+      "interactionsDay": "interacties (dag)"
     },
     "addressTitle": "Adres van de walls",
     "addressText": "Voor als de walls een eigen reverse proxy en hostnaam hebben.",
@@ -1144,7 +1146,23 @@
     "publicUrlHint": "Het adres dat de reverse proxy doorstuurt naar poort 8081, bijv. https://live.example.org. Leeg: {{url}}.",
     "proxies": "Adressen van de reverse proxy (optioneel)",
     "proxiesHint": "IP-adressen of netwerken van de proxy voor de walls, als dat een andere machine is dan de hoofdproxy. Nodig zodat Toegestane adressen het echte bezoekersadres ziet.",
-    "addressSaved": "Adres opgeslagen. De links hieronder gebruiken het nu; de wall-dienst neemt de proxy binnen twee minuten over."
+    "addressSaved": "Adres opgeslagen. De links hieronder gebruiken het nu; de wall-dienst neemt de proxy binnen twee minuten over.",
+    "topPreview": "Topverhaal nu: {{title}} ({{n}} weergaven)",
+    "layout": "Schermen",
+    "layouts": {
+      "rotate": "Overzicht en topverhalen om en om",
+      "overview": "Alleen overzicht",
+      "stories": "Alleen topverhalen"
+    },
+    "layoutHint": {
+      "rotate": "De twee schermen wisselen elkaar af.",
+      "overview": "Grote cijfers en een tegel per kanaal.",
+      "stories": "De beste berichten van vandaag, stijgers en volgersdoelen."
+    },
+    "rotateSeconds": "Seconden per scherm",
+    "rotateSecondsHint": "10 tot 300 seconden.",
+    "everySeconds": "{{n}} s per scherm",
+    "showAuthors": "Namen van redacteuren tonen bij de topverhalen"
   },
   "reports": {
     "title": "Rapporten",

@@ -2,13 +2,15 @@
 
 GET    /api/livewalls                  admin: walls with their link
 POST   /api/livewalls                  admin: a new wall with a fresh, unguessable link
-PUT    /api/livewalls/{id}             admin: name, title, channels, allowed IPs, on/off
+PUT    /api/livewalls/{id}             admin: name, title, channels, layout, allowed IPs, on/off
 POST   /api/livewalls/{id}/rotate      admin: a new link; the old one stops working within a minute
 DELETE /api/livewalls/{id}             admin
 GET    /api/livewalls/{id}/preview     admin: the snapshot the wall shows now
 """
 
 from __future__ import annotations
+
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -35,6 +37,9 @@ class WallIn(BaseModel):
     source_ids: list[int] = Field(default_factory=list, max_length=50)
     allow_ips: str = Field(default="", max_length=1000)
     enabled: bool = True
+    layout: Literal["rotate", "overview", "stories"] = "rotate"
+    rotate_seconds: int = Field(default=30, ge=10, le=300)
+    show_authors: bool = True
 
     @field_validator("allow_ips")
     @classmethod
@@ -77,6 +82,9 @@ def _out(w: LiveWall, base: str) -> dict:
         "source_ids": w.source_ids or [],
         "allow_ips": w.allow_ips,
         "enabled": w.enabled,
+        "layout": w.layout or "rotate",
+        "rotate_seconds": w.rotate_seconds or 30,
+        "show_authors": bool(w.show_authors),
         "url": f"{base}/w/{token}",
         "created_at": w.created_at.isoformat() if w.created_at else None,
         "rotated_at": w.rotated_at.isoformat() if w.rotated_at else None,

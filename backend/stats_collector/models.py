@@ -372,11 +372,14 @@ class LiveWall(Base):
     tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
     name: Mapped[str] = mapped_column(String(200))
     title: Mapped[str] = mapped_column(String(200), default="")
-    source_ids: Mapped[Any] = mapped_column(JSON, default=list)  # empty = every live source
+    source_ids: Mapped[Any] = mapped_column(JSON, default=list)  # empty = every live and social source
     token_enc: Mapped[str] = mapped_column(Text)  # encrypted; the link is /w/<token>
     token_hash: Mapped[str] = mapped_column(String(64), unique=True)  # sha256 of the token: the snapshot key
     allow_ips: Mapped[str] = mapped_column(String(1000), default="")  # comma-separated IPs or networks
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    layout: Mapped[str] = mapped_column(String(16), default="rotate")  # rotate | overview | stories
+    rotate_seconds: Mapped[int] = mapped_column(Integer, default=30)  # time per screen when rotating
+    show_authors: Mapped[bool] = mapped_column(Boolean, default=True)  # editor names in the top stories
     created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     rotated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
