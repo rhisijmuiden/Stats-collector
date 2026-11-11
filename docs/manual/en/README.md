@@ -22,6 +22,10 @@ The same manual opens inside the application through the **Help** button at the 
 - [Content and editors](content.md)
 - [My dashboards](dashboards.md)
 - [Followers and goals](followers-and-goals.md)
+- [Stories over all channels](stories.md)
+- [Best posting times](best-times.md)
+- [Alerts on outliers (Teams, email)](alerts.md)
+- [Weekly summary per editor](weekly-summary.md)
 - [Live wall](live-wall.md)
 - [Reports](reports.md)
 

@@ -258,7 +258,8 @@ export default function Content() {
   const [person, setPerson] = useState("");
   const [q, setQ] = useState("");
   const [query, setQuery] = useState("");
-  const [open, setOpen] = useState<number | null>(null);
+  // ?item=<id> opens one item straight away (links in alerts and summaries).
+  const [open, setOpen] = useState<number | null>(() => Number(new URLSearchParams(window.location.search).get("item")) || null);
   const filters = useLoad(() => api.get<Filters>("/api/content/filters"));
   const params = new URLSearchParams({ range, sort, limit: "100" });
   if (source) params.set("source", source);

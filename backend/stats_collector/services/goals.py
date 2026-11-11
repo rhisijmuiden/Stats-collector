@@ -143,38 +143,110 @@ def _aware(dt: datetime) -> datetime:
     return dt if dt.tzinfo else dt.replace(tzinfo=UTC)
 
 
-def progress(db: Session, goal: Goal, now: datetime | None = None) -> dict:
-    """Everything a goal card and chart need."""
-    now = now or utcnow()
-    tz = org_timezone(db)
-    today = now.astimezone(tz).date()
-    end = goal.end_date
-    last = min(today, end) if end else today
-    first = goal.start_date
-    values = daily(db, goal, first, max(first, last), tz) if first <= today else {}
+PERIODS = ("none", "week", "month")
+HISTORY = 6  # earlier weeks or months shown with a recurring goal
+
+
+def window(goal: Goal, day: date) -> tuple[date, date | None]:
+    """The first and last day of the period that holds `day`.
+
+    A one-off goal runs from its start to its end date. A weekly goal starts again every Monday and
+    a monthly goal on the first of the month, each time with the same target (never before the
+    start date, never after the end date)."""
+    period = getattr(goal, "period", None) or "none"
+    if period == "week":
+        first = day - timedelta(days=day.weekday())
+        last = first + timedelta(days=6)
+    elif period == "month":
+        first = day.replace(day=1)
+        last = (first + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    else:
+        return goal.start_date, goal.end_date
+    first = max(first, goal.start_date)
+    if goal.end_date:
+        last = min(last, goal.end_date)
+    return first, last
+
+
+def _series(db: Session, goal: Goal, first: date, last: date, tz) -> tuple[list[date], list[float], float]:
+    """Days, the running value per day and the baseline.
+
+    Totals add up from zero. A count (followers) is the count itself for a one-off goal; for a weekly
+    or monthly goal it is the growth since the day before the period started."""
+    periodic = (getattr(goal, "period", None) or "none") != "none"
+    if kind(goal) == "level" and periodic:
+        values = daily(db, goal, first - timedelta(days=1), max(first, last), tz)
+        start = values.pop(first - timedelta(days=1), None)
+        days = sorted(values)
+        if start is None and days:
+            start = values[days[0]]
+        series = [round(values[d] - (start or 0), 2) for d in days]
+        return days, series, 0.0
+    values = daily(db, goal, first, max(first, last), tz)
     days = sorted(values)
     if kind(goal) == "total":
         running, series = 0.0, []
         for d in days:
             running += values[d]
             series.append(round(running, 2))
-        baseline = 0.0
+        return days, series, 0.0
+    series = [round(values[d], 2) for d in days]
+    return days, series, (series[0] if series else 0.0)
+
+
+def history(db: Session, goal: Goal, today: date, tz) -> list[dict]:
+    """Earlier weeks or months of a recurring goal: what was reached against the target."""
+    if (getattr(goal, "period", None) or "none") == "none":
+        return []
+    out = []
+    first, _ = window(goal, today)
+    for _ in range(HISTORY):
+        day = first - timedelta(days=1)
+        if day < goal.start_date:
+            break
+        first, last = window(goal, day)
+        _, series, _ = _series(db, goal, first, last, tz)
+        value = series[-1] if series else 0.0
+        target = target_on(db, goal, last, tz)
+        out.append(
+            {
+                "start": first.isoformat(),
+                "end": last.isoformat(),
+                "value": value,
+                "target": target,
+                "reached": value >= target,
+            }
+        )
+    return out
+
+
+def target_on(db: Session, goal: Goal, day: date, tz, revs: list[GoalRevision] | None = None) -> float:
+    """The target that applied on a day (revisions are dated when they were made)."""
+    revs = revisions(db, goal) if revs is None else revs
+    target = goal.target
+    for r in revs:
+        if _aware(r.changed_at).astimezone(tz).date() <= day:
+            target = r.target
+    if revs and _aware(revs[0].changed_at).astimezone(tz).date() > day:
+        target = revs[0].target
+    return target
+
+
+def progress(db: Session, goal: Goal, now: datetime | None = None) -> dict:
+    """Everything a goal card and chart need."""
+    now = now or utcnow()
+    tz = org_timezone(db)
+    today = now.astimezone(tz).date()
+    first, end = window(goal, today)
+    last = min(today, end) if end else today
+    if first <= today:
+        days, series, baseline = _series(db, goal, first, last, tz)
     else:
-        series = [round(values[d], 2) for d in days]
-        baseline = series[0] if series else 0.0
+        days, series, baseline = [], [], 0.0
     current = series[-1] if series else 0.0
 
-    # The target in force on each day (revisions are dated when they were made).
     revs = revisions(db, goal)
-    targets = []
-    for d in days:
-        target = goal.target
-        for r in revs:
-            if _aware(r.changed_at).astimezone(tz).date() <= d:
-                target = r.target
-        if revs and _aware(revs[0].changed_at).astimezone(tz).date() > d:
-            target = revs[0].target
-        targets.append(target)
+    targets = [target_on(db, goal, d, tz, revs) for d in days]
 
     # Trend: the average change per day over the last two weeks, carried on to the end date.
     forecast = None
@@ -203,6 +275,8 @@ def progress(db: Session, goal: Goal, now: datetime | None = None) -> dict:
         needed = round((goal.target - current) / max((end - last).days, 1), 2)
     return {
         "kind": kind(goal),
+        "period_start": first.isoformat(),
+        "period_end": end.isoformat() if end else None,
         "current": round(current, 2),
         "baseline": round(baseline, 2),
         "progress": round(pct, 1),
@@ -259,6 +333,12 @@ def check(db: Session, now: datetime | None = None) -> int:
     for goal in db.execute(select(Goal).where(Goal.archived.is_(False))).scalars():
         p = progress(db, goal, now)
         event = None
+        if goal.reached_at is not None and (goal.period or "none") != "none":
+            # A recurring goal can be reached again in every new week or month.
+            tz = org_timezone(db)
+            if _aware(goal.reached_at).astimezone(tz).date().isoformat() < p["period_start"]:
+                goal.reached_at = None
+                goal.behind_notified_at = None
         if p["status"] == "reached" and goal.reached_at is None:
             goal.reached_at = now
             event = "reached"
@@ -278,7 +358,7 @@ def check(db: Session, now: datetime | None = None) -> int:
                 "target": _fmt(goal.target),
                 "forecast": _fmt(p["forecast"]),
                 "needed": _fmt(p["needed_per_day"]),
-                "end": goal.end_date.isoformat() if goal.end_date else "–",
+                "end": p["period_end"] or "–",
             }
             text = body.format(**values)
             try:

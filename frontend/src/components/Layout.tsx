@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  Archive, BookOpen, FileBarChart, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers, MonitorPlay } from "lucide-react";
+  Archive, BookOpen, FileBarChart, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers, MonitorPlay, BellRing, Clock, Newspaper, MailCheck } from "lucide-react";
 import { useApp } from "../lib/app";
 import { api, type User } from "../lib/api";
 import { resolveMode } from "../lib/theme";
@@ -92,6 +92,9 @@ export default function Layout() {
         {user.role !== "staff" && item("/editors", UserCheck, t("nav.editors"))}
         {item("/followers", HeartHandshake, t("nav.followers"))}
         {item("/goals", Target, t("nav.goals"))}
+        {item("/stories", Newspaper, t("nav.stories"))}
+        {item("/best-times", Clock, t("nav.bestTimes"))}
+        {user.role !== "staff" && item("/alerts", BellRing, t("nav.alerts"))}
         {user.role !== "staff" && item("/reports", FileBarChart, t("nav.reports"))}
         {isAdmin && (
           <>
@@ -102,6 +105,7 @@ export default function Layout() {
             {item("/admin/livewalls", MonitorPlay, t("nav.livewalls"))}
             {item("/admin/branding", Palette, t("nav.branding"))}
             {item("/admin/email", Mail, t("nav.email"))}
+            {item("/admin/digest", MailCheck, t("nav.digest"))}
             {item("/admin/backup", Archive, t("nav.backup"))}
             {item("/admin/settings", Settings, t("nav.settings"))}
           </>

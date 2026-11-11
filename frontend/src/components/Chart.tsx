@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts/core";
-import { BarChart, LineChart } from "echarts/charts";
-import { DataZoomComponent, GridComponent, LegendComponent, TooltipComponent } from "echarts/components";
+import { BarChart, HeatmapChart, LineChart } from "echarts/charts";
+import { DataZoomComponent, GridComponent, LegendComponent, TooltipComponent, VisualMapComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import type { EChartsCoreOption } from "echarts/core";
 
-echarts.use([LineChart, BarChart, GridComponent, LegendComponent, TooltipComponent, DataZoomComponent, CanvasRenderer]);
+echarts.use([LineChart, BarChart, HeatmapChart, VisualMapComponent, GridComponent, LegendComponent, TooltipComponent, DataZoomComponent, CanvasRenderer]);
 
 /** Thin ECharts wrapper: resizes with its container and follows option changes. */
 export default function Chart({ option, className = "chart" }: { option: EChartsCoreOption; className?: string }) {

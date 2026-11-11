@@ -39,6 +39,8 @@ class GoalIn(BaseModel):
     target: float = Field(gt=0, lt=1e12)
     start_date: date
     end_date: date | None = None
+    period: Literal["none", "week", "month"] = "none"
+    show_on_wall: bool = True
     notify: bool = False
     notify_emails: list[EmailStr] = Field(default_factory=list, max_length=20)
     note: str = Field(default="", max_length=500)  # why the target changed
@@ -67,6 +69,8 @@ def _out(db: Session, goal: Goal, detail: bool = False) -> dict:
         "target": goal.target,
         "start_date": goal.start_date.isoformat(),
         "end_date": goal.end_date.isoformat() if goal.end_date else None,
+        "period": goal.period or "none",
+        "show_on_wall": goal.show_on_wall,
         "notify": goal.notify,
         "notify_emails": goal.notify_emails or [],
         "archived": goal.archived,
@@ -85,6 +89,7 @@ def _out(db: Session, goal: Goal, detail: bool = False) -> dict:
             }
             for r in svc.revisions(db, goal)
         ]
+        out["history"] = svc.history(db, goal, utcnow().astimezone(org_timezone(db)).date(), org_timezone(db))
     elif p["values"]:
         out["spark"] = p["values"][-30:]
     return out
@@ -133,7 +138,12 @@ def update_goal(goal_id: int, body: GoalIn, db: Session = Depends(get_db), user:
     goal = _get(db, goal_id)
     _check_sources(db, body.source_ids)
     changed = goal.target != body.target or goal.end_date != body.end_date
-    if goal.metric != body.metric or goal.start_date != body.start_date or goal.source_ids != body.source_ids:
+    if (
+        goal.metric != body.metric
+        or goal.start_date != body.start_date
+        or goal.source_ids != body.source_ids
+        or goal.period != body.period
+    ):
         goal.reached_at = None  # measured differently now
     for k, v in body.model_dump(exclude={"note", "notify_emails"}).items():
         setattr(goal, k, v)

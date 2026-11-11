@@ -45,4 +45,14 @@ Klik op een doel voor de details: het huidige tempo en het tempo dat per dag nod
 3. Je kunt het doel of de einddatum altijd wijzigen. Elke wijziging blijft bewaard in de **historie van het doel**, met de datum, wie het deed en de reden. De grafiek toont het doel dat op elk moment gold, zodat rapportages eerlijk laten zien wat het doel toen was.
 4. **Archiveer** een afgerond doel om het uit de lijst te halen; het staat dan onder **Gearchiveerd**.
 
+### Week- en maanddoelen
+
+Bij **Herhalen** is een doel **Eenmalig** (van de startdatum tot de einddatum), **Elke week** (maandag tot en met zondag) of **Elke maand**. Een herhalend doel begint elke week of maand opnieuw met hetzelfde doel, bijvoorbeeld *5.000 Facebook-weergaven per week*. Bij volgers telt de groei binnen de week of maand, bijvoorbeeld *+200 Instagram-volgers per maand*. De kaart toont *deze week* of *deze maand*; de details tonen de **vorige weken** of **maanden** met wat er gehaald is tegenover het doel. Een mail "gehaald" gaat elke nieuwe week of maand opnieuw uit.
+
+### Doelen per kanaal
+
+Kies één kanaal om een doel voor alleen dat kanaal te maken. De lijst **Kanaal** bovenaan toont alleen de doelen van één kanaal, of de doelen over alle kanalen samen. Het eigen doel van een kanaal staat ook als ring op de tegel van dat kanaal op de [live walls](live-wall.md).
+
+**Tonen op de live walls** (staat standaard aan) zet het doel op het scherm met topverhalen van de walls; volgersdoelen komen eerst.
+
 Het dashboard toont de actieve doelen met hun voortgangsbalk onder **Doelen**.

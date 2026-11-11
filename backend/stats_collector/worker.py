@@ -7,6 +7,8 @@ Schedule:
     every 10 s   find sources whose poll interval has passed and poll them (Icecast, Owncast)
     every 5 min  roll samples up into hourly/daily/monthly metric points
     every 15 min sync YouTube channels that are due (every 3 hours; while importing history every run)
+    every 15 min look for outliers and send alerts (Teams, email)
+    every 10 min send the weekly summary per editor when its day and time have come
     daily        delete raw samples older than one year
 """
 
@@ -49,6 +51,12 @@ celery_app.conf.update(
         "livewall": {"task": "stats_collector.livewall", "schedule": 60.0, "options": {"expires": 55}},
         "reports": {"task": "stats_collector.reports", "schedule": 120.0, "options": {"expires": 110}},
         "goals": {"task": "stats_collector.goals", "schedule": crontab(minute=40), "options": {"expires": 3000}},
+        "alerts": {
+            "task": "stats_collector.alerts",
+            "schedule": crontab(minute="8,23,38,53"),
+            "options": {"expires": 800},
+        },
+        "digest": {"task": "stats_collector.digest", "schedule": 600.0, "options": {"expires": 590}},
         "prune-samples": {"task": "stats_collector.prune", "schedule": crontab(hour=3, minute=17)},
     },
 )
@@ -341,6 +349,24 @@ def poll_soon(source_id: int) -> None:
 def reports_task() -> int:
     """Scheduled reports whose time has come: generate, make the PDF and email them."""
     from .services.reports import run_due
+
+    with session_factory()() as db:
+        return run_due(db)
+
+
+@celery_app.task(name="stats_collector.alerts")
+def alerts_task() -> int:
+    """Outliers: stories, posts and channels doing much better than usual."""
+    from .services.alerts import check
+
+    with session_factory()() as db:
+        return check(db)
+
+
+@celery_app.task(name="stats_collector.digest")
+def digest_task() -> int:
+    """The weekly summary per editor, once a week on the chosen day and time."""
+    from .services.digest import run_due
 
     with session_factory()() as db:
         return run_due(db)

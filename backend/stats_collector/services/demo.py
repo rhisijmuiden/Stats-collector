@@ -215,6 +215,7 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
         + auto_link(db)["added"]
         + create_demo_dashboard(db)
         + create_demo_report(db, now=now)
+        + create_demo_insights(db, now=now)
     )
 
 
@@ -812,3 +813,114 @@ def create_demo_goals(db: Session, now: datetime | None = None) -> int:
             db.add(GoalRevision(goal_id=goal.id, target=t, end_date=end, note=note, changed_at=when))
     db.commit()
     return len(plans)
+
+
+def create_demo_insights(db: Session, now: datetime | None = None) -> int:
+    """An alert rule with a few alerts, a story over website, Facebook and radio, a weekly goal and
+    the weekly summary switched on (for trying out and the manual's screenshots)."""
+    from zoneinfo import ZoneInfo
+
+    from ..models import AlertEvent, AlertRule, Goal, GoalRevision, Person, Story
+    from . import settings_store
+    from .measures import item_values
+
+    tz = ZoneInfo("Europe/Amsterdam")
+    now = now or utcnow()
+    today = now.astimezone(tz).date()
+    sources = {s.name: s for s in db.execute(select(Source)).scalars()}
+
+    rule = AlertRule(
+        name="Stories going hard",
+        scope="item",
+        factor=3,
+        min_value=500,
+        emails=["desk@example.org"],
+        language="en",
+        quiet_start="23:00",
+        quiet_end="07:00",
+    )
+    channel_rule = AlertRule(name="Busy channels", scope="channel", factor=2.5, min_value=200, language="en")
+    db.add_all([rule, channel_rule])
+    db.flush()
+    items = list(db.execute(select(ContentItem).where(ContentItem.published_at >= now - timedelta(days=3))).scalars())
+    values = item_values(db, [i.id for i in items])
+    best = sorted(items, key=lambda i: -values[i.id]["views"])[:4]
+    for n, item in enumerate(best):
+        value = values[item.id]["views"]
+        if not value:
+            continue
+        db.add(
+            AlertEvent(
+                rule_id=rule.id,
+                key=f"item:{item.id}",
+                source_id=item.source_id,
+                item_id=item.id,
+                title=f"🔥 Going hard: {item.title}",
+                measure="views",
+                value=value,
+                usual=round(value / (3.2 + n * 0.7)),
+                at=now - timedelta(hours=2 + n * 7),
+                delivered=["email"],
+            )
+        )
+    site = sources.get("Demo Website")
+    if site is not None:
+        db.add(
+            AlertEvent(
+                rule_id=channel_rule.id,
+                key=f"source:{site.id}:demo",
+                source_id=site.id,
+                title="📈 Demo Website is busier than usual",
+                measure="views",
+                value=1840,
+                usual=610,
+                at=now - timedelta(hours=5),
+                delivered=[],
+            )
+        )
+
+    article = (
+        db.execute(select(ContentItem).where(ContentItem.title == "Nieuwe brug over het kanaal geopend"))
+        .scalars()
+        .first()
+    )
+    radio = sources.get("Demo Radio")
+    slot = (now - timedelta(days=1)).astimezone(tz).replace(hour=8, minute=10, second=0, microsecond=0)
+    db.add(
+        Story(
+            name="The new bridge over the canal",
+            description="The opening of the new bridge, on the website, social media, YouTube and the radio.",
+            item_ids=[article.id] if article else [],
+            keywords=["brug", "bridge"],
+            radio=[
+                {
+                    "source_id": radio.id,
+                    "start": slot.isoformat(),
+                    "end": (slot + timedelta(minutes=20)).isoformat(),
+                    "label": "Interview with the alderman",
+                }
+            ]
+            if radio
+            else [],
+            start_date=today - timedelta(days=29),
+        )
+    )
+
+    fb = sources.get("Demo Facebook")
+    goal = Goal(
+        name="Facebook views per week",
+        metric="views",
+        source_ids=[fb.id] if fb else [],
+        target=5_000,
+        period="week",
+        start_date=today - timedelta(days=42),
+    )
+    db.add(goal)
+    db.flush()
+    db.add(GoalRevision(goal_id=goal.id, target=goal.target, changed_at=now - timedelta(days=42)))
+    for person in db.execute(select(Person)).scalars():
+        if not person.email:
+            person.email = person.display_name.split()[0].lower() + "@news.example.org"
+    db.commit()
+    settings_store.update_section(db, "digest", {"enabled": True, "weekday": 0, "time": "08:00"})
+    return 1

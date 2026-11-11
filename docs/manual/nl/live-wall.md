@@ -3,7 +3,7 @@
 Een live wall is een alleen-lezen scherm voor een tv op de redactievloer. Je ziet in één oogopslag hoe de kanalen het nu doen en hoe de berichten scoren op social media. Twee schermen wisselen elkaar af (standaard elke 30 seconden):
 
 - **Overzicht**: drie grote cijfers (live publiek, weergaven vandaag, interacties vandaag) en een tegel per kanaal met het getal, een lijn van het laatste uur of de laatste 7 dagen, de verandering in volgers en, als het kanaal een eigen volgersdoel heeft, een ring met de voortgang. Onderin loopt een ticker met de beste verhalen.
-- **Topverhalen**: de beste berichten van vandaag van alle kanalen in één race op weergaven, met de redacteur, pijltjes voor berichten die stijgen of zakken, de snelste stijgers van het laatste uur en de volgersdoelen met de datum waarop ze naar verwachting gehaald worden.
+- **Topverhalen**: de beste berichten van vandaag van alle kanalen in één race op weergaven, met de redacteur, pijltjes voor berichten die stijgen of zakken, de snelste stijgers van het laatste uur en de doelen (volgers eerst, ook week- en maanddoelen) met de datum waarop ze naar verwachting gehaald worden.
 
 Cijfers tellen op en de race schuift vanzelf als er nieuwe cijfers binnenkomen. Er is geen login nodig: elke wall heeft een eigen lange, onraadbare link.
 
@@ -49,7 +49,7 @@ Social media melden per dag. Het label rechtsboven op een social tegel laat zien
 - **Weergaven vandaag** en **Interacties vandaag** tellen alle kanalen op de wall op, met het totaal van gisteren ernaast om te vergelijken. De lijn toont de laatste 7 dagen.
 - **Topverhalen** zet de items (artikelen, berichten en video's) van alle kanalen op de wall op volgorde van weergaven vandaag. Vroeg in de ochtend, zolang minder dan drie items vandaag weergaven hebben, toont de wall de lijst van gisteren en zegt dat erbij.
 - **Snelste stijgers** toont de items die het laatste uur de meeste weergaven erbij kregen. Dit verschijnt nadat de wall een paar minuten draait.
-- **Volgersdoelen** toont de actieve doelen op volgers (zie [Volgers en doelen](followers-and-goals.md)). Een wall met gekozen kanalen toont alleen doelen binnen die kanalen.
+- **Doelen** toont de actieve doelen met **Tonen op de live walls**, volgersdoelen eerst; week- en maanddoelen tonen *deze week* of *deze maand* (zie [Volgers en doelen](followers-and-goals.md)). Een wall met gekozen kanalen toont alleen doelen binnen die kanalen.
 
 ## Adres en reverse proxy
 

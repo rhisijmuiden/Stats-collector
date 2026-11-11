@@ -338,6 +338,9 @@ class Goal(Base):
     target: Mapped[float] = mapped_column(Float)
     start_date: Mapped[date] = mapped_column(Date)
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    # none = one period from start to end date; week / month = a new target every week or month
+    period: Mapped[str] = mapped_column(String(8), default="none")
+    show_on_wall: Mapped[bool] = mapped_column(Boolean, default=True)
     notify: Mapped[bool] = mapped_column(Boolean, default=False)
     notify_emails: Mapped[Any] = mapped_column(JSON, default=list)
     reached_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -451,3 +454,69 @@ class ReportRun(Base):
     recipients: Mapped[Any] = mapped_column(JSON, default=list)
     status: Mapped[str] = mapped_column(String(10), default="generated")  # generated | sent | failed
     error: Mapped[str] = mapped_column(String(500), default="")
+
+
+# --- Insights: alerts, stories and the weekly editor summary ---------------------------------------
+
+
+class AlertRule(Base):
+    """When to warn about an outlier, and where to send it (see services/alerts.py)."""
+
+    __tablename__ = "alert_rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    scope: Mapped[str] = mapped_column(String(16), default="item")  # item | channel
+    source_ids: Mapped[Any] = mapped_column(JSON, default=list)  # empty = all sources
+    factor: Mapped[float] = mapped_column(Float, default=3.0)  # times the usual value
+    min_value: Mapped[float] = mapped_column(Float, default=500)  # ignore anything smaller
+    teams_webhook_enc: Mapped[str | None] = mapped_column(Text, nullable=True)
+    emails: Mapped[Any] = mapped_column(JSON, default=list)
+    language: Mapped[str] = mapped_column(String(5), default="en")
+    quiet_start: Mapped[str] = mapped_column(String(5), default="")  # "23:00": no messages from then
+    quiet_end: Mapped[str] = mapped_column(String(5), default="")  # "07:00": until then
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class AlertEvent(Base):
+    """One outlier that was found; also makes sure the same outlier is reported only once."""
+
+    __tablename__ = "alert_events"
+    __table_args__ = (UniqueConstraint("rule_id", "key", name="uq_alert_events_rule_key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    rule_id: Mapped[int | None] = mapped_column(ForeignKey("alert_rules.id", ondelete="CASCADE"), nullable=True)
+    key: Mapped[str] = mapped_column(String(100))  # item:<id> or source:<id>:<bucket>
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"), nullable=True)
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("content_items.id", ondelete="CASCADE"), nullable=True)
+    title: Mapped[str] = mapped_column(String(500), default="")
+    measure: Mapped[str] = mapped_column(String(32), default="views")
+    value: Mapped[float] = mapped_column(Float, default=0)
+    usual: Mapped[float] = mapped_column(Float, default=0)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    delivered: Mapped[Any] = mapped_column(JSON, default=list)  # ["teams", "email"]
+    error: Mapped[str] = mapped_column(String(500), default="")
+
+
+class Story(Base):
+    """One story followed over every channel: articles, posts, videos, broadcasts and radio slots."""
+
+    __tablename__ = "stories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True, default=DEFAULT_TENANT_ID)
+    name: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    item_ids: Mapped[Any] = mapped_column(JSON, default=list)  # chosen items; linked posts come along
+    excluded_ids: Mapped[Any] = mapped_column(JSON, default=list)
+    keywords: Mapped[Any] = mapped_column(JSON, default=list)  # items whose title contains one come along
+    radio: Mapped[Any] = mapped_column(JSON, default=list)  # [{source_id, start, end, label}]
+    start_date: Mapped[date] = mapped_column(Date)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)

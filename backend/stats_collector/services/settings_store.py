@@ -14,6 +14,15 @@ DEFAULTS: dict[str, dict[str, Any]] = {
     # Live walls: the address screens use (when the wall service has its own reverse proxy) and
     # extra proxy addresses the wall service trusts for X-Forwarded-For.
     "livewall": {"public_url": "", "trusted_proxies": ""},
+    # Weekly summary per editor (services/digest.py); last_week is the ISO week last sent.
+    "digest": {
+        "enabled": False,
+        "weekday": 0,
+        "time": "08:00",
+        "ranking": True,
+        "excluded_person_ids": [],
+        "last_week": "",
+    },
     "general": {
         "organization": "Stats Collector",
         "default_language": "en",
