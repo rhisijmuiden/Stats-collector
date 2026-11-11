@@ -144,7 +144,8 @@ def _metrics(db, source_id, item_id=None):
     return out
 
 
-def test_bluesky_sync(admin, fake):
+def test_bluesky_sync(admin, fake, api_clock):
+    api_clock(NOW + timedelta(hours=4))
     from sqlalchemy import select
 
     from stats_collector.db import session_factory

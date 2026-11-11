@@ -112,6 +112,11 @@ def create_app() -> FastAPI:
             app.mount("/assets", StaticFiles(directory=assets), name="assets")
         index = static / "index.html"
 
+        @app.api_route("/api/{path:path}", methods=["POST", "PUT", "PATCH", "DELETE"], include_in_schema=False)
+        def api_missing(path: str):
+            # Without this a POST to an unknown /api address hits the page route below and gets 405.
+            return JSONResponse(status_code=404, content={"detail": "not_found"})
+
         @app.get("/{path:path}", include_in_schema=False)
         def spa(path: str):
             if path.startswith("api/"):

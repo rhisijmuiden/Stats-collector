@@ -69,3 +69,16 @@ def admin(client):
     )
     assert r.status_code == 200, r.text
     return client, {"X-CSRF-Token": r.json()["csrf_token"]}
+
+
+@pytest.fixture()
+def api_clock(monkeypatch):
+    """Sets the clock the API uses for ranges ("last 30 days"), for tests whose data is made at a fixed time."""
+
+    def freeze(now):
+        from stats_collector.api import content, dashboard, goals
+
+        for module in (content, dashboard, goals):
+            monkeypatch.setattr(module, "utcnow", lambda: now)
+
+    return freeze

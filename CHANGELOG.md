@@ -125,6 +125,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Een release die je zelf op GitHub aanmaakt (Releases → Draft a new release) wordt automatisch aangevuld met de releasenotes en het pakket.
 
 ### Fixed
+- WordPress plugin: sending failed with HTTP 405 when the full ingest address was pasted as the Stats Collector address. Sources now shows only the base address, the plugin (0.3.1) keeps only the address part of whatever is pasted and explains a 404 or 405, and an unknown `/api` address answers 404 instead of 405.
+  NL: WordPress-plugin: versturen mislukte met HTTP 405 als het volledige ingest-adres als adres van Stats Collector was geplakt. Bronnen toont nu alleen het basisadres, de plugin (0.3.1) houdt alleen het adresdeel over van wat er geplakt wordt en legt een 404 of 405 uit, en een onbekend `/api`-adres antwoordt 404 in plaats van 405.
 - The online manual keeps only the newest test version, so the GitHub Pages deploy no longer times out; **Help** in a test build opens that test manual.
   NL: De online handleiding bewaart alleen de nieuwste testversie, zodat het publiceren op GitHub Pages niet meer vastloopt; **Help** in een testbuild opent die testhandleiding.
 - New live walls with a stream channel (Icecast or Owncast) showed "This wall does not exist or was switched off" on PostgreSQL: the snapshot query used `max()` on a yes/no column, which PostgreSQL does not have. The tests now also run against PostgreSQL.

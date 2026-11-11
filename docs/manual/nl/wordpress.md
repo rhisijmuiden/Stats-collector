@@ -79,5 +79,6 @@ Is de verbinding een tijdje weg, dan haalt de plugin het zelf in, 24 uur per min
 | *de sitesleutel of het geheim klopt niet* | Kopieer beide opnieuw uit Stats Collector, of maak een nieuwe sleutel en een nieuw geheim. |
 | *de klok van deze server loopt meer dan vijf minuten verkeerd* | Zet tijdsynchronisatie (NTP) aan op de webserver. |
 | *deze site staat op pauze in Stats Collector* | Zet **Gegevens ophalen van deze bron** weer aan onder Bronnen. |
+| *HTTP 405* of *HTTP 404* | Het adres van Stats Collector in de plugin klopt niet. Vul alleen het adres in met `https://`, bijvoorbeeld `https://stats.example.org`, zonder `/api/…` of een pagina erachter. Plugin 0.3.1 en nieuwer halen zo'n pad zelf weg. |
 | Een verbindingsfout (cURL) | De webserver kan Stats Collector niet bereiken: controleer het adres, de firewall en het HTTPS-certificaat. |
 | Geen cijfers terwijl de test werkt | Controleer of WordPress-cron draait (**Volgende verzending** in de status hoort binnen een minuut te liggen) en dat je niet test terwijl je als redacteur bent ingelogd. |

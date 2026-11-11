@@ -4,6 +4,7 @@ return ['domain' => 'stats-collector', 'language' => 'nl_NL', 'messages' => [
     'Behind a proxy or CDN' => 'Achter een proxy of CDN',
     'Choose CF-Connecting-IP behind Cloudflare. The address is only used for the daily visitor hash and is never stored.' => 'Kies CF-Connecting-IP achter Cloudflare. Het adres wordt alleen gebruikt voor de dagelijkse bezoekershash en nooit opgeslagen.',
     'Connection' => 'Verbinding',
+    'HTTP %d: check the Stats Collector address. Enter only the address with https://, for example https://stats.example.org.' => 'HTTP %d: controleer het adres van Stats Collector. Vul alleen het adres in met https://, bijvoorbeeld https://stats.example.org.',
     'Connection failed: %s' => 'Verbinding mislukt: %s',
     'Connection works. Stats Collector knows this site as "%s".' => 'De verbinding werkt. Stats Collector kent deze site als "%s".',
     'Content types' => 'Soorten inhoud',
