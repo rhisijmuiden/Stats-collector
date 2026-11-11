@@ -31,6 +31,19 @@ final class SC_Admin
         return array_merge(self::DEFAULTS, is_array($saved) ? $saved : []);
     }
 
+    /**
+     * Only the address of Stats Collector (scheme, host and port). People paste the full ingest
+     * address from Stats Collector too, or a page they had open; the plugin adds the path itself.
+     */
+    public static function base_url(string $url): string
+    {
+        $url = trim($url);
+        if (!preg_match('#^(https?://[^/?\#]+)#i', $url, $m)) {
+            return '';
+        }
+        return $m[1];
+    }
+
     public static function setting(string $name)
     {
         return self::settings()[$name] ?? null;
@@ -68,7 +81,7 @@ final class SC_Admin
         check_admin_referer('sc_save');
         $s = self::settings();
         $url = esc_url_raw(trim(wp_unslash($_POST['url'] ?? '')));
-        $s['url'] = preg_match('#^https?://#', $url) ? rtrim($url, '/') : '';
+        $s['url'] = self::base_url($url);
         $s['key'] = sanitize_text_field(wp_unslash($_POST['key'] ?? ''));
         $secret = trim((string) wp_unslash($_POST['secret'] ?? ''));
         if ($secret !== '') {

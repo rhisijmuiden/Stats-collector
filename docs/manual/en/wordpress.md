@@ -79,5 +79,6 @@ If the connection is down for a while, the plugin catches up by itself, 24 hours
 | *the site key or secret is wrong* | Copy both again from Stats Collector, or make a new key and secret. |
 | *the clock of this server is more than five minutes off* | Turn on time synchronisation (NTP) on the web server. |
 | *this site is paused in Stats Collector* | Turn **Collect from this source** back on under Sources. |
+| *HTTP 405* or *HTTP 404* | The Stats Collector address in the plugin is wrong. Enter only the address with `https://`, for example `https://stats.example.org`, without `/api/…` or a page after it. Plugin 0.3.1 and later strip such a path by themselves. |
 | A connection error (cURL) | The web server cannot reach Stats Collector: check the address, the firewall and the HTTPS certificate. |
 | No numbers although the test works | Check that WordPress cron runs (**Next batch** in the status should be within a minute) and that you are not testing while logged in as an editor. |

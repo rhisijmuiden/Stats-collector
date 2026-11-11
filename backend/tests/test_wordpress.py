@@ -15,9 +15,7 @@ def _site(client, csrf):
     )
     assert r.status_code == 200, r.text
     body = r.json()
-    assert (
-        body["site_key"].startswith("sck_") and body["secret"] and body["ingest_url"].endswith("/api/ingest/wordpress")
-    )
+    assert body["site_key"].startswith("sck_") and body["secret"] and "/api/" not in body["ingest_url"]
     return body
 
 
@@ -173,3 +171,9 @@ def test_editor_sees_only_own_numbers_staff_none(admin):
     assert client.get("/api/editors").status_code == 403
     assert client.get("/api/content/filters").json()["people"] == []
     assert "authors" not in client.get("/api/content/top").json()["items"][0]
+
+
+def test_wrong_ingest_address_is_404(client):
+    # A plugin with the full ingest address pasted posts to /api/ingest/wordpress/api/ingest/wordpress.
+    r = client.post("/api/ingest/wordpress/api/ingest/wordpress", json={})
+    assert r.status_code == 404

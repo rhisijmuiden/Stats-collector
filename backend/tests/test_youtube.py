@@ -146,7 +146,8 @@ def test_connect_flow(admin, google):
     assert out["connected"] is False and out["client_secret_set"] and google.revoked
 
 
-def test_sync_imports_history_and_subscribers(admin, google):
+def test_sync_imports_history_and_subscribers(admin, google, api_clock):
+    api_clock(NOW + timedelta(hours=4))
     client, csrf = admin
     s = _create(client, csrf)
     from stats_collector.db import session_factory

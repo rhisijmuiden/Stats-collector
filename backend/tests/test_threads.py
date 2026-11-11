@@ -92,7 +92,8 @@ def fake(monkeypatch):
     return f
 
 
-def test_threads_connect_and_sync(admin, fake):
+def test_threads_connect_and_sync(admin, fake, api_clock):
+    api_clock(NOW + timedelta(hours=4))
     from sqlalchemy import func, select
 
     from stats_collector.api.threads import STATE_COOKIE
