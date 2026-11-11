@@ -157,7 +157,8 @@ def webhook_url(source: Source) -> str | None:
 
 
 def ingest_url() -> str:
-    return f"{get_settings().public_url.rstrip('/')}/api/ingest/wordpress"
+    """The address to paste in the plugin: only the base address; the plugin adds /api/ingest/wordpress."""
+    return get_settings().public_url.rstrip("/")
 
 
 def youtube_out(s: Source, secrets: dict) -> dict:

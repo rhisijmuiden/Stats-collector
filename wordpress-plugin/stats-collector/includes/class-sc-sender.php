@@ -58,7 +58,7 @@ final class SC_Sender
     /** @return array{0: bool, 1: string, 2: array|null} */
     public static function send(array $payload): array
     {
-        $url = rtrim((string) SC_Admin::setting('url'), '/') . '/api/ingest/wordpress';
+        $url = SC_Admin::base_url((string) SC_Admin::setting('url')) . '/api/ingest/wordpress';
         $body = wp_json_encode($payload);
         $ts = (string) time();
         $signature = 'sha256=' . hash_hmac('sha256', $ts . '.' . $body, (string) SC_Admin::setting('secret'));
@@ -77,6 +77,13 @@ final class SC_Sender
             return [false, $response->get_error_message(), null];
         }
         $code = wp_remote_retrieve_response_code($response);
+        if ($code === 404 || $code === 405) {
+            return [false, sprintf(
+                /* translators: %d: HTTP status code */
+                __('HTTP %d: check the Stats Collector address. Enter only the address with https://, for example https://stats.example.org.', 'stats-collector'),
+                $code
+            ), null];
+        }
         $data = json_decode(wp_remote_retrieve_body($response), true);
         if ($code !== 200 || !is_array($data) || empty($data['ok'])) {
             $error = is_array($data) && !empty($data['error']) ? (string) $data['error'] : 'HTTP ' . $code;
