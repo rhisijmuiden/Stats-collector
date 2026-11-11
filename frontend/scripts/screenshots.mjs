@@ -3,6 +3,8 @@
 import { chromium } from "playwright";
 
 const [base = "http://127.0.0.1:8080", setupLink] = process.argv.slice(2);
+// ONLY=best-times,stories retakes just those screens.
+const only = process.env.ONLY ? process.env.ONLY.split(",") : null;
 const out = new URL("../../docs/manual/images/", import.meta.url).pathname;
 // Steps for screens that need more than one click: an article with linked posts, an editor's social numbers.
 async function openLinkedArticle(page) {
@@ -43,9 +45,10 @@ async function openLiveWallStories(page, lang) {
 
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
+  ["/stories", "stories"], ["/stories", "story-detail", ".story-card"], ["/best-times", "best-times"], ["/alerts", "alerts"], ["/alerts", "alerts-edit", '.alert-rule button:has(svg.lucide-pencil)'],
   ["/reports", "reports"], ["/reports", "reports-edit", '.report-list .card button:has(svg.lucide-pencil)'], ["/reports", "reports-archive", "button:has(svg.lucide-history)"], ["/reports/runs/1", "report-view"],
   ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories],
-  ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/email", "email-graph", ".card .seg button"], ["/admin/branding", "branding"],
+  ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/email", "email-graph", ".card .seg button"], ["/admin/digest", "digest"], ["/admin/digest", "digest-preview", "button:has(svg.lucide-eye)"], ["/admin/branding", "branding"],
 ];
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
@@ -79,6 +82,7 @@ for (const lang of ["en", "nl"]) {
     });
   }, lang);
   for (const [path, name, click] of SCREENS) {
+    if (only && !only.includes(name)) continue;
     await page.goto(base + path);
     await page.waitForLoadState("networkidle");
     if (typeof click === "function") await click(page, lang);

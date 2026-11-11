@@ -377,13 +377,17 @@ def _linked(db: Session, item: ContentItem, start: datetime, end: datetime, gran
 @router.get("/content/find")
 def find_items(
     q: str = Query(default="", max_length=200),
-    side: Literal["article", "social"] = "article",
+    side: Literal["article", "social", "any"] = "article",
     db: Session = Depends(get_db),
     _: User = Depends(current_user),
 ) -> list[dict]:
     """Search by title or address, for picking an item to link to."""
-    kinds = link_svc.ARTICLE_KINDS if side == "article" else link_svc.SOCIAL_KINDS
-    stmt = select(ContentItem).where(ContentItem.kind.in_(kinds))
+    stmt = select(ContentItem)
+    if side != "any":  # any: also broadcasts, for stories
+        kinds = link_svc.ARTICLE_KINDS if side == "article" else link_svc.SOCIAL_KINDS
+        stmt = stmt.where(ContentItem.kind.in_(kinds))
+    else:
+        stmt = stmt.where(ContentItem.kind != "mount")
     if q.strip():
         term = f"%{q.strip()}%"
         stmt = stmt.where(or_(ContentItem.title.ilike(term), ContentItem.url.ilike(term)))

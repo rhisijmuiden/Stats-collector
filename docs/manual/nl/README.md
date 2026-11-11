@@ -22,6 +22,10 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 - [Content en redacteuren](content.md)
 - [Mijn dashboards](dashboards.md)
 - [Volgers en doelen](followers-and-goals.md)
+- [Verhalen over alle kanalen](stories.md)
+- [Beste posttijden](best-times.md)
+- [Meldingen bij uitschieters (Teams, e-mail)](alerts.md)
+- [Weekoverzicht per redacteur](weekly-summary.md)
 - [Live wall](live-wall.md)
 - [Rapporten](reports.md)
 

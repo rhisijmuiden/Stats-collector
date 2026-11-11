@@ -20,6 +20,10 @@ import Profile from "./pages/Profile";
 import Content from "./pages/Content";
 import EditorsPage from "./pages/Editors";
 import ReportsPage from "./pages/Reports";
+import AlertsPage from "./pages/Alerts";
+import BestTimesPage from "./pages/BestTimes";
+import StoriesPage from "./pages/Stories";
+import DigestPage from "./pages/Digest";
 import PublicReport, { ArchivedReport } from "./pages/ReportView";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
@@ -33,6 +37,11 @@ function RequireAuth({ children }: { children: JSX.Element }) {
 function EditorsOnly({ children }: { children: JSX.Element }) {
   const { user } = useApp();
   return user && ["admin", "editor_in_chief", "editor"].includes(user.role) ? children : <Navigate to="/" replace />;
+}
+
+function EditorsInChief({ children }: { children: JSX.Element }) {
+  const { user } = useApp();
+  return user && ["admin", "editor_in_chief"].includes(user.role) ? children : <Navigate to="/" replace />;
 }
 
 function AdminOnly({ children }: { children: JSX.Element }) {
@@ -55,6 +64,9 @@ export default function App() {
         <Route path="followers" element={<FollowersPage />} />
         <Route path="goals" element={<GoalsPage />} />
         <Route path="dashboards" element={<DashboardsPage />} />
+        <Route path="stories" element={<StoriesPage />} />
+        <Route path="best-times" element={<BestTimesPage />} />
+        <Route path="alerts" element={<EditorsOnly><AlertsPage /></EditorsOnly>} />
         <Route path="reports" element={<EditorsOnly><ReportsPage /></EditorsOnly>} />
         <Route path="reports/runs/:id" element={<EditorsOnly><ArchivedReport /></EditorsOnly>} />
         <Route path="info" element={<InfoPage />} />
@@ -67,6 +79,7 @@ export default function App() {
         <Route path="admin/livewalls" element={<AdminOnly><LiveWallsPage /></AdminOnly>} />
         <Route path="admin/branding" element={<AdminOnly><Branding /></AdminOnly>} />
         <Route path="admin/email" element={<AdminOnly><Email /></AdminOnly>} />
+        <Route path="admin/digest" element={<EditorsInChief><DigestPage /></EditorsInChief>} />
         <Route path="admin/backup" element={<AdminOnly><Backup /></AdminOnly>} />
         <Route path="admin/settings" element={<AdminOnly><GeneralSettings /></AdminOnly>} />
       </Route>

@@ -14,15 +14,18 @@ from .api import (
     content,
     dashboard,
     dashboards,
+    digest,
     entra,
     goals,
     help,
     ingest,
+    insights,
     livewalls,
     meta,
     reports,
     settings,
     sources,
+    stories,
     system,
     threads,
     users,
@@ -96,6 +99,9 @@ def create_app() -> FastAPI:
         dashboards,
         livewalls,
         reports,
+        insights,
+        stories,
+        digest,
     ):
         app.include_router(module.router)
     app.include_router(settings.public_router)

@@ -9,7 +9,7 @@
 <style>
   /* The wall is laid out on a 1920 x 1080 stage that is scaled to fit any screen.
      Two screens take turns: "overview" (big numbers and a tile per channel) and "stories"
-     (today's best items in a race, risers and follower goals). */
+     (today's best items in a race, risers and goals). */
   :root {
     --bg: #060B16; --glow: #2FB8FF; --text: #D8F3FF; --dim: rgba(216, 243, 255, 0.58); --faint: rgba(216, 243, 255, 0.28);
     --good: #3CCB7F; --bad: #FF6B6F; --warn: #FFB86B;
@@ -176,7 +176,7 @@
     mViews: "weergaven", mInter: "interacties", today: "vandaag", on: "op", followers: "volgers", goal: "doel",
     top: "TOP NU", storiesToday: "Topverhalen <em>vandaag</em>", storiesYesterday: "Topverhalen <em>gisteren</em>",
     storiesSub: "Alle kanalen in één race, op weergaven.", bigLbl: "Weergaven vandaag, alle kanalen",
-    rising: "Snelste stijgers · laatste uur", goals: "Volgersdoelen", reached: "Bereikt", expected: "Verwacht rond",
+    rising: "Snelste stijgers · laatste uur", goals: "Doelen", week: "deze week", month: "deze maand", reached: "Bereikt", expected: "Verwacht rond",
     behind: "Loopt achter", onTrack: "Op schema", updated: "Bijgewerkt", stale: "Geen verse cijfers", none: "Nog geen kanalen op deze wall.",
     note: "Websites, radio en tv zijn live. Socials melden per dag en worden elk uur tot elke drie uur opgehaald."
   } : {
@@ -187,7 +187,7 @@
     mViews: "views", mInter: "interactions", today: "today", on: "on", followers: "followers", goal: "goal",
     top: "TOP NOW", storiesToday: "Top stories <em>today</em>", storiesYesterday: "Top stories <em>yesterday</em>",
     storiesSub: "All channels in one race, by views.", bigLbl: "Views today, all channels",
-    rising: "Rising fastest · last hour", goals: "Follower goals", reached: "Reached", expected: "Expected around",
+    rising: "Rising fastest · last hour", goals: "Goals", week: "this week", month: "this month", reached: "Reached", expected: "Expected around",
     behind: "Behind schedule", onTrack: "On track", updated: "Updated", stale: "No fresh numbers", none: "No channels on this wall yet.",
     note: "Websites, radio and TV are live. Social media report per day and are fetched every one to three hours."
   };
@@ -418,6 +418,7 @@
       var one = g.source_ids.length === 1 && socials[g.source_ids[0]];
       var color = one ? one.color : "var(--glow)";
       var note = g.status === "reached" ? '<small class="good">✓ ' + esc(T.reached) + "</small>"
+        : g.period && g.period !== "none" ? "<small" + (g.status === "behind" ? ' class="bad"' : "") + ">" + esc(T[g.period]) + " · " + esc(g.status === "behind" ? T.behind : T.onTrack) + "</small>"
         : g.eta ? "<small" + (g.status === "behind" ? ' class="bad"' : "") + ">" + esc(T.expected) + " " + esc(new Date(g.eta).toLocaleDateString(lang, { day: "numeric", month: "short", year: "numeric" })) + (g.status === "behind" ? " · " + esc(T.behind) : "") + "</small>"
         : "<small" + (g.status === "behind" ? ' class="bad"' : "") + ">" + esc(g.status === "behind" ? T.behind : T.onTrack) + "</small>";
       return '<div class="goal" style="--c:' + esc(color) + '"><div class="gh"><span>' + esc(g.name) + "</span><span>" + esc(plain.format(g.current)) + " / " + esc(plain.format(g.target)) +

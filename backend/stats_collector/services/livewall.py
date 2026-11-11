@@ -18,7 +18,8 @@ What a snapshot holds:
   totals    live audience now, views and interactions today and yesterday, 7 days of both
   top       today's best items over all channels by views (yesterday's early in the morning),
             with the first author; `rising` is what gained most views in the last hour
-  goals     the active follower goals with their progress and the expected date to reach them
+  goals     the active goals marked for the wall (followers first, also weekly and monthly goals),
+            with their progress and the expected date to reach them
 """
 
 from __future__ import annotations
@@ -310,13 +311,16 @@ def _goal_out(db: Session, goal: Goal, now: datetime, today: date) -> dict:
 
     p = progress(db, goal, now)
     eta = None
-    if p["status"] != "reached" and p["rate_per_day"] > 0:
+    if p["status"] != "reached" and p["rate_per_day"] > 0 and (goal.period or "none") == "none":
         days = math.ceil((goal.target - p["current"]) / p["rate_per_day"])
         if 0 < days <= 3650:
             eta = (today + timedelta(days=days)).isoformat()
     return {
         "id": goal.id,
         "name": goal.name,
+        "metric": goal.metric,
+        "period": goal.period or "none",
+        "period_end": p["period_end"],
         "current": p["current"],
         "target": goal.target,
         "progress": p["progress"],
@@ -327,12 +331,14 @@ def _goal_out(db: Session, goal: Goal, now: datetime, today: date) -> dict:
 
 
 def _goals(db: Session, wall: LiveWall, now: datetime, today: date) -> list[dict]:
-    """Active follower goals; on a wall with chosen channels, only goals within those channels."""
+    """Active goals marked for the wall (followers first); on a wall with chosen channels, only goals
+    within those channels."""
     chosen = {int(i) for i in wall.source_ids or []}
     out = []
-    for g in db.execute(
-        select(Goal).where(Goal.archived.is_(False), Goal.metric == "followers").order_by(Goal.id)
-    ).scalars():
+    rows = db.execute(
+        select(Goal).where(Goal.archived.is_(False), Goal.show_on_wall.is_(True)).order_by(Goal.id)
+    ).scalars()
+    for g in sorted(rows, key=lambda g: (g.metric != "followers", g.id)):
         if g.end_date and g.end_date < today:
             continue
         ids = {int(i) for i in g.source_ids or []}
@@ -482,7 +488,10 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
     values = _day_values(db, day_ids, days[0])
 
     goals = _goals(db, wall, now, today)
-    own_goal = {g["source_ids"][0]: g for g in goals if len(g["source_ids"]) == 1}
+    own_goal: dict[int, dict] = {}
+    for g in goals:  # a channel's ring: its own goal, a followers goal first
+        if len(g["source_ids"]) == 1:
+            own_goal.setdefault(g["source_ids"][0], g)
     socials = [
         _social(s, values[s.id], days, own_goal.get(s.id), colors[s.id]) for s in sources if s.kind in SOCIAL_KINDS
     ]

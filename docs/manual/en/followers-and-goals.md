@@ -45,4 +45,14 @@ Click a goal for the details: the current pace and the pace needed per day, the 
 3. You can change the target or end date at any time. Every change is kept in the **target history** with the date, who made it and the reason. The chart shows the target that applied at each moment, so reports stay honest about what the target was then.
 4. **Archive** a goal that is finished to move it out of the list; it stays under **Archived**.
 
+### Weekly and monthly goals
+
+Under **Repeats** a goal can be **Once** (from the start date to the end date), **Every week** (Monday to Sunday) or **Every month**. A repeating goal starts again with the same target every week or month, e.g. *5,000 Facebook views per week*. For followers it counts the growth within the week or month, e.g. *+200 Instagram followers a month*. The card shows *this week* or *this month*; the details show the **earlier weeks** or **months** with what was reached against the target. A "reached" email goes out again in every new week or month.
+
+### Goals per channel
+
+Pick one channel to make a goal for that channel alone. The **Channel** list at the top shows only the goals of one channel, or the goals over all channels together. A channel's own goal also appears as the ring on that channel's tile on the [live walls](live-wall.md).
+
+**Show on the live walls** (on by default) puts the goal on the walls' top-stories screen; follower goals come first.
+
 The dashboard shows the active goals with their progress bars under **Goals**.

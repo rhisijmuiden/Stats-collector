@@ -12,18 +12,21 @@ import { fmtInt } from "./Followers";
 
 type Metric = "followers" | "views" | "reach" | "interactions" | "watch_minutes";
 type Status = "reached" | "on_track" | "behind" | "missed";
+type Period = "none" | "week" | "month";
+const PERIODS: Period[] = ["none", "week", "month"];
 const METRICS: Metric[] = ["followers", "views", "reach", "interactions", "watch_minutes"];
 export interface Goal {
   id: number; name: string; metric: Metric; source_ids: number[]; sources: { id: number; name: string; kind: string }[];
-  target: number; start_date: string; end_date: string | null; notify: boolean; notify_emails: string[]; archived: boolean;
+  target: number; start_date: string; end_date: string | null; period: Period; show_on_wall: boolean; period_start: string; period_end: string | null; notify: boolean; notify_emails: string[]; archived: boolean;
   kind: "level" | "total"; current: number; baseline: number; progress: number; rate_per_day: number; needed_per_day: number | null;
   forecast: number | null; status: Status; spark?: number[];
   days?: string[]; values?: number[]; targets?: number[];
   revisions?: { target: number; end_date: string | null; note: string; changed_by: string | null; changed_at: string }[];
+  history?: { start: string; end: string; value: number; target: number; reached: boolean }[];
 }
 interface Draft {
   id?: number; name: string; metric: Metric; source_ids: number[]; target: string; start_date: string; end_date: string;
-  notify: boolean; notify_emails: string; note: string; archived: boolean;
+  period: Period; show_on_wall: boolean; notify: boolean; notify_emails: string; note: string; archived: boolean;
 }
 
 const STATUS_CLASS: Record<Status, string> = { reached: "good", on_track: "accent", behind: "warning", missed: "critical" };
@@ -55,10 +58,11 @@ function GoalChart({ goal }: { goal: Goal }) {
     const targets: (number | null)[] = [...(goal.targets ?? [])];
     const forecast: (number | null)[] = values.map(() => null);
     // Extend the axis to the end date with the trend line and the current target.
-    if (goal.end_date && days.length && goal.forecast != null && goal.end_date > days[days.length - 1]) {
+    const endDate = goal.period !== "none" ? goal.period_end : goal.end_date;
+    if (endDate && days.length && goal.forecast != null && endDate > days[days.length - 1]) {
       forecast[forecast.length - 1] = values[values.length - 1];
       const last = new Date(days[days.length - 1]);
-      const end = new Date(goal.end_date);
+      const end = new Date(endDate);
       const steps = Math.round((end.getTime() - last.getTime()) / 86400000);
       for (let i = 1; i <= steps; i++) {
         const d = new Date(last.getTime() + i * 86400000);
@@ -95,7 +99,7 @@ function GoalDetail({ id, onClose, onEdit }: { id: number; onClose: () => void; 
       {goal.error && <Alert kind="error">{errorText(goal.error)}</Alert>}
       {g && (
         <div className="stack">
-          <div className="muted small">{t(`goals.metric.${g.metric}`)} · {g.sources.length ? g.sources.map((s) => s.name).join(", ") : t("goals.allSources")} · {formatDay(g.start_date, lang)} – {g.end_date ? formatDay(g.end_date, lang) : t("goals.noEnd")}</div>
+          <div className="muted small">{t(`goals.metric.${g.metric}`)} · {g.sources.length ? g.sources.map((s) => s.name).join(", ") : t("goals.allSources")} · {g.period !== "none" ? `${t(`goals.period.${g.period}`)} · ${formatDay(g.period_start, lang)} – ${g.period_end ? formatDay(g.period_end, lang) : ""}` : `${formatDay(g.start_date, lang)} – ${g.end_date ? formatDay(g.end_date, lang) : t("goals.noEnd")}`}</div>
           <GoalProgress goal={g} />
           <div className="kpis">
             <div className="kpi"><div className="kpi-label">{t("goals.pace")}</div><div className="kpi-value">{fmtInt(g.rate_per_day, lang)}</div><div className="kpi-sub">{t("goals.perDay")}</div></div>
@@ -103,6 +107,21 @@ function GoalDetail({ id, onClose, onEdit }: { id: number; onClose: () => void; 
             {g.forecast != null && g.end_date && <div className="kpi"><div className="kpi-label">{t("goals.forecast")}</div><div className="kpi-value">{fmtInt(g.forecast, lang)}</div><div className="kpi-sub">{t("goals.onDate", { date: formatDay(g.end_date, lang) })}</div></div>}
           </div>
           <GoalChart goal={g} />
+          {!!g.history?.length && (
+            <>
+              <h3 className="small-title">{t(`goals.earlier.${g.period}`)}</h3>
+              <div className="period-history">
+                {g.history.map((h) => (
+                  <div key={h.start} className={`period-cell ${h.reached ? "good" : "missed"}`} title={`${formatDay(h.start, lang)} – ${formatDay(h.end, lang)}`}>
+                    <small>{g.period === "month" ? new Date(`${h.start}T12:00:00`).toLocaleDateString(lang, { month: "short", year: "2-digit" }) : formatDay(h.start, lang).replace(/ \d{4}$/, "")}</small>
+                    <b>{fmtInt(h.value, lang)}</b>
+                    <div className="progress"><span style={{ width: `${Math.min(100, (h.value / Math.max(h.target, 1)) * 100)}%` }} /></div>
+                    <small>{h.reached ? t("goals.status.reached") : t("goals.status.missed")}</small>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
           <h3 className="small-title">{t("goals.history")}</h3>
           <div className="table-wrap"><table>
             <thead><tr><th>{t("goals.changedAt")}</th><th className="num">{t("goals.target")}</th><th>{t("goals.endDate")}</th><th>{t("goals.note")}</th><th>{t("goals.changedBy")}</th></tr></thead>
@@ -148,21 +167,22 @@ export default function GoalsPage() {
   const filters = useLoad(() => api.get<{ sources: { id: number; name: string; kind: string }[] }>("/api/content/filters"));
   const [open, setOpen] = useState<number | null>(() => Number(new URLSearchParams(window.location.search).get("open")) || null);
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [channelFilter, setChannelFilter] = useState("");
   const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
 
   const edit = (g?: Goal) => {
     setOpen(null);
     setDraft(g ? {
       id: g.id, name: g.name, metric: g.metric, source_ids: g.source_ids, target: String(g.target), start_date: g.start_date,
-      end_date: g.end_date ?? "", notify: g.notify, notify_emails: g.notify_emails.join(", "), note: "", archived: g.archived,
-    } : { name: "", metric: "followers", source_ids: [], target: "", start_date: today(), end_date: "", notify: false, notify_emails: "", note: "", archived: false });
+      end_date: g.end_date ?? "", period: g.period, show_on_wall: g.show_on_wall, notify: g.notify, notify_emails: g.notify_emails.join(", "), note: "", archived: g.archived,
+    } : { name: "", metric: "followers", source_ids: [], target: "", start_date: today(), end_date: "", period: "none", show_on_wall: true, notify: false, notify_emails: "", note: "", archived: false });
   };
   const save = async (e: FormEvent) => {
     e.preventDefault();
     const d = draft!;
     const body = {
       name: d.name, metric: d.metric, source_ids: d.source_ids, target: Number(d.target), start_date: d.start_date,
-      end_date: d.end_date || null, notify: d.notify, notify_emails: d.notify_emails.split(/[\s,;]+/).filter(Boolean), note: d.note, archived: d.archived,
+      end_date: d.end_date || null, period: d.period, show_on_wall: d.show_on_wall, notify: d.notify, notify_emails: d.notify_emails.split(/[\s,;]+/).filter(Boolean), note: d.note, archived: d.archived,
     };
     try {
       if (d.id) await api.put(`/api/goals/${d.id}`, body); else await api.post("/api/goals", body);
@@ -182,13 +202,18 @@ export default function GoalsPage() {
     <div className="page">
       <PageHead help="followers-and-goals" title={t("goals.title")} subtitle={t("goals.subtitle")}
         actions={<>
+          <select className="auto-width" value={channelFilter} onChange={(e) => setChannelFilter(e.target.value)} aria-label={t("goals.filterChannel")}>
+            <option value="">{t("goals.everyChannel")}</option>
+            <option value="all">{t("goals.allChannelsTogether")}</option>
+            {(filters.data?.sources ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
           <div className="seg">{([false, true] as const).map((v) => <button key={String(v)} type="button" aria-pressed={archived === v} onClick={() => setArchived(v)}>{t(v ? "goals.archived" : "goals.active")}</button>)}</div>
           {canEdit && <button className="btn" onClick={() => edit()}><Plus /> {t("goals.add")}</button>}
         </>} />
       {list.error && <Alert kind="error">{errorText(list.error)}</Alert>}
       {list.data && (list.data.length ? (
         <div className="goal-cards">
-          {list.data.map((g) => (
+          {list.data.filter((g) => !channelFilter || (channelFilter === "all" ? !g.source_ids.length : g.source_ids.includes(Number(channelFilter)))).map((g) => (
             <button key={g.id} type="button" className="card goal-card" onClick={() => setOpen(g.id)}>
               <div className="row between">
                 <h2>{g.name}</h2>
@@ -197,7 +222,7 @@ export default function GoalsPage() {
               <div className="muted small">{t(`goals.metric.${g.metric}`)} · {g.sources.length ? g.sources.map((s) => s.name).join(", ") : t("goals.allSources")}</div>
               <GoalProgress goal={g} />
               <div className="muted small">
-                {g.end_date ? t("goals.until", { date: formatDay(g.end_date, lang) }) : t("goals.noEnd")}
+                {g.period !== "none" ? t(`goals.thisPeriod.${g.period}`) : g.end_date ? t("goals.until", { date: formatDay(g.end_date, lang) }) : t("goals.noEnd")}
                 {g.forecast != null && g.end_date && g.status !== "reached" ? ` · ${t("goals.forecastShort", { value: fmtInt(g.forecast, lang) })}` : ""}
               </div>
             </button>
@@ -220,12 +245,16 @@ export default function GoalsPage() {
               <Field label={t("goals.startDate")}><input required type="date" value={draft.start_date} onChange={(e) => setDraft({ ...draft, start_date: e.target.value })} /></Field>
               <Field label={t("goals.endDate")} hint={t("goals.endHint")}><input type="date" value={draft.end_date} min={draft.start_date} onChange={(e) => setDraft({ ...draft, end_date: e.target.value })} /></Field>
             </div>
+            <Field label={t("goals.periodLabel")} hint={t(`goals.periodHint.${draft.period}`)}>
+              <div className="seg">{PERIODS.map((p) => <button key={p} type="button" aria-pressed={draft.period === p} onClick={() => setDraft({ ...draft, period: p })}>{t(`goals.period.${p}`)}</button>)}</div>
+            </Field>
             <Field label={t("goals.sources")} hint={t("goals.sourcesHint")}>
               <div className="choice-list">{sources.map((s) => (
                 <button key={s.id} type="button" className={`btn ${draft.source_ids.includes(s.id) ? "" : "secondary"}`} aria-pressed={draft.source_ids.includes(s.id)} onClick={() => toggleSource(s.id)}>{s.name}</button>
               ))}</div>
             </Field>
             {draft.id && <Field label={t("goals.note")} hint={t("goals.noteHint")}><input maxLength={500} value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} /></Field>}
+            <Switch checked={draft.show_on_wall} onChange={(v) => setDraft({ ...draft, show_on_wall: v })} label={t("goals.showOnWall")} />
             <Switch checked={draft.notify} onChange={(v) => setDraft({ ...draft, notify: v })} label={t("goals.notify")} />
             {draft.notify && <Field label={t("goals.notifyEmails")} hint={t("goals.notifyHint")}><input value={draft.notify_emails} onChange={(e) => setDraft({ ...draft, notify_emails: e.target.value })} placeholder="hoofdredactie@example.org" /></Field>}
             {draft.id && <Switch checked={draft.archived} onChange={(v) => setDraft({ ...draft, archived: v })} label={t("goals.archive")} />}
