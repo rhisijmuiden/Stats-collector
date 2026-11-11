@@ -34,8 +34,9 @@ def test_wall_lifecycle(admin):
     _demo()
     listed = client.get("/api/livewalls").json()
     kinds = {s["kind"] for s in listed["sources"]}
-    assert kinds == {"icecast", "owncast", "wordpress"} and listed["base_url"].endswith(":8081")
+    assert {"icecast", "owncast", "wordpress", "facebook", "youtube"} <= kinds and listed["base_url"].endswith(":8081")
     w = client.post("/api/livewalls", json={"name": "Newsroom", "title": "Live now"}, headers=csrf).json()
+    assert w["layout"] == "rotate" and w["rotate_seconds"] == 30 and w["show_authors"]
     token = w["url"].rsplit("/w/", 1)[1]
     assert len(token) >= 30
 
@@ -43,7 +44,13 @@ def test_wall_lifecycle(admin):
     page = wall.get(f"/w/{token}")
     assert page.status_code == 200 and "Live now" in page.text and "no-store" in page.headers["cache-control"]
     data = wall.get(f"/w/{token}/data").json()
-    assert "allow_ips" not in data and {c["kind"] for c in data["channels"]} == kinds
+    assert "allow_ips" not in data and {c["kind"] for c in data["channels"]} == {"icecast", "owncast", "wordpress"}
+    assert {s["kind"] for s in data["socials"]} == kinds - {"icecast", "owncast", "wordpress"}
+    fb = next(s for s in data["socials"] if s["kind"] == "facebook")
+    assert len(fb["days"]) == 7 and fb["measure"] == "views" and fb["followers"] and fb["goal"]["target"] == 13500
+    assert data["totals"]["views_yesterday"] > 0 and len(data["totals"]["views_days"]) == 7
+    assert data["top"] and data["top"][0]["value"] >= data["top"][-1]["value"] and data["layout"] == "rotate"
+    assert any(t["author"] for t in data["top"]) and {g["name"] for g in data["goals"]} >= {"13,500 Facebook followers"}
     radio = next(c for c in data["channels"] if c["kind"] == "icecast")
     assert len(radio["bars"]) == 12 and radio["unit"] == "listeners" and any(radio["bars"])
     assert wall.get("/w/" + "x" * 32).status_code == 404 and wall.get("/w/short").status_code == 404
@@ -136,3 +143,35 @@ def test_wall_address_and_proxy(admin):
     assert seen["client"] == "198.51.100.7"
     asyncio.run(mw({**scope, "client": ("203.0.113.9", 1)}, None, None))
     assert seen["client"] == "203.0.113.9"  # not a trusted proxy: the header is ignored
+
+
+def test_wall_layout_and_rising(admin):
+    """Layout options, editor names switched off, and views gained since an earlier run."""
+    from datetime import UTC, datetime
+
+    from stats_collector.db import session_factory
+    from stats_collector.models import LiveWall
+    from stats_collector.services import livewall
+
+    client, csrf = admin
+    _demo()
+    w = client.post(
+        "/api/livewalls",
+        json={"name": "Hall", "layout": "stories", "rotate_seconds": 45, "show_authors": False},
+        headers=csrf,
+    ).json()
+    assert (w["layout"], w["rotate_seconds"], w["show_authors"]) == ("stories", 45, False)
+    bad = client.put(f"/api/livewalls/{w['id']}", json={"name": "Hall", "rotate_seconds": 5}, headers=csrf)
+    assert bad.status_code == 422
+    snap = client.get(f"/api/livewalls/{w['id']}/preview").json()
+    assert snap["layout"] == "stories" and snap["rotate_seconds"] == 45
+    assert snap["top"] and not any(t["author"] for t in snap["top"])
+
+    with session_factory()() as db:
+        wall = db.get(LiveWall, w["id"])
+        now = datetime(2030, 1, 1, 12, 0, tzinfo=UTC)
+        top = [{"id": 1, "value": 100}, {"id": 2, "value": 50}]
+        assert livewall._rising(wall, top, "d", now) == []
+        later = [{"id": 1, "value": 160}, {"id": 2, "value": 50}]
+        assert livewall._rising(wall, later, "d", now + timedelta(minutes=10)) == [{"id": 1, "value": 160, "gain": 60}]
+        assert livewall._rising(wall, later, "next-day", now + timedelta(minutes=11)) == []

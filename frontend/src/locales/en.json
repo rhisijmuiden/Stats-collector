@@ -1104,7 +1104,7 @@
   },
   "livewalls": {
     "title": "Live walls",
-    "subtitle": "Read-only screens for the newsroom: the last hour per channel, on port 8081.",
+    "subtitle": "Read-only screens for the newsroom: live audience, social media and today's top stories, on port 8081.",
     "add": "New live wall",
     "edit": "Edit live wall",
     "defaultName": "Newsroom",
@@ -1123,8 +1123,8 @@
     "confirmRotate": "Make a new link for \"{{name}}\"? Screens with the old link stop showing it.",
     "confirmDelete": "Delete the live wall \"{{name}}\"? Its link stops working.",
     "channels": "Channels",
-    "allChannels": "all radio, TV and websites",
-    "channelsHint": "Icecast, Owncast and websites. None selected means all.",
+    "allChannels": "all live and social channels",
+    "channelsHint": "Radio, TV, websites and social media. None selected means all.",
     "allowIps": "Allowed addresses",
     "everyone": "everyone with the link",
     "allowIpsHint": "Optional: IP addresses or networks (comma-separated) that may open the wall, e.g. the newsroom's public IP.",
@@ -1136,7 +1136,9 @@
     "unit": {
       "listeners": "listening",
       "viewers": "watching",
-      "views": "views (5 min)"
+      "views": "views (5 min)",
+      "viewsDay": "views (day)",
+      "interactionsDay": "interactions (day)"
     },
     "addressTitle": "Address of the walls",
     "addressText": "For when the walls have their own reverse proxy and host name.",
@@ -1144,7 +1146,23 @@
     "publicUrlHint": "The address the reverse proxy forwards to port 8081, e.g. https://live.example.org. Empty: {{url}}.",
     "proxies": "Reverse proxy addresses (optional)",
     "proxiesHint": "IP addresses or networks of the proxy in front of the walls, when it is another machine than the main proxy. Needed for Allowed addresses to see the real visitor.",
-    "addressSaved": "Address saved. The links below use it now; the wall service picks up the proxy within two minutes."
+    "addressSaved": "Address saved. The links below use it now; the wall service picks up the proxy within two minutes.",
+    "topPreview": "Top story now: {{title}} ({{n}} views)",
+    "layout": "Screens",
+    "layouts": {
+      "rotate": "Overview and top stories in turn",
+      "overview": "Overview only",
+      "stories": "Top stories only"
+    },
+    "layoutHint": {
+      "rotate": "The two screens take turns.",
+      "overview": "Big numbers and a tile per channel.",
+      "stories": "Today's best items, risers and follower goals."
+    },
+    "rotateSeconds": "Seconds per screen",
+    "rotateSecondsHint": "10 to 300 seconds.",
+    "everySeconds": "{{n}} s each",
+    "showAuthors": "Show editor names in the top stories"
   },
   "reports": {
     "title": "Reports",

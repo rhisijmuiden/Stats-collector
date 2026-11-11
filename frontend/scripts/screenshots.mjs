@@ -30,16 +30,21 @@ async function editDashboardWidget(page) {
 }
 
 // The wall itself is served by the wall service on port 8081 (the link may show the public address).
-async function openLiveWall(page) {
+async function openLiveWall(page, lang) {
   const link = await page.locator(".copy-field input").first().inputValue();
-  await page.goto(link.replace(/^https?:\/\/[^/]+/, process.env.WALL_BASE || "http://127.0.0.1:8081"));
+  await page.goto(link.replace(/^https?:\/\/[^/]+/, process.env.WALL_BASE || "http://127.0.0.1:8081") + `?lang=${lang}`);
+  await page.waitForTimeout(2500);
+}
+async function openLiveWallStories(page, lang) {
+  const link = await page.locator(".copy-field input").first().inputValue();
+  await page.goto(link.replace(/^https?:\/\/[^/]+/, process.env.WALL_BASE || "http://127.0.0.1:8081") + `?screen=stories&lang=${lang}`);
   await page.waitForTimeout(2500);
 }
 
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
   ["/reports", "reports"], ["/reports", "reports-edit", '.report-list .card button:has(svg.lucide-pencil)'], ["/reports", "reports-archive", "button:has(svg.lucide-history)"], ["/reports/runs/1", "report-view"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/email", "email-graph", ".card .seg button"], ["/admin/branding", "branding"],
 ];
 
@@ -76,7 +81,7 @@ for (const lang of ["en", "nl"]) {
   for (const [path, name, click] of SCREENS) {
     await page.goto(base + path);
     await page.waitForLoadState("networkidle");
-    if (typeof click === "function") await click(page);
+    if (typeof click === "function") await click(page, lang);
     else if (click) {
       await page.locator(click).first().click();
       await page.waitForLoadState("networkidle");

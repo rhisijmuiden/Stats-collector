@@ -43,7 +43,7 @@ Key decisions:
 | Frontend | React, TypeScript, Vite, Tailwind, shadcn/ui | Modern, light/dark, themeable from the brand |
 | Charts | Apache ECharts | Stacking, overlay, toggleable legend, zoom |
 | PDF | Playwright + headless Chromium | The PDF is the same page as the interactive report |
-| Live wall | Separate small service, Three.js / CSS 3D bars, Server-Sent Events | Isolated from database and admin |
+| Live wall | Separate small service, one static page (CSS/SVG animation), Server-Sent Events | Isolated from database and admin |
 | i18n | react-i18next (UI), Babel (emails, PDF) | English base, Dutch translation |
 
 ## Connectors
@@ -107,12 +107,12 @@ Follower counts are recorded daily per platform, giving a growth chart per platf
 
 ## Live wall (port 8081)
 
-A separate, read-only web app showing the last hour of activity per channel as animated 3D bars, for a TV on the newsroom floor.
+A separate, read-only web app for a TV on the newsroom floor. Two screens take turns: an overview (live audience, views and interactions today, a tile per live and social channel with a line, follower change and goal ring, a ticker with the best stories) and a top-stories race (today's best items of all channels by views, with editor, risers of the last hour and follower goals). Each wall chooses its screens, the seconds per screen and whether editor names are shown.
 
 - No login. Each wall has a unique, unguessable URL (`/w/<token>`), its own channels, title and brand. Tokens can be revoked or rotated; optional IP allow-list.
 - The wall never calls source APIs. The worker computes one snapshot every 60 seconds and stores it in Redis; the wall service only reads that snapshot and pushes it to screens with Server-Sent Events (fallback: poll every 60 s). Rate limiting per IP on top.
 - The wall service has no access to the database or admin functions.
-- Freshness is shown per channel: website, Owncast and Icecast are live; YouTube is approximate (5 to 15 min delay, computed from view-count deltas); Facebook and Instagram are approximate (up to about an hour).
+- Freshness is shown per channel: website, Owncast and Icecast are live; social media report per day and show the time of their last sync (Facebook, Instagram, Threads, Bluesky, Mastodon hourly; YouTube every 3 hours and one to two days behind).
 - Served behind the reverse proxy on its own host name, e.g. `live.example.org` → port 8081.
 
 ## Authentication and authorisation
