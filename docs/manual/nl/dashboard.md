@@ -2,6 +2,8 @@
 
 Het dashboard is het eerste scherm na het inloggen. Iedereen kan het openen, welke rol je ook hebt.
 
+Zoals elke pagina gebruikt het dashboard de volle breedte van het scherm naast het menu: op een breed scherm verdelen de tegels en grafieken zich over meer kolommen.
+
 ![Dashboard](../images/nl-dashboard.png)
 
 ## Website en video
