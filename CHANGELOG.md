@@ -125,6 +125,8 @@ Each entry is written in English with a Dutch translation on the line below, pre
   NL: Optionele mail als een doel gehaald is of achterloopt (hooguit wekelijks), en een kaart Doelen op het dashboard.
 
 ### Changed
+- Pages now use the full width next to the menu instead of a fixed column in the middle; cards, numbers and charts spread out over wide screens. Help texts keep a readable line length.
+  NL: Pagina's gebruiken nu de volle breedte naast het menu in plaats van een vaste kolom in het midden; kaarten, cijfers en grafieken verdelen zich over brede schermen. Helpteksten houden een leesbare regellengte.
 - Updates now also install the system services shipped with the new version and restart the worker.
   NL: Updates installeren nu ook de systeemdiensten van de nieuwe versie en herstarten de worker.
 - Reverse proxy headers are handled by the app itself; trusted proxies may be IP ranges (CIDR).

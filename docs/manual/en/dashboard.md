@@ -2,6 +2,8 @@
 
 The dashboard is the first screen after signing in. Everyone can open it, whatever their role.
 
+Like every page, the dashboard uses the full width of the screen next to the menu: on a wide screen the tiles and charts spread out over more columns.
+
 ![Dashboard](../images/en-dashboard.png)
 
 ## Website and video
