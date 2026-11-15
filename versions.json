@@ -1,9 +1,14 @@
 [
   {
-    "version": "0.13.1-rc.3",
-    "title": "0.13.1-rc.3",
+    "version": "0.13.1-rc.4",
+    "title": "0.13.1-rc.4",
     "aliases": [
       "test"
     ]
+  },
+  {
+    "version": "0.13.1-rc.3",
+    "title": "0.13.1-rc.3",
+    "aliases": []
   }
 ]
