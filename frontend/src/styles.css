@@ -109,8 +109,11 @@ code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-si
 .icon-btn:hover { background: var(--sidebar-active); }
 .icon-btn svg { width: 17px; height: 17px; }
 
-.main { min-width: 0; padding: 24px clamp(16px, 3vw, 40px) 48px; }
-.page { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.main { min-width: 0; padding: 24px clamp(16px, 2.2vw, 48px) 48px; }
+.page { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+/* Pages fill the width next to the sidebar; only running text keeps a readable line length. */
+.page .report { max-width: none; padding: 0; }
+.markdown { max-width: 980px; }
 .page-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; }
 .page-head p { margin: 4px 0 0; color: var(--muted); }
 .mobile-bar { display: none; }
@@ -502,3 +505,8 @@ html.printing td:first-child { min-width: 180px; }
 .period-cell.missed .progress span { background: var(--warning); }
 .mail-preview { width: 100%; height: 520px; border: 1px solid var(--border); border-radius: var(--radius-card, 12px); background: #fff; }
 .page-head select.auto-width, select.auto-width { width: auto; min-width: 180px; max-width: 100%; }
+
+/* Very wide screens: a little more breathing room between cards. */
+@media (min-width: 2200px) {
+  .page, .dash-grid, .kpis, .grid { gap: 22px; }
+}
