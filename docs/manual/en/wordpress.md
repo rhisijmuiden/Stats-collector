@@ -37,6 +37,7 @@ Repeat this for every website. Each website is a separate source with its own ke
 | Content types | Which kinds of content are counted per item (posts and pages by default). The home page always counts towards the site total. |
 | Own visits | When on (default), logged-in editors and administrators are not counted. |
 | Behind a proxy or CDN | Choose `CF-Connecting-IP` when the website is behind Cloudflare, `X-Forwarded-For` or `X-Real-IP` behind another proxy. Otherwise every visitor looks the same and unique visitors are undercounted. |
+| Site search | When on (default), the plugin counts what visitors type in the search box of the website and which searches find nothing. Turn it off if you do not want search terms counted. |
 | Editors | Sends the email address of authors so Stats Collector can link them to their account (see below). |
 
 The **Status** block shows when the last batch was sent and the last error. **Send now** sends straight away.
@@ -53,9 +54,16 @@ The **Status** block shows when the last batch was sent and the last error. **Se
 | Comments | Approved comments per hour. |
 | Referrers and devices | Per day the site that sent the visitor (`direct` when unknown) and the type of device: mobile, desktop or tablet. |
 
+| Scroll depth | How far down the page the reader scrolled, in steps of 25%. |
+| Campaigns | The `utm_source`, `utm_medium` and `utm_campaign` of the address the reader came in on. |
+| Readers now | Visitors active on an article or the home page in the last five minutes. |
+| Site searches | Terms typed in the search box of the website, and whether they found anything. |
+
+With every article the plugin also sends its length in words, the number of images, whether it has a featured image and a video, its revisions and updates after publication, when it last changed and, when the site uses **Yoast SEO** or **Rank Math**, its focus keyword and scores. Every minute it also sends the pipeline: scheduled articles, drafts, articles awaiting review and comments to moderate. These need plugin 0.4 or newer; see [Website](website.md) for where they show.
+
 Returning visitors are not counted, because that is not possible without cookies.
 
-The plugin keeps the raw page views for 35 days in its own table (`wp_sc_views`) so it can resend after an outage. The numbers themselves are stored in Stats Collector for good.
+The plugin keeps the raw page views and searches for 35 days in its own tables (`wp_sc_views`, `wp_sc_searches`) so it can resend after an outage. The numbers themselves are stored in Stats Collector for good.
 
 ## Editors
 

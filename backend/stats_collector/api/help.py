@@ -17,6 +17,7 @@ ORDER = [
     "dashboard",
     "dashboards",
     "content",
+    "website",
     "followers-and-goals",
     "stories",
     "best-times",

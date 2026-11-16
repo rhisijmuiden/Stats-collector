@@ -510,3 +510,13 @@ html.printing td:first-child { min-width: 180px; }
 @media (min-width: 2200px) {
   .page, .dash-grid, .kpis, .grid { gap: 22px; }
 }
+
+/* Website overview */
+.kpis.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+@media (max-width: 1200px) { .kpis.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpis.compact .kpi-label { font-size: 12px; }
+.kpis.compact .kpi { padding: 10px 12px; }
+.kpis.compact .kpi-value { font-size: 22px; }
+.bars-list.warn .bar { background: color-mix(in srgb, var(--warning) 18%, transparent); }
+.bars-list .link-btn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.small-title svg { vertical-align: -2px; }

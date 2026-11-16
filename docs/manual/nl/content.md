@@ -12,7 +12,7 @@
 
 - Facebook- en Instagram-berichten en YouTube-video's staan in dezelfde lijst. Bij een bericht toont **Bezoekers / bereik** het bereik. Zie [Meta](meta.md) en [YouTube](youtube.md) voor hoe die cijfers verzameld worden.
 
-Klik op een item voor de details: de cijfers over de periode, een grafiek per dag (per uur bij 24 uur), en bij een artikel waar lezers vandaan kwamen en welke apparaten ze gebruikten. Een Facebook-bericht toont ook de reacties per soort (leuk, geweldig, wauw…); een Instagram-bericht hoe vaak het is opgeslagen.
+Klik op een item voor de details: de cijfers over de periode, een grafiek per dag (per uur bij 24 uur), en bij een artikel waar lezers vandaan kwamen, welke apparaten ze gebruikten, de scrolldiepte, campagnes, lengte, video, updates, SEO-score en lezers op dit moment (zie [Website](website.md)). Een Facebook-bericht toont ook de reacties per soort (leuk, geweldig, wauw…); een Instagram-bericht hoe vaak het is opgeslagen.
 
 ![Details van een artikel](../images/nl-content-item.png)
 

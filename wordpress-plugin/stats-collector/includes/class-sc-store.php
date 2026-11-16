@@ -10,7 +10,7 @@ defined('ABSPATH') || exit;
 
 final class SC_Store
 {
-    public const DB_VERSION = '1';
+    public const DB_VERSION = '2';
     public const KEEP_DAYS = 35;
     public const DEDUPE_MINUTES = 30;
 
@@ -18,6 +18,12 @@ final class SC_Store
     {
         global $wpdb;
         return $wpdb->prefix . 'sc_views';
+    }
+
+    public static function search_table(): string
+    {
+        global $wpdb;
+        return $wpdb->prefix . 'sc_searches';
     }
 
     public static function install(): void
@@ -39,11 +45,27 @@ final class SC_Store
             seconds int(10) unsigned NOT NULL DEFAULT 0,
             is_read tinyint(1) NOT NULL DEFAULT 0,
             shares smallint(5) unsigned NOT NULL DEFAULT 0,
+            scroll tinyint(3) unsigned NOT NULL DEFAULT 0,
+            campaign varchar(190) NOT NULL DEFAULT '',
+            seen datetime NULL DEFAULT NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY token (token),
             KEY hour (hour),
             KEY day (day),
+            KEY seen (seen),
             KEY dedupe (post_id, visitor, ts)
+        ) {$charset};");
+        $searches = self::search_table();
+        dbDelta("CREATE TABLE {$searches} (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            ts datetime NOT NULL,
+            day date NOT NULL,
+            visitor char(16) NOT NULL,
+            term varchar(100) NOT NULL,
+            results int(10) unsigned NOT NULL DEFAULT 0,
+            PRIMARY KEY  (id),
+            KEY day (day),
+            KEY dedupe (visitor, term, ts)
         ) {$charset};");
         update_option('sc_db_version', self::DB_VERSION, false);
     }
@@ -73,7 +95,7 @@ final class SC_Store
     }
 
     /** Records a view and returns its token; a reload within DEDUPE_MINUTES returns the earlier token. */
-    public static function add_view(int $post_id, string $visitor, string $device, string $referrer): string
+    public static function add_view(int $post_id, string $visitor, string $device, string $referrer, string $campaign = ''): string
     {
         global $wpdb;
         $table = self::table();
@@ -98,24 +120,55 @@ final class SC_Store
             'visitor' => $visitor,
             'device' => $device,
             'referrer' => $referrer,
+            'campaign' => $campaign,
+            'seen' => gmdate('Y-m-d H:i:s', $now),
         ]);
         return $token;
     }
 
-    /** Reading time and share clicks reported by the page while it is open. Values only go up. */
-    public static function engage(string $token, int $seconds, bool $read, int $shares): void
+    /**
+     * Reading time, scroll depth (percent) and share clicks reported by the page while it is open.
+     * Values only go up; "seen" is the last moment the page was open, for the readers-now count.
+     */
+    public static function engage(string $token, int $seconds, bool $read, int $shares, int $scroll = 0): void
     {
         global $wpdb;
         $table = self::table();
         $wpdb->query($wpdb->prepare(
             "UPDATE {$table} SET seconds = GREATEST(seconds, %d), is_read = GREATEST(is_read, %d),
-             shares = GREATEST(shares, %d) WHERE token = %s AND ts >= %s",
+             shares = GREATEST(shares, %d), scroll = GREATEST(scroll, %d), seen = %s WHERE token = %s AND ts >= %s",
             min(max($seconds, 0), 1800),
             $read ? 1 : 0,
             min(max($shares, 0), 50),
+            min(max($scroll, 0), 100),
+            gmdate('Y-m-d H:i:s'),
             $token,
             gmdate('Y-m-d H:i:s', time() - 6 * HOUR_IN_SECONDS)
         ));
+    }
+
+    /** One search on the site; the same visitor repeating a term within DEDUPE_MINUTES counts once. */
+    public static function add_search(string $visitor, string $term, int $results): void
+    {
+        global $wpdb;
+        $table = self::search_table();
+        $now = time();
+        $repeat = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$table} WHERE visitor = %s AND term = %s AND ts >= %s LIMIT 1",
+            $visitor,
+            $term,
+            gmdate('Y-m-d H:i:s', $now - self::DEDUPE_MINUTES * 60)
+        ));
+        if ($repeat) {
+            return;
+        }
+        $wpdb->insert($table, [
+            'ts' => gmdate('Y-m-d H:i:s', $now),
+            'day' => wp_date('Y-m-d', $now),
+            'visitor' => $visitor,
+            'term' => $term,
+            'results' => max(0, $results),
+        ]);
     }
 
     public static function cleanup(): void
@@ -124,6 +177,11 @@ final class SC_Store
         $table = self::table();
         $wpdb->query($wpdb->prepare(
             "DELETE FROM {$table} WHERE ts < %s",
+            gmdate('Y-m-d H:i:s', time() - self::KEEP_DAYS * DAY_IN_SECONDS)
+        ));
+        $searches = self::search_table();
+        $wpdb->query($wpdb->prepare(
+            "DELETE FROM {$searches} WHERE ts < %s",
             gmdate('Y-m-d H:i:s', time() - self::KEEP_DAYS * DAY_IN_SECONDS)
         ));
     }

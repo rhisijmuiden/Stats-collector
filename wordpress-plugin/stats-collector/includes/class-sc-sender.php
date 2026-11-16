@@ -10,6 +10,7 @@ defined('ABSPATH') || exit;
 final class SC_Sender
 {
     private const CHUNK_HOURS = 24;
+    private const VIDEO = '/<video|\[video|<iframe[^>]+(youtube|youtube-nocookie|vimeo|dailymotion)\.|youtube\.com\/(watch|embed|shorts)|youtu\.be\/|vimeo\.com\/\d|"providerNameSlug":"(youtube|vimeo|dailymotion)"/i';
 
     public static function init(): void
     {
@@ -217,7 +218,7 @@ final class SC_Sender
         ), ARRAY_A);
         foreach ($visitor_days as $r) {
             if ((int) $r['post_id'] > 0) {
-                $days[$dk($r['day'], (int) $r['post_id'])] = ['day' => $r['day'], 'post' => (int) $r['post_id'], 'visitors' => (int) $r['visitors'], 'referrers' => [], 'devices' => []];
+                $days[$dk($r['day'], (int) $r['post_id'])] = ['day' => $r['day'], 'post' => (int) $r['post_id'], 'visitors' => (int) $r['visitors']] + self::EMPTY_DAY;
             }
         }
         $site_days = $wpdb->get_results($wpdb->prepare(
@@ -226,16 +227,41 @@ final class SC_Sender
             $last_day
         ), ARRAY_A);
         foreach ($site_days as $r) {
-            $days[$dk($r['day'], 0)] = ['day' => $r['day'], 'post' => 0, 'visitors' => (int) $r['visitors'], 'referrers' => [], 'devices' => []];
+            $days[$dk($r['day'], 0)] = ['day' => $r['day'], 'post' => 0, 'visitors' => (int) $r['visitors']] + self::EMPTY_DAY;
         }
-        foreach (['referrer' => 'referrers', 'device' => 'devices'] as $column => $field) {
+        // Site searches per day: every term, and the terms that found nothing.
+        $searches = SC_Store::search_table();
+        $terms = $wpdb->get_results($wpdb->prepare(
+            "SELECT day, term, COUNT(*) n, SUM(results = 0) none_found FROM {$searches} WHERE day >= %s AND day <= %s
+             GROUP BY day, term ORDER BY n DESC LIMIT 2000",
+            $first_day,
+            $last_day
+        ), ARRAY_A);
+        foreach ($terms as $r) {
+            $k = $dk($r['day'], 0);
+            if (!isset($days[$k])) {
+                $days[$k] = ['day' => $r['day'], 'post' => 0, 'visitors' => 0] + self::EMPTY_DAY;
+            }
+            $days[$k]['searches'][$r['term']] = (int) $r['n'];
+            if ((int) $r['none_found'] > 0) {
+                $days[$k]['searches_empty'][$r['term']] = (int) $r['none_found'];
+            }
+        }
+        // Scroll depth in steps of 25% (only views that reported back), and UTM campaigns.
+        $columns = [
+            'referrers' => ['referrer', ''],
+            'devices' => ['device', ''],
+            'scroll' => ['FLOOR(LEAST(scroll, 100) / 25) * 25', 'AND scroll > 0'],
+            'campaigns' => ['campaign', "AND campaign <> ''"],
+        ];
+        foreach ($columns as $field => [$column, $filter]) {
             $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT day, post_id, {$column} k, COUNT(*) n FROM {$table} WHERE day >= %s AND day <= %s GROUP BY day, post_id, k",
+                "SELECT day, post_id, {$column} k, COUNT(*) n FROM {$table} WHERE day >= %s AND day <= %s {$filter} GROUP BY day, post_id, k",
                 $first_day,
                 $last_day
             ), ARRAY_A);
             foreach ($rows as $r) {
-                $name = $r['k'] !== '' ? $r['k'] : 'direct';
+                $name = (string) $r['k'] !== '' ? (string) $r['k'] : 'direct';
                 foreach (array_unique([(int) $r['post_id'], 0]) as $post) {
                     $k = $dk($r['day'], $post);
                     if (isset($days[$k])) {
@@ -245,30 +271,154 @@ final class SC_Sender
             }
         }
         foreach ($days as &$d) {
-            arsort($d['referrers']);
-            $d['referrers'] = array_slice($d['referrers'], 0, 50, true);
-            $d['referrers'] = (object) $d['referrers'];
-            $d['devices'] = (object) $d['devices'];
+            foreach (array_keys(self::EMPTY_DAY) as $field) {
+                arsort($d[$field]);
+                $d[$field] = (object) array_slice($d[$field], 0, $field === 'searches' || $field === 'searches_empty' ? 200 : 50, true);
+            }
+            if ($d['post'] !== 0) {
+                unset($d['searches'], $d['searches_empty']);
+            }
         }
         unset($d);
 
-        $post_ids = array_unique(array_filter(array_map(static fn ($r) => $r['post'], array_merge(array_values($hours), array_values($days)))));
+        // Articles published in these hours are sent even before anyone read them (production per editor).
+        $published = array_map('intval', $wpdb->get_col($wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_date_gmt >= %s AND post_date_gmt < %s
+             AND post_type IN (" . implode(',', array_fill(0, count(self::types()), '%s')) . ') LIMIT 500',
+            $f,
+            $t,
+            ...self::types()
+        )));
+        $post_ids = array_unique(array_merge(
+            array_filter(array_map(static fn ($r) => $r['post'], array_merge(array_values($hours), array_values($days)))),
+            $published
+        ));
         [$items, $authors] = self::items($post_ids);
+        [$production, $authors] = self::production($authors);
         return [
             'v' => 1,
             'site' => self::site(),
-            'authors' => $authors,
+            'authors' => array_values($authors),
             'items' => $items,
             'hours' => array_values($hours),
             'days' => array_values($days),
+            'live' => self::live(),
+            'production' => $production,
         ];
+    }
+
+    private const EMPTY_DAY = ['referrers' => [], 'devices' => [], 'scroll' => [], 'campaigns' => [], 'searches' => [], 'searches_empty' => []];
+
+    /** @return string[] */
+    private static function types(): array
+    {
+        $types = (array) SC_Admin::setting('post_types');
+        return $types ?: ['post'];
+    }
+
+    /** Readers now: views that were open (and reported back) in the last five minutes, per article. */
+    public static function live(): array
+    {
+        global $wpdb;
+        $table = SC_Store::table();
+        $since = gmdate('Y-m-d H:i:s', time() - 5 * MINUTE_IN_SECONDS);
+        $readers = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(DISTINCT visitor) FROM {$table} WHERE seen >= %s", $since));
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, COUNT(DISTINCT visitor) n FROM {$table} WHERE seen >= %s AND post_id > 0
+             GROUP BY post_id ORDER BY n DESC LIMIT 20",
+            $since
+        ), ARRAY_A);
+        $posts = [];
+        foreach ($rows as $r) {
+            $posts[(string) $r['post_id']] = (int) $r['n'];
+        }
+        return ['at' => gmdate('c'), 'readers' => $readers, 'posts' => (object) $posts];
+    }
+
+    /** What the newsroom has in the pipeline: scheduled articles, drafts, pending review and comments. */
+    private static function production(array $authors): array
+    {
+        global $wpdb;
+        $counts = ['scheduled' => 0, 'drafts' => 0, 'pending' => 0];
+        foreach (self::types() as $type) {
+            $c = wp_count_posts($type);
+            $counts['scheduled'] += (int) ($c->future ?? 0);
+            $counts['drafts'] += (int) ($c->draft ?? 0);
+            $counts['pending'] += (int) ($c->pending ?? 0);
+        }
+        $comments = wp_count_comments();
+        $counts['pending_comments'] = (int) ($comments->moderated ?? 0);
+        $scheduled = [];
+        $send_email = (bool) SC_Admin::setting('send_emails');
+        foreach (get_posts(['post_type' => self::types(), 'post_status' => 'future', 'orderby' => 'date', 'order' => 'ASC', 'numberposts' => 20]) as $post) {
+            $uid = (int) $post->post_author;
+            if ($uid && !isset($authors[$uid]) && ($user = get_userdata($uid))) {
+                $authors[$uid] = ['id' => $uid, 'name' => $user->display_name] + ($send_email ? ['email' => $user->user_email] : []);
+            }
+            $scheduled[] = [
+                'id' => $post->ID,
+                'title' => html_entity_decode(get_the_title($post), ENT_QUOTES, 'UTF-8'),
+                'at' => gmdate('c', strtotime($post->post_date_gmt . ' UTC')),
+                'author' => $uid,
+            ];
+        }
+        return [$counts + ['scheduled_items' => $scheduled], $authors];
+    }
+
+    /** Number of words in the text of a post, without HTML and shortcodes. */
+    private static function words(string $content): int
+    {
+        $text = trim(wp_strip_all_tags(strip_shortcodes($content)));
+        return $text === '' ? 0 : count(preg_split('/\s+/u', $text) ?: []);
+    }
+
+    /** Focus keyword and scores from Yoast SEO or Rank Math, when one of them is used. */
+    private static function seo(int $post_id): ?array
+    {
+        $yoast = get_post_meta($post_id, '_yoast_wpseo_focuskw', true);
+        $yoast_score = get_post_meta($post_id, '_yoast_wpseo_linkdex', true);
+        if ($yoast !== '' || $yoast_score !== '') {
+            $readability = get_post_meta($post_id, '_yoast_wpseo_content_score', true);
+            return [
+                'plugin' => 'yoast',
+                'keyword' => mb_substr((string) $yoast, 0, 100),
+                'score' => $yoast_score !== '' ? (int) $yoast_score : null,
+                'readability' => $readability !== '' ? (int) $readability : null,
+            ];
+        }
+        $rank = get_post_meta($post_id, 'rank_math_focus_keyword', true);
+        $rank_score = get_post_meta($post_id, 'rank_math_seo_score', true);
+        if ($rank !== '' || $rank_score !== '') {
+            return [
+                'plugin' => 'rankmath',
+                'keyword' => mb_substr(trim(explode(',', (string) $rank)[0]), 0, 100),
+                'score' => $rank_score !== '' ? (int) $rank_score : null,
+                'readability' => null,
+            ];
+        }
+        return null;
     }
 
     /** Article details and their authors (Co-Authors Plus is used when it is installed). */
     private static function items(array $post_ids): array
     {
+        global $wpdb;
         $items = [];
         $authors = [];
+        // Revisions per post, and how many of them were made more than 15 minutes after publication (updates).
+        $revisions = [];
+        $ids = array_values(array_filter(array_map('intval', $post_ids)));
+        if ($ids) {
+            $rows = $wpdb->get_results(
+                "SELECT r.post_parent id, COUNT(*) n, SUM(r.post_date_gmt > DATE_ADD(p.post_date_gmt, INTERVAL 15 MINUTE)) updates
+                 FROM {$wpdb->posts} r JOIN {$wpdb->posts} p ON p.ID = r.post_parent
+                 WHERE r.post_type = 'revision' AND r.post_parent IN (" . implode(',', $ids) . ') GROUP BY r.post_parent',
+                ARRAY_A
+            );
+            foreach ($rows as $r) {
+                $revisions[(int) $r['id']] = [(int) $r['n'], (int) $r['updates']];
+            }
+        }
         $send_email = (bool) SC_Admin::setting('send_emails');
         foreach ($post_ids as $id) {
             $post = get_post((int) $id);
@@ -299,8 +449,16 @@ final class SC_Sender
                 'categories' => is_object_in_taxonomy($post->post_type, 'category') ? $terms('category') : [],
                 'tags' => is_object_in_taxonomy($post->post_type, 'post_tag') ? $terms('post_tag') : [],
                 'comments' => (int) $post->comment_count,
+                'modified_at' => $post->post_modified_gmt && $post->post_modified_gmt !== '0000-00-00 00:00:00' ? gmdate('c', strtotime($post->post_modified_gmt . ' UTC')) : null,
+                'words' => self::words((string) $post->post_content),
+                'images' => substr_count(strtolower((string) $post->post_content), '<img'),
+                'featured_image' => has_post_thumbnail($post),
+                'video' => (bool) preg_match(self::VIDEO, (string) $post->post_content),
+                'revisions' => $revisions[$post->ID][0] ?? 0,
+                'updates' => $revisions[$post->ID][1] ?? 0,
+                'seo' => self::seo($post->ID),
             ];
         }
-        return [$items, array_values($authors)];
+        return [$items, $authors];
     }
 }

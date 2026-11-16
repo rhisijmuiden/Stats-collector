@@ -18,6 +18,7 @@ import InfoPage from "./pages/Info";
 import Help from "./pages/Help";
 import Profile from "./pages/Profile";
 import Content from "./pages/Content";
+import WebsitePage from "./pages/Website";
 import EditorsPage from "./pages/Editors";
 import ReportsPage from "./pages/Reports";
 import AlertsPage from "./pages/Alerts";
@@ -60,6 +61,7 @@ export default function App() {
       <Route element={<RequireAuth><Layout /></RequireAuth>}>
         <Route index element={<Dashboard />} />
         <Route path="content" element={<Content />} />
+        <Route path="website" element={<WebsitePage />} />
         <Route path="editors" element={<EditorsOnly><EditorsPage /></EditorsOnly>} />
         <Route path="followers" element={<FollowersPage />} />
         <Route path="goals" element={<GoalsPage />} />

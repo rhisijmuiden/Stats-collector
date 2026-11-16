@@ -19,6 +19,7 @@ from ..db import get_db
 from ..models import ContentItem, DimensionPoint, ItemLink, ItemPerson, MetricPoint, Person, Source, User, utcnow
 from ..security import current_user, require_role
 from ..services import links as link_svc
+from ..services import website as website_svc
 from ..services.metrics import (
     BSKY_LIKES,
     BSKY_QUOTES,
@@ -227,6 +228,10 @@ def _item_out(item: ContentItem, source: Source | None, metrics: dict, authors: 
         "comments_total": int((item.meta or {}).get("comments", 0)),
         "reactions": (item.meta or {}).get("reactions") or None,  # Facebook: per type
     }
+    if source is not None and source.kind == "wordpress":
+        meta = item.meta or {}
+        keys = ("words", "images", "featured_image", "video", "revisions", "updates", "modified_at", "seo")
+        out["details"] = {k: meta[k] for k in keys if k in meta} or None
     if authors is not None:
         out["authors"] = authors
     return out
@@ -418,11 +423,13 @@ def item_detail(
     totals = _totals(db, start, end, gran, [item.id]).get(item.id, {})
     show_authors = user.role in SEES_ALL
     authors = _people_for(db, [item.id]).get(item.id, []) if show_authors else None
+    source = db.get(Source, item.source_id)
     return {
         "range": range,
         "granularity": gran,
         "buckets": [b.isoformat() for b in buckets],
-        "item": _item_out(item, db.get(Source, item.source_id), totals, authors),
+        "item": _item_out(item, source, totals, authors),
+        "readers_now": website_svc.item_readers_now(item, source),
         "series": _series(db, gran, buckets, [MetricPoint.item_id == item.id]),
         "dimensions": _dims(db, start, end, [DimensionPoint.item_id == item.id]),
         "links": _linked(db, item, start, end, gran),
