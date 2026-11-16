@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/space-grotesk";
+import "@fontsource-variable/epilogue";
 import "./styles.css";
 import "./i18n";
 import { AppProvider } from "./lib/app";
