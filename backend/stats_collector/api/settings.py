@@ -21,7 +21,9 @@ from .common import audit
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 public_router = APIRouter(prefix="/api/branding", tags=["branding"])
 
-DEFAULT_THEME = APP_ROOT / "branding" / "default" / "theme.json"
+BRANDING_DIR = APP_ROOT / "branding"
+DEFAULT_THEME = BRANDING_DIR / "default" / "theme.json"
+PRESET_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 
@@ -188,8 +190,30 @@ def put_backup_settings(
 # --- branding --------------------------------------------------------------------------------------------
 
 
-def default_theme() -> dict:
-    return json.loads(DEFAULT_THEME.read_text())
+def presets() -> list[dict]:
+    """Brands shipped in the repository: every folder under branding/ with a theme.json."""
+    out = []
+    for folder in sorted(BRANDING_DIR.iterdir()) if BRANDING_DIR.is_dir() else []:
+        theme_file = folder / "theme.json"
+        if PRESET_ID.match(folder.name) and theme_file.is_file():
+            try:
+                data = json.loads(theme_file.read_text())
+            except ValueError:
+                continue
+            out.append({"id": folder.name, "name": data.get("name") or folder.name, "theme": data})
+    return out
+
+
+def _preset_id(cfg: dict) -> str:
+    wanted = cfg.get("preset") or "default"
+    if PRESET_ID.match(wanted) and (BRANDING_DIR / wanted / "theme.json").is_file():
+        return wanted
+    return "default"
+
+
+def default_theme(preset: str = "default") -> dict:
+    path = BRANDING_DIR / preset / "theme.json"
+    return json.loads((path if PRESET_ID.match(preset) and path.is_file() else DEFAULT_THEME).read_text())
 
 
 def _deep_merge(base: dict, over: dict) -> dict:
@@ -201,10 +225,20 @@ def _deep_merge(base: dict, over: dict) -> dict:
 
 def effective_theme(db: Session) -> dict:
     cfg = settings_store.get_section(db, "branding")
-    theme = _deep_merge(default_theme(), cfg.get("overrides") or {})
+    preset = _preset_id(cfg)
+    base = default_theme(preset)
+    theme = _deep_merge(base, cfg.get("overrides") or {})
     theme["app_name"] = cfg.get("app_name") or "Stats Collector"
-    for kind in ("logo_light", "logo_dark", "favicon"):
-        theme.setdefault("assets", {})[kind] = f"/api/branding/asset/{kind}" if cfg.get(kind) else None
+    theme["preset"] = preset
+    shipped = base.get("logo") or {}
+    for kind, key in (("logo_light", "light"), ("logo_dark", "dark"), ("favicon", "favicon")):
+        if cfg.get(kind):
+            url = f"/api/branding/asset/{kind}"
+        elif preset != "default" and shipped.get(key):
+            url = f"/api/branding/preset/{preset}/{kind}"
+        else:
+            url = None
+        theme.setdefault("assets", {})[kind] = url
     return theme
 
 
@@ -220,6 +254,7 @@ def _validate_colors(node, path="") -> None:
 class BrandingIn(BaseModel):
     app_name: str = Field("Stats Collector", min_length=1, max_length=80)
     overrides: dict = Field(default_factory=dict)
+    preset: str | None = None
 
 
 @public_router.get("")
@@ -238,13 +273,30 @@ def branding_asset(kind: Literal["logo_light", "logo_dark", "favicon"], db: Sess
     return FileResponse(path, headers={"Cache-Control": "public, max-age=300"})
 
 
+@public_router.get("/preset/{preset}/{kind}")
+def preset_asset(preset: str, kind: Literal["logo_light", "logo_dark", "favicon"]):
+    if not PRESET_ID.match(preset) or not (BRANDING_DIR / preset / "theme.json").is_file():
+        raise HTTPException(404, "not_found")
+    key = {"logo_light": "light", "logo_dark": "dark", "favicon": "favicon"}[kind]
+    name = (default_theme(preset).get("logo") or {}).get(key)
+    if not name:
+        raise HTTPException(404, "not_found")
+    path = BRANDING_DIR / preset / Path(name).name
+    if not path.is_file() or path.suffix.lower() not in {".svg", ".png", ".webp", ".ico", ".jpg", ".jpeg"}:
+        raise HTTPException(404, "not_found")
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=3600"})
+
+
 @router.get("/branding")
 def get_branding_settings(db: Session = Depends(get_db), _=Depends(require_admin)) -> dict:
     cfg = settings_store.get_section(db, "branding")
+    preset = _preset_id(cfg)
     return {
         "app_name": cfg.get("app_name"),
         "overrides": cfg.get("overrides") or {},
-        "default": default_theme(),
+        "preset": preset,
+        "presets": [{"id": p["id"], "name": p["name"], "theme": p["theme"]} for p in presets()],
+        "default": default_theme(preset),
         "effective": effective_theme(db),
     }
 
@@ -254,7 +306,12 @@ def put_branding(body: BrandingIn, db: Session = Depends(get_db), admin: User = 
     allowed = {"colors", "channels", "fonts", "radius", "liveWall"}
     overrides = {k: v for k, v in body.overrides.items() if k in allowed}
     _validate_colors(overrides)
-    settings_store.update_section(db, "branding", {"app_name": body.app_name, "overrides": overrides})
+    value: dict = {"app_name": body.app_name, "overrides": overrides}
+    if body.preset is not None:
+        if not PRESET_ID.match(body.preset) or not (BRANDING_DIR / body.preset / "theme.json").is_file():
+            raise HTTPException(400, "unknown_preset")
+        value["preset"] = body.preset
+    settings_store.update_section(db, "branding", value)
     audit(db, admin, "settings.branding")
     return effective_theme(db)
 

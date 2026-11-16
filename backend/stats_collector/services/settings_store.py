@@ -76,6 +76,7 @@ DEFAULTS: dict[str, dict[str, Any]] = {
         "include_uploads": True,
     },
     "branding": {
+        "preset": "ijmond360",  # folder under branding/ used as the base theme
         "overrides": {},  # partial theme.json overrides (colors, fonts, channels)
         "logo_light": None,  # file name in uploads/branding
         "logo_dark": None,
