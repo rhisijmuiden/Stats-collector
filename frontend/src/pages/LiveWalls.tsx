@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Copy, ExternalLink, MonitorPlay, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, LayoutDashboard, MonitorPlay, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { api, ApiError } from "../lib/api";
 import { useApp } from "../lib/app";
 import { Alert, Card, Field, Modal, PageHead, Switch, useLoad } from "../components/ui";
@@ -8,7 +9,7 @@ import { errorText } from "../i18n";
 import { kindIcon } from "./Content";
 
 type Layout = "rotate" | "overview" | "stories";
-interface Wall { id: number; name: string; title: string; source_ids: number[]; allow_ips: string; enabled: boolean; layout: Layout; rotate_seconds: number; show_authors: boolean; url: string; rotated_at: string | null }
+interface Wall { id: number; name: string; title: string; source_ids: number[]; allow_ips: string; enabled: boolean; layout: Layout; rotate_seconds: number; show_authors: boolean; url: string; rotated_at: string | null; custom_design: boolean; design_version: number; has_draft: boolean }
 interface SourceRef { id: number; name: string; kind: string }
 interface Walls { walls: Wall[]; sources: SourceRef[]; base_url: string }
 interface WallConfig { public_url: string; trusted_proxies: string; default_url: string }
@@ -101,6 +102,7 @@ export default function LiveWallsPage() {
   const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
   const copy = async (text: string) => { try { await navigator.clipboard.writeText(text); toast("success", t("livewalls.copied")); } catch { /* ignore */ } };
   const sources = data.data?.sources ?? [];
+  const walls = data.data?.walls ?? [];
 
   const save = async () => {
     if (!edit) return;
@@ -134,6 +136,7 @@ export default function LiveWallsPage() {
         <Card key={w.id} title={w.name} subtitle={w.title || undefined}
           actions={<div className="row">
             <span className={`badge${w.enabled ? " good" : ""}`}>{t(w.enabled ? "livewalls.on" : "livewalls.off")}</span>
+            <Link className="btn secondary" to={`/admin/livewalls/${w.id}/design`}><LayoutDashboard /> {t("livewalls.design")}</Link>
             <button className="btn ghost" title={t("common.edit")} aria-label={t("common.edit")} onClick={() => setEdit(toDraft(w))}><Pencil /></button>
             <button className="btn ghost" title={t("livewalls.rotate")} aria-label={t("livewalls.rotate")} onClick={() => rotate(w)}><RefreshCw /></button>
             <button className="btn ghost" title={t("common.delete")} aria-label={t("common.delete")} onClick={() => remove(w)}><Trash2 /></button>
@@ -146,7 +149,7 @@ export default function LiveWallsPage() {
             </div>
             <div className="muted small row">
               <span>{t("livewalls.channels")}: {w.source_ids.length ? w.source_ids.map((id) => sources.find((s) => s.id === id)?.name).filter(Boolean).join(", ") : t("livewalls.allChannels")}</span>
-              <span>{t("livewalls.layout")}: {t(`livewalls.layouts.${w.layout}`)}{w.layout === "rotate" ? ` (${t("livewalls.everySeconds", { n: w.rotate_seconds })})` : ""}</span>
+              <span>{t("livewalls.layout")}: {w.custom_design ? t("livewalls.customDesign", { n: w.design_version }) : `${t(`livewalls.layouts.${w.layout}`)}${w.layout === "rotate" ? ` (${t("livewalls.everySeconds", { n: w.rotate_seconds })})` : ""}`}{w.has_draft ? ` · ${t("livewalls.draftWaiting")}` : ""}</span>
               <span>{t("livewalls.allowIps")}: {w.allow_ips || t("livewalls.everyone")}</span>
             </div>
             {w.enabled && <Preview id={w.id} />}
@@ -162,6 +165,7 @@ export default function LiveWallsPage() {
             <Field label={t("livewalls.channels")} hint={t("livewalls.channelsHint")}>
               <div className="chips">{sources.map((s) => <button key={s.id} type="button" className="chip" aria-pressed={edit.source_ids.includes(s.id)} onClick={() => toggle(s.id)}>{kindIcon(s.kind)} {s.name}</button>)}</div>
             </Field>
+            {walls.find((w) => w.id === edit.id)?.custom_design ? <Alert kind="info">{t("livewalls.designHint")}</Alert> : (
             <div className="grid two">
               <Field label={t("livewalls.layout")} hint={t(`livewalls.layoutHint.${edit.layout}`)}>
                 <select value={edit.layout} onChange={(e) => setEdit({ ...edit, layout: e.target.value as Layout })}>
@@ -174,6 +178,7 @@ export default function LiveWallsPage() {
                 </Field>
               )}
             </div>
+            )}
             <Switch checked={edit.show_authors} onChange={(v) => setEdit({ ...edit, show_authors: v })} label={t("livewalls.showAuthors")} />
             <Field label={t("livewalls.allowIps")} hint={t("livewalls.allowIpsHint")}><input value={edit.allow_ips} maxLength={1000} placeholder="192.0.2.10, 198.51.100.0/24" onChange={(e) => setEdit({ ...edit, allow_ips: e.target.value })} /></Field>
             <Switch checked={edit.enabled} onChange={(v) => setEdit({ ...edit, enabled: v })} label={t("livewalls.enabled")} />

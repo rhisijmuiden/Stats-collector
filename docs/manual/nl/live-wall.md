@@ -1,6 +1,6 @@
 # Live wall
 
-Een live wall is een alleen-lezen scherm voor een tv op de redactievloer. Je ziet in één oogopslag hoe de kanalen het nu doen en hoe de berichten scoren op social media. Twee schermen wisselen elkaar af (standaard elke 30 seconden):
+Een live wall is een alleen-lezen scherm voor een tv op de redactievloer. Je ziet in één oogopslag hoe de kanalen het nu doen en hoe de berichten scoren op social media. Twee schermen wisselen elkaar af (standaard elke 30 seconden); met de [Wall Designer](#een-wall-ontwerpen) maak je eigen schermen:
 
 - **Overzicht**: drie grote cijfers (live publiek, weergaven vandaag, interacties vandaag) en een tegel per kanaal met het getal, een lijn van het laatste uur of de laatste 7 dagen, de verandering in volgers en, als het kanaal een eigen volgersdoel heeft, een ring met de voortgang. Onderin loopt een ticker met de beste verhalen.
 - **Topverhalen**: de beste berichten van vandaag van alle kanalen in één race op weergaven, met de redacteur, pijltjes voor berichten die stijgen of zakken, de snelste stijgers van het laatste uur en de doelen (volgers eerst, ook week- en maanddoelen) met de datum waarop ze naar verwachting gehaald worden.
@@ -29,8 +29,37 @@ De wall werkt zichzelf bij: de server zet elke minuut nieuwe cijfers klaar en st
 
 - **Nieuwe link** (ronde pijlen) maakt een nieuwe link. De oude link werkt meteen niet meer; gebruik dit als een link te breed is gedeeld.
 - Zet je **Deze wall tonen** uit, of verwijder je de wall, dan werkt de link niet meer.
-- Wil je op een bepaalde tv maar één scherm, zet dan `?screen=overview` of `?screen=stories` achter de link, bijvoorbeeld om beide schermen naast elkaar op twee tv's te zetten. De wall volgt de taal van de browser op de tv; met `?lang=nl` of `?lang=en` stel je die vast (combineer met `&`, bijv. `?screen=stories&lang=nl`).
+- Wil je op een bepaalde tv maar één scherm, zet dan `?screen=overview` of `?screen=stories` (of de sleutel van een eigen scherm, zie [Een wall ontwerpen](#een-wall-ontwerpen)) achter de link, bijvoorbeeld om beide schermen naast elkaar op twee tv's te zetten. De wall volgt de taal van de browser op de tv; met `?lang=nl` of `?lang=en` stel je die vast (combineer met `&`, bijv. `?screen=stories&lang=nl`).
 - De wall gebruikt de kleuren van **Beheer → Huisstijl** (de live-wallkleuren) en de kanaalkleuren.
+
+## Een wall ontwerpen
+
+Met de **Wall Designer** kies je zelf wat een wall toont. Klik op **Ontwerpen** naast een wall onder **Beheer → Live walls**.
+
+![De Wall Designer](../images/nl-wall-designer.png)
+
+- **In het midden** staat de wall zoals de tv hem toont, met de echte cijfers, op een raster van 12 × 8 vakken. Sleep een blok om het te verplaatsen en sleep aan het hoekje om het groter of kleiner te maken; blokken klikken vast op het raster. Blokken die overlappen worden rood. Met een geselecteerd blok verplaatsen de pijltjestoetsen het en verwijdert Delete het.
+- **Links** staan de bouwstenen. Sleep er een naar de wall, of klik op **+** om het op de eerste vrije plek te zetten. Onder **Begin met een sjabloon** zet je het standaardscherm *Overzicht* of *Topverhalen* (of een leeg scherm) op het scherm waar je aan werkt.
+- **Rechts** staan de instellingen van het geselecteerde blok; is niets geselecteerd, dan die van het scherm.
+- **Bovenaan** staan de schermen van de wall als tabbladen. **Scherm toevoegen** maakt een nieuw scherm; de schermen wisselen elkaar in deze volgorde af.
+
+| Blok | Wat het toont | Instellingen |
+| --- | --- | --- |
+| Kop & klok | Titel van de wall, live-stip en de tijd | Titel |
+| Groot getal | Nu live (luisteraars en kijkers), weergaven, interacties of volgers | Periode (vandaag, 7 of 30 dagen), kanalen, *Getal*, *Getal + lijn* of *Meter* (tegenover het beste moment), verandering tonen |
+| Kanaaltegels | Een tegel per kanaal, zoals op het overzicht | *Tegels*, *Gloeistaven* of *Lijst*, kanalen |
+| Grafiek | Per kanaal het laatste uur (live kanalen) of weergaven of interacties per dag | Periode (laatste uur, 7 of 30 dagen), *Vlak*, *Lijn*, *Staven* of *Donut* (aandeel per kanaal) |
+| Race topverhalen | De beste items van vandaag over de gekozen kanalen | *Race* of *Lijst*, aantal items, namen van redacteuren |
+| Doelen | De doelen die op de walls mogen | *Balken* of *Ringen*, aantal doelen, kanalen |
+| Snelste stijgers | Items met de meeste weergaven het laatste uur | Aantal items, kanalen |
+| Ticker | Een lopende regel met de beste items | Titel van het label, kanalen |
+| Bericht | Je eigen tekst, bijv. een aankondiging | Tekst en kleine tekst |
+
+Elk blok kan een eigen titel hebben (leeg betekent een titel die past) en een eigen kleur (**Automatisch** gebruikt de kanaalkleuren en de gloed van de live wall uit **Beheer → Huisstijl**). Kanalen: **Alle** betekent alle kanalen van de wall.
+
+Per scherm stel je de **naam**, de **seconden in beeld** (10 tot 300) en de **achtergrond** in (*Neon gloed*, *Aurora* of *Effen*). **Link naar alleen dit scherm** geeft de link van de wall met `?screen=` en de sleutel van het scherm, voor een tv die alleen dat scherm moet tonen. Op de tv wordt een scherm zonder cijfers om te tonen (bijv. topverhalen vroeg in de ochtend) overgeslagen, en lege zijvakken (doelen, snelste stijgers, ticker) worden verborgen.
+
+**Concept opslaan** bewaart je werk zonder de tv's te veranderen. **Publiceren** zet het ontwerp op de tv's; die volgen binnen een minuut, zonder te herladen. **Voorbeeld** verbergt het raster zodat je de wall ziet zoals hij wordt. **Versies** toont elk gepubliceerd ontwerp; **Terugzetten** zet er een in de editor (publiceer om hem weer op de tv's te zetten), en **Terug naar de standaardschermen** gaat terug naar het overzicht en de topverhalen. Een wall met een eigen ontwerp toont *eigen ontwerp* in de lijst, en de keuze van schermen in de instellingen van de wall geldt dan niet meer.
 
 ## Wat staat er op de wall
 

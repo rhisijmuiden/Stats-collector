@@ -43,11 +43,19 @@ async function openLiveWallStories(page, lang) {
   await page.waitForTimeout(2500);
 }
 
+// The Wall Designer of the first wall, with the channel tiles selected.
+async function openDesigner(page) {
+  await page.locator('a[href$="/design"]').first().click();
+  await page.waitForTimeout(3500);
+  await page.locator(".wd-box").nth(4).click({ position: { x: 40, y: 40 } });
+  await page.waitForTimeout(1200);
+}
+
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
   ["/stories", "stories"], ["/stories", "story-detail", ".story-card"], ["/best-times", "best-times"], ["/alerts", "alerts"], ["/alerts", "alerts-edit", '.alert-rule button:has(svg.lucide-pencil)'],
   ["/reports", "reports"], ["/reports", "reports-edit", '.report-list .card button:has(svg.lucide-pencil)'], ["/reports", "reports-archive", "button:has(svg.lucide-history)"], ["/reports/runs/1", "report-view"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories], ["/admin/livewalls", "wall-designer", openDesigner],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/email", "email-graph", ".card .seg button"], ["/admin/digest", "digest"], ["/admin/digest", "digest-preview", "button:has(svg.lucide-eye)"], ["/admin/branding", "branding"],
 ];
 
