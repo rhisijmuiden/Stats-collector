@@ -3,6 +3,7 @@ import FollowersPage from "./pages/Followers";
 import GoalsPage from "./pages/Goals";
 import DashboardsPage from "./pages/Dashboards";
 import LiveWallsPage from "./pages/LiveWalls";
+import WallDesigner from "./pages/WallDesigner";
 import { useApp } from "./lib/app";
 import Layout from "./components/Layout";
 import { Login, Setup } from "./pages/Login";
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="admin/users" element={<AdminOnly><Users /></AdminOnly>} />
         <Route path="admin/sso" element={<AdminOnly><SsoPage /></AdminOnly>} />
         <Route path="admin/livewalls" element={<AdminOnly><LiveWallsPage /></AdminOnly>} />
+        <Route path="admin/livewalls/:id/design" element={<AdminOnly><WallDesigner /></AdminOnly>} />
         <Route path="admin/branding" element={<AdminOnly><Branding /></AdminOnly>} />
         <Route path="admin/email" element={<AdminOnly><Email /></AdminOnly>} />
         <Route path="admin/digest" element={<EditorsInChief><DigestPage /></EditorsInChief>} />

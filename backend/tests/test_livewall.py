@@ -175,3 +175,120 @@ def test_wall_layout_and_rising(admin):
         later = [{"id": 1, "value": 160}, {"id": 2, "value": 50}]
         assert livewall._rising(wall, later, "d", now + timedelta(minutes=10)) == [{"id": 1, "value": 160, "gain": 60}]
         assert livewall._rising(wall, later, "next-day", now + timedelta(minutes=11)) == []
+
+
+def test_wall_designer(admin):
+    """Design per wall: standard screens, draft, publish with versions, restore the standard."""
+    client, csrf = admin
+    _demo()
+    w = client.post(
+        "/api/livewalls", json={"name": "Hall", "layout": "overview", "rotate_seconds": 40}, headers=csrf
+    ).json()
+    assert not w["custom_design"] and w["design_version"] == 0
+    got = client.get(f"/api/livewalls/{w['id']}/design").json()
+    assert not got["custom"] and got["draft"] is None and got["versions"] == []
+    assert [s["id"] for s in got["design"]["screens"]] == ["overview"] and got["design"]["screens"][0]["seconds"] == 40
+    assert set(got["templates"]) == {"overview", "stories", "brand"}
+    brand = got["templates"]["brand"]
+    assert brand["background"] == "rings"
+    assert {b["viz"] for b in brand["blocks"]} == {"brand", "panel", "pulse", "cards", "spotlight"}
+
+    snap = client.get(f"/api/livewalls/{w['id']}/preview").json()
+    assert snap["design"]["screens"][0]["blocks"][0]["type"] == "header"
+    site = next(s for s in snap["sources"] if s["kind"] == "website")
+    assert site["live"] and len(site["views_days"]) == 30 and len(site["bars"]) == 12
+    assert all("source_id" in t for t in snap["top"])
+    assert snap["icon"].startswith("data:image/png;base64,")  # the IJmond360 icon: walls run on their own address
+
+    sources = client.get("/api/livewalls").json()["sources"]
+    fb = next(s for s in sources if s["kind"] == "facebook")
+    design = {
+        "screens": [
+            {
+                "id": "custom",
+                "name": "Custom",
+                "seconds": 20,
+                "background": "aurora",
+                "blocks": [
+                    {"id": "h", "type": "header", "x": 0, "y": 0, "w": 12, "h": 1},
+                    {"id": "c", "type": "chart", "x": 0, "y": 1, "w": 6, "h": 4, "viz": "donut", "period": "7d"},
+                    {
+                        "id": "k",
+                        "type": "kpi",
+                        "x": 6,
+                        "y": 1,
+                        "w": 6,
+                        "h": 2,
+                        "metric": "followers",
+                        "channels": [fb["id"]],
+                    },
+                    {"id": "t", "type": "tiles", "x": 6, "y": 3, "w": 6, "h": 5, "viz": "nonsense"},
+                ],
+            }
+        ]
+    }
+    assert client.put(f"/api/livewalls/{w['id']}/design/draft", json=design, headers=csrf).json()["ok"]
+    got = client.get(f"/api/livewalls/{w['id']}/design").json()
+    assert got["draft"]["screens"][0]["id"] == "custom" and not got["custom"]  # the TVs still show the standard
+
+    # Checks: blocks inside the grid, known channels, valid colours and keys.
+    bad = {
+        "screens": [{**design["screens"][0], "blocks": [{"id": "x", "type": "kpi", "x": 10, "y": 0, "w": 4, "h": 1}]}]
+    }
+    assert client.put(f"/api/livewalls/{w['id']}/design/draft", json=bad, headers=csrf).status_code == 422
+    bad = {
+        "screens": [
+            {
+                **design["screens"][0],
+                "blocks": [{"id": "x", "type": "kpi", "x": 0, "y": 0, "w": 1, "h": 1, "channels": [99999]}],
+            }
+        ]
+    }
+    assert client.put(f"/api/livewalls/{w['id']}/design/draft", json=bad, headers=csrf).status_code == 400
+    bad = {
+        "screens": [
+            {
+                **design["screens"][0],
+                "blocks": [{"id": "x", "type": "msg", "x": 0, "y": 0, "w": 1, "h": 1, "color": "red"}],
+            }
+        ]
+    }
+    assert client.put(f"/api/livewalls/{w['id']}/design/draft", json=bad, headers=csrf).status_code == 422
+    assert (
+        client.put(
+            f"/api/livewalls/{w['id']}/design/draft",
+            json={"screens": [{**design["screens"][0], "id": "Bad Key"}]},
+            headers=csrf,
+        ).status_code
+        == 422
+    )
+    assert (
+        client.put(
+            f"/api/livewalls/{w['id']}/design/draft", json={"screens": design["screens"] * 2}, headers=csrf
+        ).status_code
+        == 422
+    )
+
+    pub = client.post(f"/api/livewalls/{w['id']}/design/publish", json=design, headers=csrf).json()
+    assert pub["custom"] and pub["version"] == 1 and pub["draft"] is None and pub["versions"][0]["created_by"]
+    assert pub["design"]["screens"][0]["blocks"][3]["viz"] == "tiles"  # an unknown style falls back to the first
+    token = w["url"].rsplit("/w/", 1)[1]
+    data = _wall_client().get(f"/w/{token}/data").json()
+    assert data["design"]["screens"][0]["background"] == "aurora"
+    listed = next(x for x in client.get("/api/livewalls").json()["walls"] if x["id"] == w["id"])
+    assert listed["custom_design"] and listed["design_version"] == 1
+
+    std = client.post(f"/api/livewalls/{w['id']}/design/standard", headers=csrf).json()
+    assert not std["custom"] and std["version"] == 2 and [v["version"] for v in std["versions"]] == [2, 1]
+    assert std["versions"][1]["design"]["screens"][0]["id"] == "custom"
+    assert _wall_client().get(f"/w/{token}/data").json()["design"]["screens"][0]["id"] == "overview"
+
+
+def test_designer_frame(admin):
+    admin_client, _ = admin
+    page = admin_client.get("/api/livewalls/designer-frame")
+    assert page.status_code == 200 and "var data = null" in page.text
+    assert (
+        page.headers["x-frame-options"] == "SAMEORIGIN"
+        and "frame-ancestors 'self'" in page.headers["content-security-policy"]
+    )

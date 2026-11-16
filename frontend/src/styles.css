@@ -511,6 +511,74 @@ html.printing td:first-child { min-width: 180px; }
   .page, .dash-grid, .kpis, .grid { gap: 22px; }
 }
 
+/* ---- Wall Designer (pages/WallDesigner.tsx): building blocks | the wall on a 12 x 8 grid | settings ---- */
+.wd { gap: 14px; }
+.wd-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.wd-title a { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+.wd-title h1 { margin-top: 2px; }
+.wd-top .btn.active { background: var(--accent-soft); border-color: var(--accent); }
+.wd-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); }
+.wd-tabs .wd-add { color: var(--accent); display: inline-flex; align-items: center; gap: 4px; }
+.wd-body { display: grid; grid-template-columns: 230px minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.wd-pane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 14px; box-shadow: var(--shadow); min-width: 0; }
+.wd-pane h3 { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; margin: 2px 0 4px; }
+.wd-pane > p { margin: 0 0 10px; }
+.wd-lib { display: grid; gap: 6px; margin-bottom: 18px; }
+.wd-blk { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 6px 4px 6px 8px; border: 1px solid var(--border); border-radius: 9px; cursor: grab; background: var(--surface); }
+.wd-blk:hover { border-color: var(--accent); }
+.wd-blk b { display: block; font-size: 12.5px; }
+.wd-blk small { display: block; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wd-blk .btn { padding: 4px 6px; color: var(--accent); }
+.wd-ic { width: 34px; height: 26px; border-radius: 6px; background: #060b16; display: grid; place-items: center; flex: none; }
+.wd-ic svg { width: 22px; height: 16px; }
+.wd-tpl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.wd-tpl button { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 5px; font: inherit; font-size: 11.5px; font-weight: 600; color: var(--text); cursor: pointer; text-align: left; }
+.wd-tpl button:hover { border-color: var(--accent); }
+.wd-thumb { display: block; position: relative; aspect-ratio: 16 / 9; border-radius: 4px; background: #060b16; margin-bottom: 4px; overflow: hidden; }
+.wd-thumb i { position: absolute; border-radius: 2px; background: rgba(47, 184, 255, .45); }
+.wd-center { min-width: 0; display: grid; gap: 8px; }
+.wd-frame { position: relative; width: 100%; border-radius: 10px; overflow: hidden; background: #060b16; box-shadow: 0 0 0 5px #111a2a, 0 0 0 6px #2a3650, 0 20px 40px -20px rgba(0, 0, 0, .6); }
+.wd-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.wd-stage iframe { position: absolute; inset: 0; width: 1920px; height: 1080px; border: 0; pointer-events: none; }
+.wd-overlay { position: absolute; inset: 0; }
+.wd-cell { position: absolute; border: 2px dashed rgba(47, 184, 255, .16); border-radius: 12px; pointer-events: none; }
+.wd-box { position: absolute; border-radius: 20px; cursor: move; touch-action: none; }
+.wd-box:hover { box-shadow: 0 0 0 4px rgba(47, 184, 255, .4); }
+.wd-box.sel { box-shadow: 0 0 0 6px #2fb8ff, 0 0 50px rgba(47, 184, 255, .35); z-index: 2; }
+.wd-box.clash { box-shadow: 0 0 0 6px #ff6b6f; }
+.wd-tag { display: none; position: absolute; left: 16px; top: -2px; font: 700 24px ui-monospace, monospace; background: #2fb8ff; color: #04121f; padding: 4px 14px; border-radius: 0 0 12px 12px; white-space: nowrap; }
+.wd-box.sel .wd-tag, .wd-box:hover .wd-tag { display: block; }
+.wd-rz { display: none; position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 10px; background: #2fb8ff; cursor: nwse-resize;
+  -webkit-mask: linear-gradient(135deg, transparent 50%, #000 50%); mask: linear-gradient(135deg, transparent 50%, #000 50%); }
+.wd-box.sel .wd-rz { display: block; }
+.wd-status { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.wd-warn { color: var(--critical); font-weight: 600; }
+.wd-props .stack { gap: 12px; }
+.wd-ph { display: flex; align-items: center; gap: 8px; }
+.wd-ph b { flex: 1; font-family: var(--font-heading); font-size: 15px; }
+.wd-ph .btn { padding: 6px; }
+.wd-props .seg { display: flex; flex-wrap: wrap; }
+.wd-props .seg button { flex: 1; padding: 6px 8px; white-space: nowrap; }
+.wd-sw { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wd-sw button { width: 26px; height: 26px; border-radius: 7px; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.wd-sw button[aria-pressed="true"] { border-color: var(--text); box-shadow: inset 0 0 0 2px var(--surface); }
+.wd-sw .wd-auto { width: auto; padding: 0 8px; font: inherit; font-size: 11.5px; font-weight: 600; color: #fff; background: linear-gradient(90deg, #3e7bfa, #6c5ce7, #e14fd0, #e5484d, #f5a524); }
+.wd-sw input[type="color"] { width: 30px; height: 28px; }
+.wd-pos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.wd-pos label { display: grid; gap: 3px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.wd-pos input { padding: 5px 6px; }
+.wd-versions { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 50vh; overflow: auto; }
+.wd-versions li { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; }
+.wd-versions .badge { margin-left: 8px; }
+@media (max-width: 1280px) {
+  .wd-body { grid-template-columns: minmax(0, 1fr) 300px; }
+  .wd-body > .wd-pane:first-child { grid-column: 1 / -1; order: 3; }
+  .wd-lib { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+}
+@media (max-width: 900px) {
+  .wd-body { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Website overview */
 .kpis.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
 @media (max-width: 1200px) { .kpis.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

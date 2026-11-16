@@ -383,9 +383,26 @@ class LiveWall(Base):
     layout: Mapped[str] = mapped_column(String(16), default="rotate")  # rotate | overview | stories
     rotate_seconds: Mapped[int] = mapped_column(Integer, default=30)  # time per screen when rotating
     show_authors: Mapped[bool] = mapped_column(Boolean, default=True)  # editor names in the top stories
+    # Wall Designer: screens of blocks (services/walldesign.py). None = the standard screens from `layout`.
+    design: Mapped[Any | None] = mapped_column(JSON, nullable=True)
+    design_draft: Mapped[Any | None] = mapped_column(JSON, nullable=True)  # saved in the editor, not on the TVs yet
+    design_version: Mapped[int] = mapped_column(Integer, default=0)
     created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     rotated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class LiveWallVersion(Base):
+    """Every published design of a live wall, so an earlier one can be brought back."""
+
+    __tablename__ = "live_wall_versions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    wall_id: Mapped[int] = mapped_column(ForeignKey("live_walls.id", ondelete="CASCADE"), index=True)
+    version: Mapped[int] = mapped_column(Integer)
+    design: Mapped[Any] = mapped_column(JSON)
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class GoalRevision(Base):

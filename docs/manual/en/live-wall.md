@@ -1,6 +1,6 @@
 # Live wall
 
-A live wall is a read-only screen for a TV on the newsroom floor. It shows at a glance how the channels are doing right now and how the posts score on social media. Two screens take turns (every 30 seconds by default):
+A live wall is a read-only screen for a TV on the newsroom floor. It shows at a glance how the channels are doing right now and how the posts score on social media. Two screens take turns (every 30 seconds by default); with the [Wall Designer](#designing-a-wall) you make your own:
 
 - **Overview**: three big numbers (live audience, views today, interactions today) and a tile per channel with its number, a line of the last hour or the last 7 days, the change in followers and, when the channel has its own follower goal, a ring with the progress. A ticker along the bottom shows the best stories.
 - **Top stories**: today's best items of all channels in one race by views, with the editor, arrows for items that move up or down, what rose fastest in the last hour, and the goals (followers first, also weekly and monthly goals) with the date they are expected to be reached.
@@ -29,8 +29,45 @@ The wall updates itself: the server prepares new numbers every minute and pushes
 
 - **New link** (round arrows) makes a new link. The old link stops working at once; use it when a link has been shared too widely.
 - Switching **Show this wall** off, or deleting the wall, makes the link stop working.
-- To show one screen only on a particular TV, add `?screen=overview` or `?screen=stories` to its link, for example to put both screens next to each other on two TVs. The wall follows the language of the TV's browser; `?lang=nl` or `?lang=en` sets it (combine with `&`, e.g. `?screen=stories&lang=nl`).
+- To show one screen only on a particular TV, add `?screen=overview` or `?screen=stories` (or the key of a screen of your own, see [Designing a wall](#designing-a-wall)) to its link, for example to put both screens next to each other on two TVs. The wall follows the language of the TV's browser; `?lang=nl` or `?lang=en` sets it (combine with `&`, e.g. `?screen=stories&lang=nl`).
 - The wall uses the colours of **Administration → Branding** (the live wall colours) and the channel colours.
+
+## Designing a wall
+
+With the **Wall Designer** you choose yourself what a wall shows. Click **Design** next to a wall under **Administration → Live walls**.
+
+![The Wall Designer](../images/en-wall-designer.png)
+
+- **In the middle** is the wall as the TV shows it, with the real numbers, on a grid of 12 × 8 cells. Drag a block to move it and drag its corner to make it bigger or smaller; blocks snap to the grid. Blocks that overlap turn red. With a block selected, the arrow keys move it and Delete removes it.
+- **On the left** are the building blocks. Drag one onto the wall, or click **+** to put it in the first free spot. Under **Start from a template** you put the standard *Overview* or *Top stories* screen, the *Brand live* screen (or an empty one) on the screen you are working on.
+- **On the right** are the settings of the selected block; with nothing selected, the settings of the screen.
+- **At the top** are the screens of the wall as tabs. **Add screen** makes a new one; screens take turns in this order.
+
+| Block | What it shows | Settings |
+| --- | --- | --- |
+| Header & clock | Title of the wall, live dot and the time | Title |
+| Big number | Live now (listeners and viewers), views, interactions or followers | Period (today, 7 or 30 days), channels, *Number*, *Number + line* or *Gauge* (against the best moment), show the change |
+| Channel tiles | A tile per channel, as on the overview | *Tiles*, *Glow bars* or *List*, channels |
+| Chart | Per channel the last hour (live channels) or views or interactions per day | Period (last hour, 7 or 30 days), *Area*, *Line*, *Bars* or *Donut* (share per channel) |
+| Top stories race | Today's best items over the chosen channels | *Race* or *List*, number of items, editor names |
+| Goals | The goals marked for the walls | *Bars* or *Rings*, number of goals, channels |
+| Rising fastest | Items with the most views in the last hour | Number of items, channels |
+| Ticker | A scrolling line with the best items | Title of the tag, channels |
+| Message | Your own text, e.g. an announcement | Text and small text |
+
+Every block can have its own title (empty means a title that fits) and colour (**Automatic** uses the channel colours and the glow of the live wall from **Administration → Branding**). Channels: **All** means every channel of the wall.
+
+Per screen you set the **name**, the **seconds on screen** (10 to 300) and the **background** (*Neon glow*, *Aurora*, *Brand rings* or *Plain*). **Link to this screen only** gives the wall's link with `?screen=` and the key of the screen, for a TV that should show only that screen. On the TV a screen without numbers to show (e.g. top stories early in the morning) is skipped, and empty side boxes (goals, rising fastest, ticker) are hidden.
+
+### The brand look
+
+The **Brand live** template shows the wall in the house style of **Administration → Branding**: the brand icon with the title and a pulsing *LIVE* pill, the views of the last hour on a solid panel in the brand colour, bars per 5 minutes, a card per channel with a progress bar and a white bar with the item that is popular now (one at a time). It uses the *Brand rings* background and the brand fonts.
+
+![The Brand live template in the Wall Designer](../images/en-wall-designer-brand.png)
+
+The pieces are also available on their own, as a choice under **Show as** of a block: *Brand* for the header (icon, **Subtitle**, LIVE pill and clock), *Panel* for a big number (with **Last hour** as period it counts the website views of the last 60 minutes), *Pulse bars* for a chart, *Cards* for the channel tiles and *Spotlight* for the ticker. The colours come from the live wall colours of the brand: *glow* for the pill and bars, *panel* for the solid panel.
+
+**Save draft** keeps your work without changing the TVs. **Publish** puts the design on the TVs; they follow within a minute, without reloading. **Preview** hides the grid so you see the wall as it will look. **Versions** lists every published design; **Restore** puts one in the editor (publish it to put it back on the TVs), and **Back to the standard screens** returns to the overview and top stories. A wall with a design of its own shows *own design* in the list, and the screen choice in the wall's settings no longer applies.
 
 ## What is on the wall
 

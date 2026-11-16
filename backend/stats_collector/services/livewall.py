@@ -20,10 +20,14 @@ What a snapshot holds:
             with the first author; `rising` is what gained most views in the last hour
   goals     the active goals marked for the wall (followers first, also weekly and monthly goals),
             with their progress and the expected date to reach them
+  sources   one entry per channel for the Wall Designer's blocks: live audience and the last hour,
+            views and interactions per day over 30 days, followers
+  design    the screens and blocks to draw (services/walldesign.py)
 """
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import logging
@@ -49,6 +53,7 @@ from ..models import (
     StreamSample,
     utcnow,
 )
+from . import walldesign
 from .goals import GOAL_METRICS
 from .metrics import (
     BSKY_FOLLOWERS,
@@ -93,6 +98,7 @@ FOLLOWER_GAUGE = {
 VIEW_METRICS = GOAL_METRICS["views"]
 INTERACTION_METRICS = GOAL_METRICS["interactions"]
 DAYS = 7  # days of history on a social tile
+LONG_DAYS = 30  # days of history per source for the Wall Designer's blocks
 TOP = 10  # items in the top stories
 RISING_WINDOW = timedelta(hours=1)
 BARS = 12  # 5-minute bars over the last hour
@@ -408,6 +414,7 @@ def _top(
         out.append(
             {
                 "id": item.id,
+                "source_id": item.source_id,
                 "title": (item.title or "").strip()[:140] or "(untitled)",
                 "kind": kinds.get(item.source_id, ""),
                 "color": colors.get(item.source_id, "#2FB8FF"),
@@ -438,6 +445,40 @@ def _rising(wall: LiveWall, top: list[dict], day: str, now: datetime) -> list[di
             gains.append({**t, "gain": round(t["value"] - before)})
     gains.sort(key=lambda t: -t["gain"])
     return gains[:4]
+
+
+ICON_TYPES = {
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
+ICON_MAX = 96 * 1024
+_icon_cache: dict[tuple[str, float], str | None] = {}
+
+
+def brand_icon(db: Session) -> str | None:
+    """The brand icon as a data URL: the walls run on their own address and cannot load it from the app."""
+    from ..api.settings import brand_asset_path
+
+    try:
+        path = brand_asset_path(db, "favicon")
+        if path is None or path.suffix.lower() not in ICON_TYPES:
+            return None
+        key = (str(path), path.stat().st_mtime)
+        if key not in _icon_cache:
+            raw = path.read_bytes()
+            _icon_cache.clear()
+            _icon_cache[key] = (
+                f"data:{ICON_TYPES[path.suffix.lower()]};base64,{base64.b64encode(raw).decode()}"
+                if len(raw) <= ICON_MAX
+                else None
+            )
+        return _icon_cache[key]
+    except Exception:  # noqa: BLE001 - a wall without its icon still works
+        log.exception("live wall: reading the brand icon failed")
+        return None
 
 
 def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = None) -> dict:
@@ -481,11 +522,12 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
     tz = org_timezone(db)
     today_start = local_day_start(now, tz)
     today = now.astimezone(tz).date()
-    days = [local_day_start(today_start - timedelta(days=n, hours=-12), tz) for n in range(DAYS - 1, 0, -1)] + [
-        today_start
-    ]
+    long_days = [
+        local_day_start(today_start - timedelta(days=n, hours=-12), tz) for n in range(LONG_DAYS - 1, 0, -1)
+    ] + [today_start]
+    days = long_days[-DAYS:]
     day_ids = [s.id for s in sources if s.kind != "icecast" and s.kind != "owncast"]
-    values = _day_values(db, day_ids, days[0])
+    values = _day_values(db, day_ids, long_days[0])
 
     goals = _goals(db, wall, now, today)
     own_goal: dict[int, dict] = {}
@@ -514,10 +556,38 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
             top, top_day = earlier, yesterday
     rising = _rising(wall, top, top_day.isoformat(), now) if top else []
 
+    # One entry per channel with everything a designed block may ask for.
+    live_by_id = {c["id"]: c for c in channels}
+    social_by_id = {s["id"]: s for s in socials}
+    per_source = []
+    for s in sources:
+        c, so = live_by_id.get(s.id), social_by_id.get(s.id)
+        entry = {
+            "id": s.id,
+            "name": s.name,
+            "kind": _platform(s.kind),
+            "color": colors[s.id],
+            "live": c is not None,
+            "now": c["now"] if c else None,
+            "unit": c["unit"] if c else None,
+            "online": c["online"] if c else None,
+            "bars": c["bars"] if c else [],
+            "views_days": [],
+            "interactions_days": [],
+            "followers": so["followers"] if so else None,
+            "followers_change": so["followers_change"] if so else None,
+            "updated": so["updated"] if so else None,
+        }
+        if s.kind not in ("icecast", "owncast"):
+            entry["views_days"] = [round(v) for v in _sum_days(values[s.id], VIEW_METRICS, long_days)]
+            entry["interactions_days"] = [round(v) for v in _sum_days(values[s.id], INTERACTION_METRICS, long_days)]
+        per_source.append(entry)
+
     return {
         "title": wall.title or wall.name,
         "app_name": theme.get("app_name") or "Stats Collector",
         "colors": theme.get("liveWall") or {},
+        "icon": brand_icon(db),
         "fonts": theme.get("fonts") or {},
         "allow_ips": wall.allow_ips or "",
         "layout": wall.layout if wall.layout in LAYOUTS else "rotate",
@@ -540,6 +610,8 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
         "today": today_start.isoformat(),
         "rising": rising,
         "goals": goals,
+        "sources": per_source,
+        "design": walldesign.effective(wall),
     }
 
 

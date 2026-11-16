@@ -242,6 +242,21 @@ def effective_theme(db: Session) -> dict:
     return theme
 
 
+def brand_asset_path(db: Session, kind: str = "favicon") -> Path | None:
+    """The file behind a brand image (an uploaded one first, else the chosen house style's), or None."""
+    cfg = settings_store.get_section(db, "branding")
+    if cfg.get(kind):
+        path = get_settings().uploads_dir / "branding" / Path(cfg[kind]).name
+        return path if path.is_file() else None
+    preset = _preset_id(cfg)
+    key = {"logo_light": "light", "logo_dark": "dark", "favicon": "favicon"}.get(kind)
+    name = (default_theme(preset).get("logo") or {}).get(key or "")
+    if preset == "default" or not name:
+        return None
+    path = BRANDING_DIR / preset / Path(name).name
+    return path if path.is_file() else None
+
+
 def _validate_colors(node, path="") -> None:
     if isinstance(node, dict):
         for k, v in node.items():

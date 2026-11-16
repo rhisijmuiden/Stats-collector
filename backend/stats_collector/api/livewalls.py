@@ -6,6 +6,14 @@ PUT    /api/livewalls/{id}             admin: name, title, channels, layout, all
 POST   /api/livewalls/{id}/rotate      admin: a new link; the old one stops working within a minute
 DELETE /api/livewalls/{id}             admin
 GET    /api/livewalls/{id}/preview     admin: the snapshot the wall shows now
+
+Wall Designer (see services/walldesign.py):
+GET    /api/livewalls/{id}/design              admin: published design, draft, versions and templates
+PUT    /api/livewalls/{id}/design/draft        admin: save the editor's work without touching the TVs
+DELETE /api/livewalls/{id}/design/draft        admin: throw the draft away
+POST   /api/livewalls/{id}/design/publish      admin: put a design on the TVs (a new version)
+POST   /api/livewalls/{id}/design/standard     admin: back to the standard screens (also a new version)
+GET    /api/livewalls/designer-frame           admin: the wall page for the editor's live preview
 """
 
 from __future__ import annotations
@@ -13,17 +21,18 @@ from __future__ import annotations
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
 from ..db import get_db
-from ..models import LiveWall, Source, User, utcnow
+from ..models import LiveWall, LiveWallVersion, Source, User, utcnow
 from ..proxy import parse_networks
 from ..security import decrypt_secret, encrypt_secret, require_role
 from ..services import livewall as svc
-from ..services import settings_store
+from ..services import settings_store, walldesign
 from .common import audit
 from .settings import effective_theme
 
@@ -88,6 +97,9 @@ def _out(w: LiveWall, base: str) -> dict:
         "url": f"{base}/w/{token}",
         "created_at": w.created_at.isoformat() if w.created_at else None,
         "rotated_at": w.rotated_at.isoformat() if w.rotated_at else None,
+        "custom_design": w.design is not None,
+        "design_version": w.design_version or 0,
+        "has_draft": w.design_draft is not None,
     }
 
 
@@ -191,3 +203,121 @@ def delete_wall(wall_id: int, db: Session = Depends(get_db), user: User = Depend
 @router.get("/{wall_id}/preview")
 def preview(wall_id: int, db: Session = Depends(get_db), _: User = Depends(admin_only)) -> dict:
     return svc.snapshot(db, _get(db, wall_id), effective_theme(db))
+
+
+# ----------------------------------------------------------------------------- Wall Designer
+
+FRAME_HEADERS = {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' "
+    "https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; frame-ancestors 'self'; "
+    "base-uri 'none'",
+}
+
+
+@router.get("/designer-frame", response_class=HTMLResponse, include_in_schema=False)
+def designer_frame(_: User = Depends(admin_only)) -> HTMLResponse:
+    """The wall page without data: the editor hands it the snapshot and the design it is working on."""
+    from ..livewall.app import PAGE
+
+    html = PAGE.replace("__TITLE__", "Preview").replace("__INITIAL__", "null")
+    return HTMLResponse(html, headers=FRAME_HEADERS)
+
+
+def _validated(db: Session, body: walldesign.Design) -> dict:
+    ids = {i for screen in body.screens for b in screen.blocks for i in b.channels}
+    if ids:
+        _check_sources(db, sorted(ids))
+    return body.model_dump()
+
+
+def _design_out(db: Session, w: LiveWall) -> dict:
+    rows = db.execute(
+        select(LiveWallVersion, User.display_name)
+        .outerjoin(User, User.id == LiveWallVersion.created_by)
+        .where(LiveWallVersion.wall_id == w.id)
+        .order_by(LiveWallVersion.version.desc())
+    ).all()
+    return {
+        "design": walldesign.effective(w),
+        "custom": w.design is not None,
+        "draft": w.design_draft,
+        "version": w.design_version or 0,
+        "versions": [
+            {
+                "version": v.version,
+                "design": v.design,
+                "created_at": v.created_at.isoformat() if v.created_at else None,
+                "created_by": name or "",
+            }
+            for v, name in rows
+        ],
+        "templates": walldesign.templates(),
+        "grid": {"cols": walldesign.COLS, "rows": walldesign.ROWS},
+    }
+
+
+@router.get("/{wall_id}/design")
+def get_design(wall_id: int, db: Session = Depends(get_db), _: User = Depends(admin_only)) -> dict:
+    return _design_out(db, _get(db, wall_id))
+
+
+@router.put("/{wall_id}/design/draft")
+def save_draft(
+    wall_id: int, body: walldesign.Design, db: Session = Depends(get_db), user: User = Depends(admin_only)
+) -> dict:
+    w = _get(db, wall_id)
+    w.design_draft = _validated(db, body)
+    db.commit()
+    return {"ok": True}
+
+
+@router.delete("/{wall_id}/design/draft")
+def drop_draft(wall_id: int, db: Session = Depends(get_db), _: User = Depends(admin_only)) -> dict:
+    w = _get(db, wall_id)
+    w.design_draft = None
+    db.commit()
+    return _design_out(db, w)
+
+
+def _new_version(db: Session, w: LiveWall, design: dict | None, user: User) -> None:
+    w.design = design
+    w.design_draft = None
+    w.design_version = (w.design_version or 0) + 1
+    db.add(
+        LiveWallVersion(
+            wall_id=w.id, version=w.design_version, design=design or walldesign.effective(w), created_by=user.id
+        )
+    )
+    db.commit()
+    old = db.execute(
+        select(LiveWallVersion)
+        .where(LiveWallVersion.wall_id == w.id)
+        .order_by(LiveWallVersion.version.desc())
+        .offset(walldesign.MAX_VERSIONS)
+    ).scalars()
+    for v in old:
+        db.delete(v)
+    db.commit()
+
+
+@router.post("/{wall_id}/design/publish")
+def publish_design(
+    wall_id: int, body: walldesign.Design, db: Session = Depends(get_db), user: User = Depends(admin_only)
+) -> dict:
+    w = _get(db, wall_id)
+    _new_version(db, w, _validated(db, body), user)
+    audit(db, user, "livewalls.design", {"id": w.id, "version": w.design_version})
+    _refresh()
+    return _design_out(db, w)
+
+
+@router.post("/{wall_id}/design/standard")
+def standard_design(wall_id: int, db: Session = Depends(get_db), user: User = Depends(admin_only)) -> dict:
+    w = _get(db, wall_id)
+    _new_version(db, w, None, user)
+    audit(db, user, "livewalls.design", {"id": w.id, "version": w.design_version, "standard": True})
+    _refresh()
+    return _design_out(db, w)
