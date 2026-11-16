@@ -29,6 +29,7 @@ from .api import (
     system,
     threads,
     users,
+    website,
     xcom,
     youtube,
 )
@@ -102,6 +103,7 @@ def create_app() -> FastAPI:
         insights,
         stories,
         digest,
+        website,
     ):
         app.include_router(module.router)
     app.include_router(settings.public_router)

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { AtSign, Cloud, ExternalLink, Facebook, FileText, Globe, Instagram, Link2, MessageSquare, Plus, Radio, Search, Tv, Unlink, Youtube } from "lucide-react";
 import { api, ApiError } from "../lib/api";
@@ -17,12 +17,17 @@ export interface Item {
   source: { id: number; name: string; kind: string } | null; published_at: string | null; ended_at: string | null;
   metrics: Record<MetricKey, number>; avg_read_seconds: number; avg_watch_seconds: number; comments_total: number; reactions?: Record<string, number> | null;
   authors?: { id: number; name: string; role: string }[];
+  details?: {
+    words?: number; images?: number; featured_image?: boolean; video?: boolean; revisions?: number; updates?: number; modified_at?: string;
+    seo?: { plugin: "yoast" | "rankmath"; keyword: string; score: number | null; readability: number | null } | null;
+  } | null;
 }
 interface Top { items: Item[]; start: string; end: string }
 interface Filters { sources: { id: number; name: string; kind: string }[]; categories: string[]; people: { id: number; name: string }[]; can_see_editors: boolean }
 export interface Detail {
   granularity: "hour" | "day"; buckets: string[]; item: Item;
-  series: Partial<Record<MetricKey, number[]>>; dimensions: { referrer?: { key: string; value: number }[]; device?: { key: string; value: number }[] };
+  series: Partial<Record<MetricKey, number[]>>; readers_now?: number | null;
+  dimensions: Partial<Record<"referrer" | "device" | "scroll" | "campaign", { key: string; value: number }[]>>;
   links?: (Item & { method: "url" | "manual" | "tracking" })[]; can_link?: boolean;
 }
 interface Found { id: number; title: string; url: string | null; published_at: string | null; source: { id: number; name: string; kind: string } | null }
@@ -82,22 +87,69 @@ export function MetricsChart({ granularity, buckets, series, color }: Pick<Detai
   return <Chart option={option} />;
 }
 
-function Breakdown({ title, rows }: { title: string; rows?: { key: string; value: number }[] }) {
+/** Bars for a list of keys and counts. `raw` shows keys as they are (search terms), `label` formats them. */
+export function Breakdown({ title, rows, icon, raw, warn, label }: {
+  title: string; rows?: { key: string; value: number }[]; icon?: ReactNode; raw?: boolean; warn?: boolean; label?: (key: string) => string;
+}) {
   const { t, i18n } = useTranslation();
   const total = (rows ?? []).reduce((a, r) => a + r.value, 0);
+  const max = Math.max(...(rows ?? []).map((r) => r.value), 0);
   return (
     <div>
-      <h3 className="small-title">{title}</h3>
+      <h3 className="small-title">{icon}{icon ? " " : ""}{title}</h3>
       {rows?.length ? (
-        <ul className="bars-list">
+        <ul className={`bars-list${warn ? " warn" : ""}`}>
           {rows.map((r) => (
             <li key={r.key}>
-              <span className="bar" style={{ width: `${total ? (r.value / total) * 100 : 0}%` }} />
-              <span>{t(`content.device.${r.key}`, { defaultValue: r.key })}</span><b>{fmt(r.value, i18n.language)}</b>
+              <span className="bar" style={{ width: `${raw ? (max ? (r.value / max) * 100 : 0) : total ? (r.value / total) * 100 : 0}%` }} />
+              <span>{label ? label(r.key) : raw ? r.key : t(`content.device.${r.key}`, { defaultValue: r.key })}</span><b>{fmt(r.value, i18n.language)}</b>
             </li>
           ))}
         </ul>
       ) : <div className="muted small">{t("content.noBreakdown")}</div>}
+    </div>
+  );
+}
+
+/** Scroll depth of one article: the share of views that reached at least 25, 50, 75 and 100%. */
+function ScrollDepth({ rows }: { rows?: { key: string; value: number }[] }) {
+  const { t, i18n } = useTranslation();
+  const steps = Object.fromEntries((rows ?? []).map((r) => [r.key, r.value]));
+  const total = (rows ?? []).reduce((a, r) => a + r.value, 0);
+  const keys = ["25", "50", "75", "100"];
+  const reached = (k: string) => (total ? (keys.filter((x) => Number(x) >= Number(k)).reduce((a, x) => a + (steps[x] ?? 0), 0) / total) * 100 : 0);
+  return (
+    <div>
+      <h3 className="small-title">{t("website.scrollTitle")}</h3>
+      {total ? (
+        <ul className="bars-list">
+          {keys.map((k) => (
+            <li key={k}><span className="bar" style={{ width: `${reached(k)}%` }} /><span>{k === "100" ? t("website.scrollEnd") : t("website.scrollAtLeast", { pct: k })}</span><b>{fmt(reached(k), i18n.language)}%</b></li>
+          ))}
+        </ul>
+      ) : <div className="muted small">{t("content.noBreakdown")}</div>}
+    </div>
+  );
+}
+
+/** Length, media, updates and SEO of an article (WordPress plugin 0.4 and later). */
+function ArticleDetails({ details }: { details: NonNullable<Item["details"]> }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+  const yes = (v?: boolean) => (v ? t("website.yes") : t("website.no"));
+  return (
+    <div className="muted small row">
+      {details.words != null && <span className="badge">{t("website.words", { count: details.words, n: fmt(details.words, lang) })}</span>}
+      {details.video != null && <span className="badge">{t("website.hasVideo")}: {yes(details.video)}</span>}
+      {details.featured_image != null && <span className="badge">{t("website.hasImage")}: {yes(details.featured_image)}</span>}
+      {!!details.updates && <span className="badge">{t("website.updatedTimes", { count: details.updates })}</span>}
+      {details.modified_at && <span>{t("website.modified")}: {formatDate(details.modified_at, lang)}</span>}
+      {details.seo && (
+        <span className="badge">
+          {details.seo.plugin === "yoast" ? "Yoast" : "Rank Math"}: {details.seo.keyword ? `“${details.seo.keyword}”` : t("website.noKeyword")}
+          {details.seo.score != null ? ` · ${t("website.seoScore")} ${details.seo.score}` : ""}
+        </span>
+      )}
     </div>
   );
 }
@@ -189,7 +241,9 @@ export function ItemModal({ id: first, range, onClose }: { id: number; range: Ra
             {it.authors?.length ? <span>{it.authors.map((a) => a.name).join(", ")}</span> : null}
             {it.url && <a href={it.url} target="_blank" rel="noreferrer">{t("content.open")} <ExternalLink size={13} /></a>}
           </div>
+          {web && it.details && <ArticleDetails details={it.details} />}
           <div className="kpis">
+            {web && d.readers_now != null && <div className="kpi"><div className="kpi-label"><span className={`live-dot${d.readers_now ? " on" : ""}`} /> {t("website.readersNow")}</div><div className="kpi-value">{fmt(d.readers_now, i18n.language)}</div></div>}
             {kpis.map((k) => (
               <div className="kpi" key={k}><div className="kpi-label">{t(`content.${k}`)}</div><div className="kpi-value">{fmt(it.metrics[k], i18n.language)}</div></div>
             ))}
@@ -205,6 +259,8 @@ export function ItemModal({ id: first, range, onClose }: { id: number; range: Ra
             <div className="grid two">
               <Breakdown title={t("content.referrers")} rows={d.dimensions.referrer} />
               <Breakdown title={t("content.devices")} rows={d.dimensions.device} />
+              <ScrollDepth rows={d.dimensions.scroll} />
+              <Breakdown title={t("website.campaignsTitle")} rows={d.dimensions.campaign} label={(k) => k.split("|").filter(Boolean).join(" · ")} />
             </div>
           )}
           <Links detail={d} onOpen={setId} onChange={detail.reload} />

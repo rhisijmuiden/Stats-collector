@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  Archive, BookOpen, FileBarChart, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers, MonitorPlay, BellRing, Clock, Newspaper, MailCheck } from "lucide-react";
+  Archive, BookOpen, FileBarChart, FileText, Info, LayoutDashboard, LogOut, Mail, Menu, Palette, Radio, Settings, ShieldCheck, UserCheck, Users, HeartHandshake, Target, Layers, MonitorPlay, BellRing, Clock, Newspaper, MailCheck, Globe } from "lucide-react";
 import { useApp } from "../lib/app";
 import { api, type User } from "../lib/api";
 import { resolveMode } from "../lib/theme";
@@ -89,6 +89,7 @@ export default function Layout() {
         {item("/", LayoutDashboard, t("nav.dashboard"))}
         {item("/dashboards", Layers, t("nav.dashboards"))}
         {item("/content", FileText, t("nav.content"))}
+        {item("/website", Globe, t("nav.website"))}
         {user.role !== "staff" && item("/editors", UserCheck, t("nav.editors"))}
         {item("/followers", HeartHandshake, t("nav.followers"))}
         {item("/goals", Target, t("nav.goals"))}

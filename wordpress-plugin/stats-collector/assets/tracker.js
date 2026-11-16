@@ -1,13 +1,18 @@
-/* Stats Collector: cookieless counting. Sends one view, then visible reading time, "read" and share clicks. */
+/* Stats Collector: cookieless counting. Sends one view, then visible reading time, scroll depth, "read" and share clicks.
+   On the search results page it sends the search term instead. */
 (function () {
   "use strict";
   var c = window.scConfig;
   if (!c || !window.fetch || navigator.webdriver) return;
+  if (c.search) {
+    fetch(c.searchUrl, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "omit", body: JSON.stringify({ q: c.search }) }).catch(function () {});
+    return;
+  }
   var token = null, seconds = 0, read = false, shares = 0, last = Date.now(), active = Date.now(), maxScroll = 0, sent = "";
 
   function send(force) {
     if (!token) return;
-    var body = JSON.stringify({ t: token, s: Math.round(seconds), r: read ? 1 : 0, sh: shares });
+    var body = JSON.stringify({ t: token, s: Math.round(seconds), r: read ? 1 : 0, sh: shares, sc: Math.min(100, Math.round(maxScroll * 100)) });
     if (body === sent && !force) return;
     sent = body;
     if (navigator.sendBeacon) navigator.sendBeacon(c.engage, new Blob([body], { type: "text/plain" }));
@@ -38,11 +43,18 @@
     if (el.hasAttribute("data-sc-share") || SHARE.test(href)) { shares += 1; send(true); }
   }, true);
 
+  // UTM campaign of the address the reader came in on (newsletter, social post, push message).
+  var utm = {};
+  try {
+    var q = new URLSearchParams(window.location.search);
+    ["source", "medium", "campaign"].forEach(function (k) { var v = q.get("utm_" + k); if (v) utm[k] = v.slice(0, 100); });
+  } catch (e) { /* old browser: no campaign */ }
+
   fetch(c.view, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "omit",
-    body: JSON.stringify({ post: c.post, ref: document.referrer || "" }),
+    body: JSON.stringify({ post: c.post, ref: document.referrer || "", utm: utm }),
   }).then(function (r) { return r.json(); }).then(function (d) {
     token = d && d.t;
     if (!token) return;

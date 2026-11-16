@@ -13,6 +13,7 @@ final class SC_Admin
         'exclude_editors' => true,
         'ip_header' => '',
         'send_emails' => true,
+        'count_searches' => true,
     ];
     private const IP_HEADERS = ['', 'CF-Connecting-IP', 'X-Forwarded-For', 'X-Real-IP'];
 
@@ -91,6 +92,7 @@ final class SC_Admin
         $s['post_types'] = array_values(array_intersect($types, get_post_types(['public' => true])));
         $s['exclude_editors'] = !empty($_POST['exclude_editors']);
         $s['send_emails'] = !empty($_POST['send_emails']);
+        $s['count_searches'] = !empty($_POST['count_searches']);
         $header = (string) wp_unslash($_POST['ip_header'] ?? '');
         $s['ip_header'] = in_array($header, self::IP_HEADERS, true) ? $header : '';
         update_option('sc_settings', $s, false);
@@ -159,7 +161,7 @@ final class SC_Admin
             <?php if ($notice) : ?>
                 <div class="notice notice-<?php echo esc_attr($notice['type']); ?> is-dismissible"><p><?php echo esc_html($notice['text']); ?></p></div>
             <?php endif; ?>
-            <p><?php esc_html_e('Counts page views, visitors, reading time and share clicks per article without cookies, and sends them every minute to Stats Collector.', 'stats-collector'); ?></p>
+            <p><?php esc_html_e('Counts page views, visitors, reading time, scroll depth, share clicks and site searches without cookies, and sends them every minute to Stats Collector.', 'stats-collector'); ?></p>
 
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="sc_save">
@@ -198,6 +200,8 @@ final class SC_Admin
                         <p class="description"><?php esc_html_e('Choose CF-Connecting-IP behind Cloudflare. The address is only used for the daily visitor hash and is never stored.', 'stats-collector'); ?></p></td></tr>
                     <tr><th scope="row"><?php esc_html_e('Editors', 'stats-collector'); ?></th>
                         <td><label><input type="checkbox" name="send_emails" value="1" <?php checked($s['send_emails']); ?>> <?php esc_html_e('Send the email address of authors, so Stats Collector can link them to their account', 'stats-collector'); ?></label></td></tr>
+                    <tr><th scope="row"><?php esc_html_e('Site search', 'stats-collector'); ?></th>
+                        <td><label><input type="checkbox" name="count_searches" value="1" <?php checked($s['count_searches']); ?>> <?php esc_html_e('Count what visitors search for on the site, and which searches find nothing', 'stats-collector'); ?></label></td></tr>
                 </table>
                 <?php submit_button(__('Save settings', 'stats-collector')); ?>
             </form>

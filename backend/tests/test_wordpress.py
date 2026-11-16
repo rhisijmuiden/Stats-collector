@@ -177,3 +177,105 @@ def test_wrong_ingest_address_is_404(client):
     # A plugin with the full ingest address pasted posts to /api/ingest/wordpress/api/ingest/wordpress.
     r = client.post("/api/ingest/wordpress/api/ingest/wordpress", json={})
     assert r.status_code == 404
+
+
+def test_plugin_04_extras_and_website_overview(admin):
+    client, csrf = admin
+    site = _site(client, csrf)
+    hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    batch = _batch(hour)
+    batch["items"][0].update(
+        {
+            "modified_at": hour.isoformat(),
+            "words": 750,
+            "images": 2,
+            "featured_image": True,
+            "video": True,
+            "revisions": 4,
+            "updates": 1,
+            "seo": {"plugin": "yoast", "keyword": "brug", "score": 81, "readability": 60},
+        }
+    )
+    batch["days"][0].update(
+        {
+            "scroll": {"25": 4, "100": 6, "33": 9},
+            "campaigns": {"nieuwsbrief|email|week 46": 5, "facebook||": 2, "bad<key": 1},
+            "searches": {"Brug  Velsen": 3, "parkeren": 2},
+            "searches_empty": {"parkeren": 2},
+        }
+    )
+    batch["days"].append(
+        {"day": hour.date().isoformat(), "post": 101, "visitors": 8, "scroll": {"75": 3}, "searches": {"x": 1}}
+    )
+    batch["live"] = {"readers": 7, "posts": {"101": 4, "999": 1}}
+    batch["production"] = {
+        "scheduled": 2,
+        "drafts": 5,
+        "pending": 1,
+        "pending_comments": 3,
+        "scheduled_items": [{"id": 120, "title": "Morgen", "at": (hour + timedelta(days=1)).isoformat(), "author": 3}],
+    }
+    r = _push(client, site, batch)
+    assert r.status_code == 200, r.text
+
+    item = client.get("/api/content/top?range=7d").json()["items"][0]
+    detail = client.get(f"/api/content/{item['id']}?range=7d").json()
+    assert detail["readers_now"] == 4
+    d = detail["item"]["details"]
+    assert d["words"] == 750 and d["video"] is True and d["updates"] == 1 and d["seo"]["score"] == 81
+    assert detail["dimensions"]["scroll"] == [{"key": "75", "value": 3.0}]
+    assert "search" not in detail["dimensions"]  # searches belong to the site, not an article
+
+    w = client.get("/api/website?range=7d").json()
+    assert w["live"]["readers"] == 7 and w["live"]["items"][0]["readers"] == 4
+    assert w["searches"]["total"] == 5 and w["searches"]["empty"] == 2
+    assert w["searches"]["top"][0] == {"key": "brug velsen", "value": 3.0}
+    assert w["searches"]["top_empty"] == [{"key": "parkeren", "value": 2.0}]
+    assert w["campaigns"][0] == {"source": "nieuwsbrief", "medium": "email", "campaign": "week 46", "views": 5}
+    assert len(w["campaigns"]) == 2
+    assert w["scroll"]["views"] == 10 and w["scroll"]["reached"]["100"] == 60.0 and w["scroll"]["reached"]["0"] == 100
+    prod = w["production"]
+    assert prod["published"] == 1 and prod["updated"] == 1
+    assert prod["pipeline"] == {"scheduled": 2, "drafts": 5, "pending": 1, "pending_comments": 3}
+    assert prod["scheduled"][0]["title"] == "Morgen" and prod["scheduled"][0]["author"] == "Jan Jansen"
+    assert prod["by_editor"] == [{"id": prod["by_editor"][0]["id"], "name": "Jan Jansen", "published": 1}]
+    arts = w["articles"]
+    assert arts["articles"] == 1 and arts["with_details"] == 1 and arts["avg_words"] == 750
+    long_band = next(b for b in arts["length"] if b["key"] == "long")
+    assert long_band["items"] == 1 and long_band["avg_views"] == 13
+    assert next(b for b in arts["seo"]["bands"] if b["key"] == "good")["items"] == 1
+
+    # Editing the source keeps the snapshots; an old live count is not shown.
+    r = client.put(
+        f"/api/sources/{site['id']}",
+        json={"kind": "wordpress", "name": "Krant", "url": "https://krant.example.org/"},
+        headers=csrf,
+    )
+    assert r.status_code == 200, r.text
+    assert client.get("/api/website").json()["production"]["pipeline"]["drafts"] == 5
+    from stats_collector.services import website
+
+    later = datetime.now(UTC) + timedelta(minutes=10)
+    from stats_collector.db import session_factory
+
+    with session_factory()() as db:
+        assert website.live(db, website.sites(db), now=later)["readers"] is None
+
+
+def test_website_hides_editor_names_from_staff(admin):
+    client, csrf = admin
+    site = _site(client, csrf)
+    client.post(
+        "/api/users",
+        json={"email": "staff@example.org", "display_name": "S", "role": "staff", "password": PW},
+        headers=csrf,
+    )
+    hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    batch = _batch(hour)
+    batch["production"] = {"scheduled_items": [{"title": "Later", "at": hour.isoformat(), "author": 3}]}
+    assert _push(client, site, batch).status_code == 200
+    client.post("/api/auth/logout", headers=csrf)
+    client.cookies.clear()
+    assert client.post("/api/auth/login", json={"email": "staff@example.org", "password": PW}).status_code == 200
+    prod = client.get("/api/website").json()["production"]
+    assert "by_editor" not in prod and "author" not in prod["scheduled"][0]
