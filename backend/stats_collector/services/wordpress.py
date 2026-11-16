@@ -12,10 +12,17 @@ Request headers:
 Body (version 1):
   site     {url, name, timezone, plugin, wp}
   authors  [{id, name, email}]
-  items    [{id, type, title, url, published_at, authors: [id], categories: [..], tags: [..], comments}]
+  items    [{id, type, title, url, published_at, authors: [id], categories: [..], tags: [..], comments,
+             modified_at, words, images, featured_image, video, revisions, updates,
+             seo: {plugin, keyword, score, readability} | null}]
   hours    [{hour (ISO, UTC), post (0 = whole site), views, visitors, read_seconds, reads, shares, comments}]
-  days     [{day (YYYY-MM-DD, site time zone), post, visitors, referrers: {domain: n}, devices: {type: n}}]
-A batch with "ping": true only checks the connection.
+  days     [{day (YYYY-MM-DD, site time zone), post, visitors, referrers: {domain: n}, devices: {type: n},
+             scroll: {"0"|"25"|"50"|"75"|"100": n}, campaigns: {"source|medium|campaign": n},
+             searches: {term: n}, searches_empty: {term: n}}]   (searches only on the site row, post 0)
+  live       {at, readers, posts: {post id: readers}}        readers in the last five minutes
+  production {scheduled, drafts, pending, pending_comments, scheduled_items: [{id, title, at, author}]}
+A batch with "ping": true only checks the connection. Everything after the first line of "items" and
+"days", and "live" and "production", came with plugin 0.4; older plugins simply leave them out.
 """
 
 from __future__ import annotations
@@ -50,8 +57,35 @@ MAX_BODY = 2 * 1024 * 1024
 MAX_SKEW = 300
 MAX_ROWS = {"authors": 500, "items": 2000, "hours": 20000, "days": 5000}
 MAX_AGE_DAYS = 400
-DIMENSIONS = {"referrers": "referrer", "devices": "device"}
+DIMENSIONS = {
+    "referrers": "referrer",
+    "devices": "device",
+    "scroll": "scroll",
+    "campaigns": "campaign",
+    "searches": "search",
+    "searches_empty": "search_empty",
+}
+SITE_ONLY = ("searches", "searches_empty")
 DIM_KEY = re.compile(r"^[a-z0-9.\-]{1,255}$")
+SCROLL_KEY = re.compile(r"^(0|25|50|75|100)$")
+CAMPAIGN_KEY = re.compile(r"^[\w .+\-]{0,60}\|[\w .+\-]{0,60}\|[\w .+\-]{0,60}$")
+CONTROL = re.compile(r"[\x00-\x1f\x7f<>]")
+
+
+def clean_dim_key(dimension: str, key: Any) -> str | None:
+    """The key as it is stored for a dimension, or None when it is not valid."""
+    key = str(key or "")
+    if dimension == "search" or dimension == "search_empty":
+        key = " ".join(CONTROL.sub(" ", key).lower().split())[:100]
+        return key or None
+    key = key.strip().lower()[:255]
+    if dimension == "scroll":
+        return key if SCROLL_KEY.match(key) else None
+    if dimension == "campaign":
+        return key if CAMPAIGN_KEY.match(key) and key.strip("|") else None
+    return key if DIM_KEY.match(key) else None
+
+
 HOUR_FIELDS = {
     "views": WEB_VIEWS,
     "visitors": WEB_VISITORS,
@@ -202,6 +236,70 @@ def _known_people(db: Session, source: Source) -> dict[int, Person]:
     return out
 
 
+def _article_details(row: dict) -> dict:
+    """Length, media, updates and SEO of an article (plugin 0.4 and later); missing fields are left out."""
+    out: dict[str, Any] = {}
+    for field in ("words", "images", "revisions", "updates"):
+        if field in row:
+            out[field] = min(int(_num(row.get(field))), 1_000_000)
+    for field in ("featured_image", "video"):
+        if field in row:
+            out[field] = bool(row.get(field))
+    modified = _time(row.get("modified_at"))
+    if modified is not None:
+        out["modified_at"] = modified.astimezone(UTC).isoformat()
+    seo = row.get("seo")
+    if isinstance(seo, dict) and seo.get("plugin") in ("yoast", "rankmath"):
+
+        def score(value: Any) -> int | None:
+            return None if value is None or value == "" else max(0, min(100, int(_num(value))))
+
+        out["seo"] = {
+            "plugin": seo["plugin"],
+            "keyword": _str(seo.get("keyword"), 100),
+            "score": score(seo.get("score")),
+            "readability": score(seo.get("readability")),
+        }
+    elif "seo" in row:
+        out["seo"] = None
+    return out
+
+
+def _live(value: Any, now: datetime) -> dict | None:
+    if not isinstance(value, dict):
+        return None
+    posts = value.get("posts") if isinstance(value.get("posts"), dict) else {}
+    clean = {}
+    for key, n in list(posts.items())[:50]:
+        post_id = _post_id(key)
+        if post_id and _num(n):
+            clean[str(post_id)] = int(_num(n))
+    return {"at": now.isoformat(), "readers": int(_num(value.get("readers"))), "posts": clean}
+
+
+def _production(value: Any, people: dict[int, Person], now: datetime) -> dict | None:
+    if not isinstance(value, dict):
+        return None
+    out: dict[str, Any] = {"at": now.isoformat()}
+    for field in ("scheduled", "drafts", "pending", "pending_comments"):
+        out[field] = int(_num(value.get(field)))
+    items = []
+    for row in (value.get("scheduled_items") or [])[:20]:
+        if not isinstance(row, dict):
+            continue
+        at = _time(row.get("at"))
+        author = people.get(_post_id(row.get("author")) or 0)
+        items.append(
+            {
+                "title": _str(row.get("title"), 300),
+                "at": at.astimezone(UTC).isoformat() if at else None,
+                "person_id": author.id if author else None,
+            }
+        )
+    out["scheduled_items"] = items
+    return out
+
+
 def upsert_items(db: Session, source: Source, rows: list[dict], people: dict[int, Person]) -> dict[int, ContentItem]:
     existing = {
         i.external_id: i for i in db.execute(select(ContentItem).where(ContentItem.source_id == source.id)).scalars()
@@ -233,6 +331,7 @@ def upsert_items(db: Session, source: Source, rows: list[dict], people: dict[int
             "post_type": _str(row.get("type"), 20) or "post",
             "categories": cats,
             "comments": int(_num(row.get("comments"))),
+            **_article_details(row),
         }
         db.flush()
         author_ids = [a for a in (_post_id(x) for x in (row.get("authors") or [])) if a]
@@ -310,9 +409,9 @@ def _put_dims(db: Session, source: Source, item_id: int | None, bucket: datetime
         )
     )
     clean: dict[str, float] = {}
-    for key, value in list(values.items())[:200]:
-        key = _str(key, 255).lower()
-        if DIM_KEY.match(key) and _num(value):
+    for raw, value in list(values.items())[:200]:
+        key = clean_dim_key(dimension, raw)
+        if key and _num(value):
             clean[key] = clean.get(key, 0) + _num(value)
     for key, value in clean.items():
         db.add(
@@ -354,6 +453,16 @@ def ingest(db: Session, source: Source, payload: Any, now: datetime | None = Non
 
     people = {**_known_people(db, source), **upsert_people(db, source, authors)}
     items = upsert_items(db, source, item_rows, people)
+    extra = {
+        key: parsed
+        for key, parsed in (
+            ("live", _live(payload.get("live"), now)),
+            ("production", _production(payload.get("production"), people, now)),
+        )
+        if parsed is not None
+    }
+    if extra:
+        source.config = {**(source.config or {}), **extra}
     tz = org_timezone(db)
     oldest = now - timedelta(days=MAX_AGE_DAYS)
     newest = now + timedelta(hours=1)
@@ -390,7 +499,7 @@ def ingest(db: Session, source: Source, payload: Any, now: datetime | None = Non
         item_id = item.id if item else None
         _put(db, source, item_id, "day", bucket, {WEB_VISITORS: round(_num(row.get("visitors")), 3)})
         for field, dimension in DIMENSIONS.items():
-            if isinstance(row.get(field), dict):
+            if isinstance(row.get(field), dict) and (item_id is None or field not in SITE_ONLY):
                 _put_dims(db, source, item_id, bucket, dimension, row[field])
         stored["days"] += 1
         first = min(first or bucket, bucket)

@@ -37,6 +37,7 @@ Herhaal dit voor elke website. Elke website is een aparte bron met een eigen sle
 | Soorten inhoud | Welke soorten inhoud per item geteld worden (standaard berichten en pagina's). De voorpagina telt altijd mee voor het totaal van de site. |
 | Eigen bezoeken | Staat dit aan (standaard), dan tellen ingelogde redacteuren en beheerders niet mee. |
 | Achter een proxy of CDN | Kies `CF-Connecting-IP` als de website achter Cloudflare staat, `X-Forwarded-For` of `X-Real-IP` achter een andere proxy. Anders lijken alle bezoekers hetzelfde en worden unieke bezoekers te laag geteld. |
+| Zoeken op de site | Staat dit aan (standaard), dan telt de plugin wat bezoekers in het zoekvak van de website typen en welke zoekopdrachten niets vinden. Zet het uit als je zoektermen niet wilt laten tellen. |
 | Redacteuren | Stuurt het e-mailadres van auteurs mee, zodat Stats Collector ze aan hun account kan koppelen (zie hieronder). |
 
 Het blok **Status** toont wanneer er voor het laatst is verstuurd en de laatste fout. **Nu versturen** verstuurt meteen.
@@ -53,9 +54,16 @@ Het blok **Status** toont wanneer er voor het laatst is verstuurd en de laatste 
 | Reacties | Goedgekeurde reacties per uur. |
 | Verwijzers en apparaten | Per dag de site die de bezoeker stuurde (`direct` als dat onbekend is) en het soort apparaat: mobiel, computer of tablet. |
 
+| Scrolldiepte | Hoe ver de lezer op de pagina scrolde, in stappen van 25%. |
+| Campagnes | De `utm_source`, `utm_medium` en `utm_campaign` van het adres waarmee de lezer binnenkwam. |
+| Lezers nu | Bezoekers die in de laatste vijf minuten actief waren op een artikel of de voorpagina. |
+| Zoekopdrachten | Woorden die in het zoekvak van de website zijn getypt, en of ze iets vonden. |
+
+Bij elk artikel stuurt de plugin ook de lengte in woorden, het aantal afbeeldingen, of er een uitgelichte afbeelding en een video in staat, de revisies en updates na publicatie, wanneer het voor het laatst is gewijzigd en, als de site **Yoast SEO** of **Rank Math** gebruikt, het focuszoekwoord en de scores. Elke minuut stuurt hij ook wat er klaarstaat: ingeplande artikelen, concepten, artikelen die wachten op review en reacties te modereren. Hiervoor is plugin 0.4 of nieuwer nodig; zie [Website](website.md) voor waar je ze ziet.
+
 Terugkerende bezoekers worden niet geteld, omdat dat zonder cookies niet kan.
 
-De plugin bewaart de losse paginaweergaven 35 dagen in een eigen tabel (`wp_sc_views`), zodat hij na een storing opnieuw kan versturen. De cijfers zelf blijven voorgoed in Stats Collector bewaard.
+De plugin bewaart de losse paginaweergaven en zoekopdrachten 35 dagen in eigen tabellen (`wp_sc_views`, `wp_sc_searches`), zodat hij na een storing opnieuw kan versturen. De cijfers zelf blijven voorgoed in Stats Collector bewaard.
 
 ## Redacteuren
 

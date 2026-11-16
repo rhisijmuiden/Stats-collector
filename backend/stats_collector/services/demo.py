@@ -138,6 +138,27 @@ CATEGORIES = ["Nieuws", "Politiek", "Sport", "Cultuur"]
 EDITORS = [(11, "Anne de Vries"), (12, "Mohammed El Amrani"), (13, "Sanne Bakker"), (14, "Tom Visser")]
 
 
+DEMO_CAMPAIGNS = (
+    ("newsletter|email|morning-briefing", 0.06),
+    ("facebook|social|evening-post", 0.04),
+    ("push|notification|breaking", 0.03),
+    ("whatsapp|social|channel", 0.02),
+)
+DEMO_SEARCHES = (
+    ("traffic", 14),
+    ("weather", 12),
+    ("council meeting", 9),
+    ("football", 8),
+    ("road works", 6),
+    ("parking permit", 5),
+    ("bin collection", 4),
+    ("market days", 3),
+    ("swimming pool hours", 3),
+    ("library opening", 2),
+)
+DEMO_SCHEDULED = ("Council votes on new cycle route", "Weekend agenda", "Interview: the new harbour master")
+
+
 def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -> int:
     rnd = random.Random(7)
     now = (now or utcnow()).replace(minute=0, second=0, microsecond=0)
@@ -163,6 +184,19 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
                 "categories": [CATEGORIES[n % len(CATEGORIES)]],
                 "tags": [],
                 "comments": rnd.randint(0, 12),
+                "words": int(250 + 900 * pull / 3 + rnd.randint(0, 300)),
+                "images": rnd.randint(0, 6),
+                "featured_image": rnd.random() < 0.85,
+                "video": n % 3 == 0,
+                "revisions": rnd.randint(1, 9),
+                "updates": rnd.choice([0, 0, 0, 1, 2]),
+                "modified_at": (published + timedelta(hours=rnd.randint(0, 20))).isoformat(),
+                "seo": {
+                    "plugin": "yoast",
+                    "keyword": "" if n % 7 == 3 else title.split()[0].lower(),
+                    "score": rnd.choice([30, 55, 72, 81, 90]),
+                    "readability": rnd.choice([40, 60, 90]),
+                },
             }
         )
         hour = published
@@ -196,9 +230,33 @@ def create_demo_site(db: Session, days: int = 30, now: datetime | None = None) -
                     d["referrers"]["direct"] = d["referrers"].get("direct", 0) + round(views * 0.37)
                     for key, share in (("mobile", 0.68), ("desktop", 0.27), ("tablet", 0.05)):
                         d["devices"][key] = d["devices"].get(key, 0) + round(views * share)
+                    scroll = d.setdefault("scroll", {})
+                    for key, share in (("0", 0.18), ("25", 0.22), ("50", 0.2), ("75", 0.15), ("100", 0.25)):
+                        scroll[key] = scroll.get(key, 0) + round(views * share * 0.9)
+                    campaigns = d.setdefault("campaigns", {})
+                    for key, share in DEMO_CAMPAIGNS:
+                        if (n + len(key)) % 3:
+                            campaigns[key] = campaigns.get(key, 0) + round(views * share)
             hour += timedelta(hours=1)
+    for (day, post), row in days_rows.items():
+        if post == 0:
+            day_rnd = random.Random(day)
+            row["searches"] = {term: day_rnd.randint(1, weight) for term, weight in DEMO_SEARCHES}
+            row["searches_empty"] = {term: day_rnd.randint(1, weight) for term, weight in DEMO_SEARCHES[-4:]}
+    newest = sorted(items, key=lambda i: i["published_at"], reverse=True)
     payload = {
         "site": {"name": "Demo Website", "plugin": "demo"},
+        "live": {"readers": 143, "posts": {str(i["id"]): max(2, 40 - n * 4) for n, i in enumerate(newest[:8])}},
+        "production": {
+            "scheduled": 4,
+            "drafts": 11,
+            "pending": 2,
+            "pending_comments": 6,
+            "scheduled_items": [
+                {"title": title, "at": (now + timedelta(hours=3 + 5 * n)).isoformat(), "author": EDITORS[n % 4][0]}
+                for n, title in enumerate(DEMO_SCHEDULED)
+            ],
+        },
         "authors": [{"id": i, "name": name} for i, name in EDITORS],
         "items": items,
         "hours": hours + list(site_hours.values()),

@@ -139,9 +139,8 @@ def _config(body: SourceIn, old: dict | None = None) -> dict:
         keep = {k: v for k, v in old.items() if k not in ("url", "account")} if same else {}
         return {**keep, "url": body.url, "account": body.account}
     if body.kind == "wordpress":
-        keep = {
-            k: v for k, v in (old or {}).items() if k in ("site_name", "plugin_version", "wp_version", "site_timezone")
-        }
+        kept = ("site_name", "plugin_version", "wp_version", "site_timezone", "live", "production")
+        keep = {k: v for k, v in (old or {}).items() if k in kept}
         return {**keep, "url": body.url}
     cfg = {"url": body.url, "verify_tls": body.verify_tls}
     if body.kind == "icecast":

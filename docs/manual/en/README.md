@@ -20,6 +20,7 @@ The same manual opens inside the application through the **Help** button at the 
 
 - [Dashboard](dashboard.md)
 - [Content and editors](content.md)
+- [Website: readers now, searches, campaigns and production](website.md)
 - [My dashboards](dashboards.md)
 - [Followers and goals](followers-and-goals.md)
 - [Stories over all channels](stories.md)

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Stats Collector
- * Description:       Cookieless page views, visitors, reading time and share clicks per article, sent every minute to your Stats Collector.
- * Version:           0.3.1
+ * Description:       Cookieless page views, visitors, reading time, scroll depth, share clicks, campaigns and site searches per article, sent every minute to your Stats Collector.
+ * Version:           0.4.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Stats Collector
@@ -13,7 +13,7 @@
 
 defined('ABSPATH') || exit;
 
-define('SC_VERSION', '0.3.1');
+define('SC_VERSION', '0.4.0');
 define('SC_FILE', __FILE__);
 define('SC_DIR', plugin_dir_path(__FILE__));
 

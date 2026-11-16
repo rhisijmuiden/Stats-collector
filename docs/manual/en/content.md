@@ -12,7 +12,7 @@
 
 - Facebook and Instagram posts and YouTube videos are in the same list. For a post, **Visitors / reach** shows its reach. See [Meta](meta.md) and [YouTube](youtube.md) for how their numbers are collected.
 
-Click an item for its details: the numbers for the period, a chart per day (per hour for 24 hours), and for an article where readers came from and the devices they used. A Facebook post also shows its reactions per type (like, love, wow…); an Instagram post its saves.
+Click an item for its details: the numbers for the period, a chart per day (per hour for 24 hours), and for an article where readers came from, the devices they used, its scroll depth, campaigns, length, video, updates, SEO score and readers right now (see [Website](website.md)). A Facebook post also shows its reactions per type (like, love, wow…); an Instagram post its saves.
 
 ![Details of an article](../images/en-content-item.png)
 

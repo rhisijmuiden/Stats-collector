@@ -4,6 +4,7 @@ defined('WP_UNINSTALL_PLUGIN') || exit;
 
 global $wpdb;
 $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}sc_views");
+$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}sc_searches");
 foreach (['sc_settings', 'sc_db_version', 'sc_salt', 'sc_status'] as $option) {
     delete_option($option);
 }
