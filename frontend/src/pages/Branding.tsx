@@ -7,7 +7,9 @@ import { errorText } from "../i18n";
 import type { Palette, Theme } from "../lib/theme";
 import { Card, Field, PageHead, useLoad } from "../components/ui";
 
-interface BrandingData { app_name: string; overrides: Partial<Theme>; default: Theme; effective: Theme }
+interface Preset { id: string; name: string; theme: Theme }
+interface BrandingData { app_name: string; overrides: Partial<Theme>; preset: string; presets: Preset[]; default: Theme; effective: Theme }
+const FONTS = ["Epilogue", "Inter", "Space Grotesk", "system-ui"];
 const KEYS: (keyof Palette)[] = ["accent", "accentSoft", "background", "surface", "sidebar", "sidebarText", "text", "muted", "border", "good", "warning", "critical"];
 
 export default function Branding() {
@@ -16,7 +18,10 @@ export default function Branding() {
   const loaded = useLoad(() => api.get<BrandingData>("/api/settings/branding"));
   const [theme, setTheme] = useState<Theme | null>(null);
   const [mode, setMode] = useState<"light" | "dark">("light");
-  useEffect(() => { if (loaded.data) setTheme(structuredClone(loaded.data.effective)); }, [loaded.data]);
+  const [preset, setPreset] = useState("default");
+  useEffect(() => {
+    if (loaded.data) { setTheme(structuredClone(loaded.data.effective)); setPreset(loaded.data.preset); }
+  }, [loaded.data]);
   if (!theme || !loaded.data) return <div className="page"><PageHead help="branding" title={t("branding.title")} /></div>;
   const p = theme.colors[mode];
   const fail = (e: unknown) => toast("error", errorText(e instanceof ApiError ? e.detail : String(e)));
@@ -28,6 +33,7 @@ export default function Branding() {
     try {
       const r = await api.put<Theme>("/api/settings/branding", {
         app_name: theme.app_name,
+        preset,
         overrides: { colors: theme.colors, channels: theme.channels, fonts: theme.fonts, radius: theme.radius },
       });
       await reloadTheme(r);
@@ -35,7 +41,12 @@ export default function Branding() {
     } catch (e) { fail(e); }
   };
 
-  const reset = () => setTheme({ ...structuredClone(loaded.data!.default), app_name: theme.app_name, assets: theme.assets });
+  const presetTheme = (id: string) => loaded.data!.presets.find((x) => x.id === id)?.theme ?? loaded.data!.default;
+  const reset = () => setTheme({ ...structuredClone(presetTheme(preset)), app_name: theme.app_name, assets: theme.assets });
+  const choosePreset = (id: string) => {
+    setPreset(id);
+    setTheme({ ...structuredClone(presetTheme(id)), app_name: theme.app_name, assets: theme.assets });
+  };
 
   const upload = async (kind: "logo_light" | "logo_dark" | "favicon", file: File) => {
     const fd = new FormData();
@@ -73,6 +84,23 @@ export default function Branding() {
           <button className="btn" onClick={save}>{t("common.save")}</button>
         </>
       } />
+      <Card title={t("branding.presets")}>
+        <p className="muted small" style={{ marginTop: 0 }}>{t("branding.presetsHint")}</p>
+        <div className="preset-grid">
+          {loaded.data.presets.map((pr) => {
+            const c = pr.theme.colors.light;
+            return (
+              <button key={pr.id} type="button" className="preset" aria-pressed={preset === pr.id} onClick={() => choosePreset(pr.id)}>
+                <span className="preset-swatches">
+                  {[c.sidebar, c.accent, pr.theme.channels?.instagram ?? c.accentSoft, c.background].map((col, i) => <i key={i} style={{ background: col }} />)}
+                </span>
+                <b style={{ fontFamily: `"${pr.theme.fonts.heading.family} Variable", "${pr.theme.fonts.heading.family}", system-ui` }}>{pr.id === "default" ? t("branding.presetDefault") : pr.name}</b>
+                <span className="muted small">{pr.theme.fonts.heading.family} · {pr.theme.fonts.body.family}</span>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
       <div className="grid two">
         <Card title={t("branding.identity")}>
           <div className="stack">
@@ -152,12 +180,12 @@ export default function Branding() {
           <div className="stack">
             <Field label={t("branding.headingFont")}>
               <select value={theme.fonts.heading.family} onChange={(e) => setTheme({ ...theme, fonts: { ...theme.fonts, heading: { ...theme.fonts.heading, family: e.target.value } } })}>
-                {["Space Grotesk", "Inter", "system-ui"].map((f) => <option key={f}>{f}</option>)}
+                {FONTS.map((f) => <option key={f}>{f}</option>)}
               </select>
             </Field>
             <Field label={t("branding.bodyFont")}>
               <select value={theme.fonts.body.family} onChange={(e) => setTheme({ ...theme, fonts: { ...theme.fonts, body: { ...theme.fonts.body, family: e.target.value } } })}>
-                {["Inter", "Space Grotesk", "system-ui"].map((f) => <option key={f}>{f}</option>)}
+                {FONTS.map((f) => <option key={f}>{f}</option>)}
               </select>
             </Field>
             <div className="grid two">

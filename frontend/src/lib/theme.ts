@@ -15,6 +15,8 @@ export interface Palette {
 
 export interface Theme {
   app_name: string;
+  preset?: string;
+  name?: string;
   colors: { light: Palette; dark: Palette };
   channels: Record<string, string>;
   fonts: { heading: { family: string; fallback: string }; body: { family: string; fallback: string } };

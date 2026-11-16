@@ -64,7 +64,9 @@ def test_tls_context_minimum():
 def test_branding(admin):
     client, csrf = admin
     theme = client.get("/api/branding").json()
-    assert theme["colors"]["light"]["accent"] == "#0E9F8E"
+    assert theme["preset"] == "ijmond360"
+    assert theme["colors"]["light"]["accent"] == "#C81D6A"
+    assert theme["assets"]["logo_light"] == "/api/branding/preset/ijmond360/logo_light"
     r = client.put(
         "/api/settings/branding",
         json={"app_name": "IJmond Stats", "overrides": {"colors": {"light": {"accent": "#123456"}}}},
@@ -87,6 +89,24 @@ def test_branding(admin):
     )
     assert ok.json()["assets"]["logo_light"] == "/api/branding/asset/logo_light"
     assert client.get("/api/branding/asset/logo_light").status_code == 200
+
+
+def test_branding_presets(admin):
+    client, csrf = admin
+    cfg = client.get("/api/settings/branding").json()
+    ids = [p["id"] for p in cfg["presets"]]
+    assert "default" in ids and "ijmond360" in ids
+    assert cfg["preset"] == "ijmond360" and cfg["default"]["name"] == "IJmond360"
+    for kind in ("logo_light", "logo_dark", "favicon"):
+        assert client.get(f"/api/branding/preset/ijmond360/{kind}").status_code == 200
+    assert client.get("/api/branding/preset/../logo_light").status_code == 404
+    assert client.get("/api/branding/preset/nope/logo_light").status_code == 404
+    r = client.put("/api/settings/branding", json={"app_name": "Stats Collector", "preset": "default"}, headers=csrf)
+    assert r.json()["preset"] == "default"
+    assert r.json()["colors"]["light"]["accent"] == "#0E9F8E"
+    assert r.json()["assets"]["logo_light"] is None
+    bad = client.put("/api/settings/branding", json={"app_name": "x", "preset": "../etc"}, headers=csrf)
+    assert bad.status_code == 400
 
 
 def test_sso_settings(admin):

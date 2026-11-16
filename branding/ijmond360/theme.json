@@ -1,0 +1,28 @@
+{
+  "name": "IJmond360",
+  "version": 1,
+  "source": "https://ijmond360.nl",
+  "logo": { "light": "logo.png", "dark": "icon.png", "favicon": "favicon.png" },
+  "fonts": {
+    "heading": { "family": "Epilogue", "fallback": "system-ui, sans-serif" },
+    "body": { "family": "Inter", "fallback": "system-ui, sans-serif" }
+  },
+  "colors": {
+    "light": {
+      "background": "#F4F4F4", "surface": "#FFFFFF", "sidebar": "#713C80", "sidebarText": "#EADCF0",
+      "text": "#1B1B1B", "muted": "#5F5866", "border": "#E6E1E8",
+      "accent": "#C81D6A", "accentSoft": "#FBE3EE", "good": "#007A6E", "warning": "#A15C00", "critical": "#C62828"
+    },
+    "dark": {
+      "background": "#1A0F20", "surface": "#261630", "sidebar": "#2A1433", "sidebarText": "#D9C6E0",
+      "text": "#F5EEF7", "muted": "#BBA8C3", "border": "#3D2847",
+      "accent": "#FF8AC0", "accentSoft": "#4A1E38", "good": "#3CCB9F", "warning": "#F2B04A", "critical": "#FF7A7A"
+    }
+  },
+  "channels": {
+    "website": "#713C80", "facebook": "#2F8FD8", "instagram": "#E92E7F", "youtube": "#DD3333",
+    "owncast": "#008D7F", "icecast": "#F29A1F", "threads": "#5A4A63", "x": "#64748B", "bluesky": "#4DB2EC", "mastodon": "#8AC926"
+  },
+  "radius": { "card": 16, "control": 10 },
+  "liveWall": { "background": "#1E0D26", "glow": "#E92E7F", "text": "#FFFFFF", "panel": "#713C80" }
+}
