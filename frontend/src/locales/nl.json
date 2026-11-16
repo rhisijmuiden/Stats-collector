@@ -1535,7 +1535,8 @@
     "template": {
       "overview": "Overzicht",
       "stories": "Topverhalen",
-      "empty": "Leeg"
+      "empty": "Leeg",
+      "brand": "Huisstijl live"
     },
     "previewTitle": "Voorbeeld van de wall",
     "grid": "raster van 12 × 8",
@@ -1614,7 +1615,13 @@
       "donut": "Donut",
       "race": "Race",
       "bar": "Balken",
-      "rings": "Ringen"
+      "rings": "Ringen",
+      "standard": "Standaard",
+      "brand": "Huisstijl",
+      "panel": "Paneel",
+      "cards": "Kaarten",
+      "pulse": "Pulsstaven",
+      "spotlight": "Uitgelicht"
     },
     "metrics": {
       "live": "Nu live (luisteraars en kijkers)",
@@ -1631,7 +1638,8 @@
     "backgrounds": {
       "neon": "Neon gloed",
       "aurora": "Aurora",
-      "plain": "Effen"
+      "plain": "Effen",
+      "rings": "Huisstijlringen"
     },
     "pos": {
       "x": "Kolom",
@@ -1640,6 +1648,8 @@
       "h": "Hoogte"
     },
     "confirmOverlap": "Sommige blokken overlappen, dus delen ervan vallen weg op de tv. Toch publiceren?",
-    "standardState": "Standaardschermen op de tv's"
+    "standardState": "Standaardschermen op de tv's",
+    "subtitle": "Ondertitel",
+    "subtitleHint": "Laatste uur, alle kanalen"
   }
 }

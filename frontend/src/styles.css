@@ -531,7 +531,7 @@ html.printing td:first-child { min-width: 180px; }
 .wd-blk .btn { padding: 4px 6px; color: var(--accent); }
 .wd-ic { width: 34px; height: 26px; border-radius: 6px; background: #060b16; display: grid; place-items: center; flex: none; }
 .wd-ic svg { width: 22px; height: 16px; }
-.wd-tpl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.wd-tpl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .wd-tpl button { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 5px; font: inherit; font-size: 11.5px; font-weight: 600; color: var(--text); cursor: pointer; text-align: left; }
 .wd-tpl button:hover { border-color: var(--accent); }
 .wd-thumb { display: block; position: relative; aspect-ratio: 16 / 9; border-radius: 4px; background: #060b16; margin-bottom: 4px; overflow: hidden; }

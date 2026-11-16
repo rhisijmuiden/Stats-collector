@@ -51,17 +51,28 @@ async function openDesigner(page) {
   await page.waitForTimeout(1200);
 }
 
+// The Wall Designer with the brand template on the first screen, in preview (nothing is saved).
+async function openDesignerBrand(page) {
+  await page.locator('a[href$="/design"]').first().click();
+  await page.waitForTimeout(3000);
+  await page.locator(".wd-tpl button").nth(2).click(); // Brand live; the confirm dialog is accepted below
+  await page.waitForTimeout(800);
+  await page.locator(".wd-top button[aria-pressed]").first().click(); // Preview
+  await page.waitForTimeout(2500);
+}
+
 const SCREENS = [
   ["/", "dashboard"], ["/dashboards", "dashboards"], ["/dashboards", "dashboards-edit", editDashboardWidget], ["/content", "content"], ["/content", "content-item", "table .link-btn"], ["/content", "content-links", openLinkedArticle], ["/editors", "editors"], ["/editors", "editor-social", openEditorSocial], ["/followers", "followers"], ["/goals", "goals"], ["/goals", "goal-detail", ".goal-card"],
   ["/stories", "stories"], ["/stories", "story-detail", ".story-card"], ["/best-times", "best-times"], ["/alerts", "alerts"], ["/alerts", "alerts-edit", '.alert-rule button:has(svg.lucide-pencil)'],
   ["/reports", "reports"], ["/reports", "reports-edit", '.report-list .card button:has(svg.lucide-pencil)'], ["/reports", "reports-archive", "button:has(svg.lucide-history)"], ["/reports/runs/1", "report-view"],
-  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories], ["/admin/livewalls", "wall-designer", openDesigner],
+  ["/admin/sources", "sources"], ["/admin/sources", "sources-youtube", 'tr:has-text("Demo YouTube") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-facebook", 'tr:has-text("Demo Facebook") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-threads", 'tr:has-text("Demo Threads") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-x", 'tr:has-text("Demo X") button:has(svg.lucide-pencil)'], ["/admin/sources", "sources-bluesky", 'tr:has-text("Demo Bluesky") button:has(svg.lucide-pencil)'], ["/admin/sso", "sso"], ["/admin/livewalls", "livewalls"], ["/admin/livewalls", "live-wall", openLiveWall], ["/admin/livewalls", "live-wall-stories", openLiveWallStories], ["/admin/livewalls", "wall-designer", openDesigner], ["/admin/livewalls", "wall-designer-brand", openDesignerBrand],
   ["/info", "info"], ["/admin/backup", "backup"], ["/admin/email", "email"], ["/admin/email", "email-graph", ".card .seg button"], ["/admin/digest", "digest"], ["/admin/digest", "digest-preview", "button:has(svg.lucide-eye)"], ["/admin/branding", "branding"],
 ];
 
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2, timezoneId: "Europe/Amsterdam", locale: "en-GB" });
 const page = await ctx.newPage();
+page.on("dialog", (d) => d.accept()); // e.g. "replace the blocks of this screen?" and leaving the designer with unsaved changes
 const password = "screenshot-password-123";
 
 if (setupLink) {

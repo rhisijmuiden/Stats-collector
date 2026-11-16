@@ -188,13 +188,17 @@ def test_wall_designer(admin):
     got = client.get(f"/api/livewalls/{w['id']}/design").json()
     assert not got["custom"] and got["draft"] is None and got["versions"] == []
     assert [s["id"] for s in got["design"]["screens"]] == ["overview"] and got["design"]["screens"][0]["seconds"] == 40
-    assert set(got["templates"]) == {"overview", "stories"}
+    assert set(got["templates"]) == {"overview", "stories", "brand"}
+    brand = got["templates"]["brand"]
+    assert brand["background"] == "rings"
+    assert {b["viz"] for b in brand["blocks"]} == {"brand", "panel", "pulse", "cards", "spotlight"}
 
     snap = client.get(f"/api/livewalls/{w['id']}/preview").json()
     assert snap["design"]["screens"][0]["blocks"][0]["type"] == "header"
     site = next(s for s in snap["sources"] if s["kind"] == "website")
     assert site["live"] and len(site["views_days"]) == 30 and len(site["bars"]) == 12
     assert all("source_id" in t for t in snap["top"])
+    assert snap["icon"].startswith("data:image/png;base64,")  # the IJmond360 icon: walls run on their own address
 
     sources = client.get("/api/livewalls").json()["sources"]
     fb = next(s for s in sources if s["kind"] == "facebook")

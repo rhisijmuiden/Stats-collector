@@ -27,6 +27,7 @@ What a snapshot holds:
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import logging
@@ -446,6 +447,40 @@ def _rising(wall: LiveWall, top: list[dict], day: str, now: datetime) -> list[di
     return gains[:4]
 
 
+ICON_TYPES = {
+    ".png": "image/png",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+}
+ICON_MAX = 96 * 1024
+_icon_cache: dict[tuple[str, float], str | None] = {}
+
+
+def brand_icon(db: Session) -> str | None:
+    """The brand icon as a data URL: the walls run on their own address and cannot load it from the app."""
+    from ..api.settings import brand_asset_path
+
+    try:
+        path = brand_asset_path(db, "favicon")
+        if path is None or path.suffix.lower() not in ICON_TYPES:
+            return None
+        key = (str(path), path.stat().st_mtime)
+        if key not in _icon_cache:
+            raw = path.read_bytes()
+            _icon_cache.clear()
+            _icon_cache[key] = (
+                f"data:{ICON_TYPES[path.suffix.lower()]};base64,{base64.b64encode(raw).decode()}"
+                if len(raw) <= ICON_MAX
+                else None
+            )
+        return _icon_cache[key]
+    except Exception:  # noqa: BLE001 - a wall without its icon still works
+        log.exception("live wall: reading the brand icon failed")
+        return None
+
+
 def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = None) -> dict:
     now = now or utcnow()
     start = now - BAR * BARS
@@ -552,6 +587,7 @@ def snapshot(db: Session, wall: LiveWall, theme: dict, now: datetime | None = No
         "title": wall.title or wall.name,
         "app_name": theme.get("app_name") or "Stats Collector",
         "colors": theme.get("liveWall") or {},
+        "icon": brand_icon(db),
         "fonts": theme.get("fonts") or {},
         "allow_ips": wall.allow_ips or "",
         "layout": wall.layout if wall.layout in LAYOUTS else "rotate",

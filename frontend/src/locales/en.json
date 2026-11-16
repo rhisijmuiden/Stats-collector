@@ -1535,7 +1535,8 @@
     "template": {
       "overview": "Overview",
       "stories": "Top stories",
-      "empty": "Empty"
+      "empty": "Empty",
+      "brand": "Brand live"
     },
     "previewTitle": "Preview of the wall",
     "grid": "grid of 12 × 8",
@@ -1614,7 +1615,13 @@
       "donut": "Donut",
       "race": "Race",
       "bar": "Bars",
-      "rings": "Rings"
+      "rings": "Rings",
+      "standard": "Standard",
+      "brand": "Brand",
+      "panel": "Panel",
+      "cards": "Cards",
+      "pulse": "Pulse bars",
+      "spotlight": "Spotlight"
     },
     "metrics": {
       "live": "Live now (listeners and viewers)",
@@ -1631,7 +1638,8 @@
     "backgrounds": {
       "neon": "Neon glow",
       "aurora": "Aurora",
-      "plain": "Plain"
+      "plain": "Plain",
+      "rings": "Brand rings"
     },
     "pos": {
       "x": "Column",
@@ -1640,6 +1648,8 @@
       "h": "Height"
     },
     "confirmOverlap": "Some blocks overlap, so parts of them will be hidden on the TV. Publish anyway?",
-    "standardState": "Standard screens on the TVs"
+    "standardState": "Standard screens on the TVs",
+    "subtitle": "Subtitle",
+    "subtitleHint": "Last hour, all channels"
   }
 }

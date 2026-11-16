@@ -13,6 +13,11 @@ a background and blocks. A block sits on the grid (x, y, w, h in cells) and has 
   ticker   a scrolling line with the best items
   msg      your own text
 
+Some blocks have a brand look (`viz`): a header with the brand icon and a LIVE pill ("brand"), a big number
+on a solid panel ("panel"), pulse bars per 5 minutes ("pulse"), channel cards with a progress bar ("cards")
+and a light bar with one top item at a time ("spotlight"). With the "rings" background they make the
+brand screen (`brand_screen`).
+
 `channels` is a list of source ids; empty means every channel of the wall. A wall without a design
 of its own (design is None) shows the standard screens chosen with `layout`, built from the same
 blocks (see `standard`), so the wall page has one way of drawing.
@@ -28,14 +33,14 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 COLS, ROWS = 12, 8
 TYPES = ("header", "kpi", "tiles", "chart", "race", "goals", "risers", "ticker", "msg")
 VIZ: dict[str, tuple[str, ...]] = {
-    "header": ("",),
-    "kpi": ("numline", "number", "gauge"),
-    "tiles": ("tiles", "bars3d", "list"),
-    "chart": ("area", "line", "bars", "donut"),
+    "header": ("", "brand"),
+    "kpi": ("numline", "number", "gauge", "panel"),
+    "tiles": ("tiles", "bars3d", "list", "cards"),
+    "chart": ("area", "line", "bars", "donut", "pulse"),
     "race": ("race", "list"),
     "goals": ("bar", "rings"),
     "risers": ("",),
-    "ticker": ("",),
+    "ticker": ("", "spotlight"),
     "msg": ("",),
 }
 COLOR = re.compile(r"^#[0-9A-Fa-f]{6}$")
@@ -83,7 +88,7 @@ class Screen(BaseModel):
     id: str = Field(min_length=1, max_length=40)
     name: str = Field(min_length=1, max_length=60)
     seconds: int = Field(default=30, ge=10, le=300)
-    background: Literal["neon", "aurora", "plain"] = "neon"
+    background: Literal["neon", "aurora", "rings", "plain"] = "neon"
     blocks: list[Block] = Field(default_factory=list, max_length=40)
 
     @field_validator("id")
@@ -143,6 +148,23 @@ def stories_screen(seconds: int = 30, editors: bool = True) -> dict:
     }
 
 
+def brand_screen(seconds: int = 30) -> dict:
+    """Brand live: brand colours, fonts and icon, the last hour per 5 minutes and a card per channel."""
+    return {
+        "id": "brand",
+        "name": "Brand live",
+        "seconds": seconds,
+        "background": "rings",
+        "blocks": [
+            _b("header", "header", 0, 0, 12, 1, viz="brand"),
+            _b("reach", "kpi", 0, 1, 4, 3, metric="views", period="hour", viz="panel"),
+            _b("pulse", "chart", 4, 1, 8, 3, metric="views", period="hour", viz="pulse"),
+            _b("cards", "tiles", 0, 4, 12, 3, viz="cards"),
+            _b("spot", "ticker", 0, 7, 12, 1, viz="spotlight"),
+        ],
+    }
+
+
 def standard(layout: str, seconds: int = 30, editors: bool = True) -> dict:
     """The screens a wall shows without a design of its own."""
     screens = {
@@ -153,7 +175,7 @@ def standard(layout: str, seconds: int = 30, editors: bool = True) -> dict:
 
 
 def templates() -> dict:
-    return {"overview": overview_screen(), "stories": stories_screen()}
+    return {"overview": overview_screen(), "stories": stories_screen(), "brand": brand_screen()}
 
 
 def effective(wall) -> dict:

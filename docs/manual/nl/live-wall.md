@@ -39,7 +39,7 @@ Met de **Wall Designer** kies je zelf wat een wall toont. Klik op **Ontwerpen** 
 ![De Wall Designer](../images/nl-wall-designer.png)
 
 - **In het midden** staat de wall zoals de tv hem toont, met de echte cijfers, op een raster van 12 × 8 vakken. Sleep een blok om het te verplaatsen en sleep aan het hoekje om het groter of kleiner te maken; blokken klikken vast op het raster. Blokken die overlappen worden rood. Met een geselecteerd blok verplaatsen de pijltjestoetsen het en verwijdert Delete het.
-- **Links** staan de bouwstenen. Sleep er een naar de wall, of klik op **+** om het op de eerste vrije plek te zetten. Onder **Begin met een sjabloon** zet je het standaardscherm *Overzicht* of *Topverhalen* (of een leeg scherm) op het scherm waar je aan werkt.
+- **Links** staan de bouwstenen. Sleep er een naar de wall, of klik op **+** om het op de eerste vrije plek te zetten. Onder **Begin met een sjabloon** zet je het standaardscherm *Overzicht* of *Topverhalen*, het scherm *Huisstijl live* (of een leeg scherm) op het scherm waar je aan werkt.
 - **Rechts** staan de instellingen van het geselecteerde blok; is niets geselecteerd, dan die van het scherm.
 - **Bovenaan** staan de schermen van de wall als tabbladen. **Scherm toevoegen** maakt een nieuw scherm; de schermen wisselen elkaar in deze volgorde af.
 
@@ -57,7 +57,15 @@ Met de **Wall Designer** kies je zelf wat een wall toont. Klik op **Ontwerpen** 
 
 Elk blok kan een eigen titel hebben (leeg betekent een titel die past) en een eigen kleur (**Automatisch** gebruikt de kanaalkleuren en de gloed van de live wall uit **Beheer → Huisstijl**). Kanalen: **Alle** betekent alle kanalen van de wall.
 
-Per scherm stel je de **naam**, de **seconden in beeld** (10 tot 300) en de **achtergrond** in (*Neon gloed*, *Aurora* of *Effen*). **Link naar alleen dit scherm** geeft de link van de wall met `?screen=` en de sleutel van het scherm, voor een tv die alleen dat scherm moet tonen. Op de tv wordt een scherm zonder cijfers om te tonen (bijv. topverhalen vroeg in de ochtend) overgeslagen, en lege zijvakken (doelen, snelste stijgers, ticker) worden verborgen.
+Per scherm stel je de **naam**, de **seconden in beeld** (10 tot 300) en de **achtergrond** in (*Neon gloed*, *Aurora*, *Huisstijlringen* of *Effen*). **Link naar alleen dit scherm** geeft de link van de wall met `?screen=` en de sleutel van het scherm, voor een tv die alleen dat scherm moet tonen. Op de tv wordt een scherm zonder cijfers om te tonen (bijv. topverhalen vroeg in de ochtend) overgeslagen, en lege zijvakken (doelen, snelste stijgers, ticker) worden verborgen.
+
+### De huisstijl-look
+
+Het sjabloon **Huisstijl live** toont de wall in de huisstijl van **Beheer → Huisstijl**: het icoon van de huisstijl met de titel en een kloppende *LIVE*-pil, de weergaven van het laatste uur op een effen paneel in de huisstijlkleur, staven per 5 minuten, een kaart per kanaal met een voortgangsbalk en een witte balk met het item dat nu populair is (één tegelijk). Het gebruikt de achtergrond *Huisstijlringen* en de lettertypes van de huisstijl.
+
+![Het sjabloon Huisstijl live in de Wall Designer](../images/nl-wall-designer-brand.png)
+
+De onderdelen zijn ook los te gebruiken, als keuze onder **Tonen als** van een blok: *Huisstijl* voor de kop (icoon, **Ondertitel**, LIVE-pil en klok), *Paneel* voor een groot getal (met **Laatste uur** als periode telt het de websiteweergaven van de laatste 60 minuten), *Pulsstaven* voor een grafiek, *Kaarten* voor de kanaaltegels en *Uitgelicht* voor de ticker. De kleuren komen uit de live-wall-kleuren van de huisstijl: *gloed* voor de pil en de staven, *paneel* voor het effen paneel.
 
 **Concept opslaan** bewaart je werk zonder de tv's te veranderen. **Publiceren** zet het ontwerp op de tv's; die volgen binnen een minuut, zonder te herladen. **Voorbeeld** verbergt het raster zodat je de wall ziet zoals hij wordt. **Versies** toont elk gepubliceerd ontwerp; **Terugzetten** zet er een in de editor (publiceer om hem weer op de tv's te zetten), en **Terug naar de standaardschermen** gaat terug naar het overzicht en de topverhalen. Een wall met een eigen ontwerp toont *eigen ontwerp* in de lijst, en de keuze van schermen in de instellingen van de wall geldt dan niet meer.
 

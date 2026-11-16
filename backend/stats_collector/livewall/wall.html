@@ -11,7 +11,7 @@
      from the wall's design (services/walldesign.py): screens of blocks on a 12 x 8 grid that take
      turns. The same page is the live preview in the Wall Designer (it then gets its data by message). */
   :root {
-    --bg: #060B16; --glow: #2FB8FF; --text: #D8F3FF; --dim: rgba(216, 243, 255, 0.58); --faint: rgba(216, 243, 255, 0.28);
+    --bg: #060B16; --glow: #2FB8FF; --text: #D8F3FF; --panel: color-mix(in srgb, var(--glow) 32%, var(--bg)); --dim: rgba(216, 243, 255, 0.58); --faint: rgba(216, 243, 255, 0.28);
     --good: #3CCB7F; --bad: #FF6B6F; --warn: #FFB86B;
     --display: "Space Grotesk", Inter, system-ui, sans-serif; --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
     --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -27,6 +27,13 @@
     background-size: 64px 64px; -webkit-mask-image: linear-gradient(to bottom, black, transparent 72%); mask-image: linear-gradient(to bottom, black, transparent 72%); }
   #stage.bg-aurora { background: radial-gradient(900px 600px at 80% 0%, color-mix(in srgb, #2CC4B0 28%, transparent), transparent 60%),
                 radial-gradient(1100px 600px at 0% 100%, color-mix(in srgb, #6C5CE7 30%, transparent), transparent 60%), var(--bg); }
+  /* rings: the brand look, with two large decorative rings in the corners */
+  #stage.bg-rings::before, #stage.bg-rings::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+  #stage.bg-rings::before { right: -260px; top: -260px; width: 820px; height: 820px; border: 120px solid color-mix(in srgb, var(--glow) 10%, transparent); }
+  #stage.bg-rings::after { left: -200px; bottom: -320px; width: 700px; height: 700px; border: 90px solid color-mix(in srgb, var(--panel) 35%, transparent); }
+  #stage.bg-rings .card { background: rgba(255,255,255,0.05); border-color: transparent; border-radius: 28px; }
+  #stage.bg-rings .lbl { font: 400 22px var(--body); letter-spacing: 0; text-transform: none; color: color-mix(in srgb, var(--text) 80%, var(--glow)); }
+  #screens { position: absolute; inset: 0; z-index: 1; }
   .pg { position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity 0.9s ease, visibility 0s linear 0.9s; }
   .pg.on { opacity: 1; visibility: visible; transition: opacity 0.9s ease; }
   .blk { position: absolute; min-width: 0; }
@@ -51,6 +58,17 @@
   .b-header .app { font: 500 21px var(--body); color: var(--dim); letter-spacing: 0.2em; text-transform: uppercase; white-space: nowrap; }
   .b-header .clock { font: 600 90px var(--display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; text-shadow: 0 0 30px color-mix(in srgb, var(--glow) 50%, transparent); white-space: nowrap; }
 
+  .b-header .logo { flex: none; width: 84px; height: 84px; border-radius: 18px; object-fit: cover; }
+  .b-header .names { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .b-header.brandh h1 { font-weight: 900; }
+  .b-header .subt { font: 400 20px var(--body); color: color-mix(in srgb, var(--text) 80%, var(--glow)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .b-header .right { display: flex; align-items: center; gap: 28px; flex: none; }
+  .b-header.brandh .clock { font-weight: 800; text-shadow: none; }
+  .livepill { display: inline-flex; align-items: center; gap: 12px; font: 800 22px var(--body); letter-spacing: 0.14em; background: color-mix(in srgb, var(--glow) 16%, transparent); border-radius: 999px; padding: 12px 22px; }
+  .livepill i { width: 14px; height: 14px; border-radius: 50%; background: var(--glow); animation: pulse 1.8s ease-in-out infinite; }
+  .livepill.off i { background: #556; animation: none; }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--glow) 70%, transparent); } 50% { box-shadow: 0 0 0 14px transparent; } }
+
   /* big number */
   .b-kpi { border-radius: 22px; padding: 26px 32px; border: 1px solid color-mix(in srgb, var(--a) 30%, transparent); overflow: hidden;
     background: linear-gradient(160deg, color-mix(in srgb, var(--a) 13%, transparent), rgba(6,11,22,0.35) 62%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
@@ -60,6 +78,13 @@
   .b-kpi.center .row { justify-content: center; }
   .b-kpi .gauge { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); }
   .b-kpi .gauge path.v { transition: stroke-dashoffset 1.2s ease; }
+
+  .b-kpi.panel { background: var(--panel); border: 0; border-radius: 28px; padding: 36px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; box-shadow: none; }
+  .b-kpi.panel .lbl { font: 400 24px var(--body); letter-spacing: 0; text-transform: none; color: color-mix(in srgb, var(--text) 85%, var(--panel)); }
+  .b-kpi.panel .num { margin: 0; font-weight: 900; letter-spacing: -0.04em; text-shadow: none; }
+  .b-kpi.panel .foot { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .b-kpi.panel .pill { font: 700 26px var(--body); color: #fff; background: var(--glow); padding: 8px 18px; }
+  .b-kpi.panel .sub { margin: 0; font: 400 20px var(--body); color: color-mix(in srgb, var(--text) 85%, var(--panel)); }
 
   /* channel tiles */
   .tiles { display: grid; gap: 22px; width: 100%; height: 100%; }
@@ -93,12 +118,26 @@
   .lst .num { font-size: 30px; }
   .lst small { font: 500 16px var(--body); color: var(--dim); margin-left: 8px; }
 
+  .ccards { display: grid; gap: 20px; width: 100%; height: 100%; align-content: center; }
+  .ccard { background: rgba(255,255,255,0.06); border-radius: 22px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; min-width: 0; overflow: hidden; }
+  .ccard .nm { display: flex; align-items: center; gap: 10px; font: 600 20px var(--body); min-width: 0; }
+  .ccard .nm span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ccard .nm i { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--c); }
+  .ccard .num { font-weight: 800; }
+  .ccard .pb { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow: hidden; }
+  .ccard .pb b { display: block; height: 100%; border-radius: 999px; background: var(--c); transition: width 1.2s ease; }
+  .ccard .un { font: 400 16px var(--body); color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   /* chart */
   .chart { flex: 1; min-height: 0; position: relative; margin-top: 12px; }
   .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
   .keys { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 12px; }
   .key { display: flex; align-items: center; gap: 9px; font: 600 17px var(--body); color: var(--dim); white-space: nowrap; }
   .key i { width: 12px; height: 12px; }
+
+  .pbars { flex: 1; min-height: 0; display: flex; align-items: flex-end; gap: 14px; margin-top: 18px; }
+  .pbars b { flex: 1; min-height: 4px; border-radius: 10px 10px 4px 4px; background: var(--a); transition: height 1.2s cubic-bezier(.2,.8,.2,1); }
+  .paxis { display: flex; justify-content: space-between; margin-top: 12px; font: 400 16px var(--body); color: var(--dim); }
 
   /* ticker */
   .b-ticker { border-radius: 16px; border: 1px solid color-mix(in srgb, var(--a) 25%, transparent); background: color-mix(in srgb, var(--a) 6%, transparent); overflow: hidden; display: flex; align-items: center; }
@@ -107,6 +146,10 @@
   .b-ticker .track b { font-family: var(--display); }
   .b-ticker .track .k { font: 700 17px var(--mono); }
   .b-ticker .track .au { color: var(--dim); }
+  .b-ticker.spot { background: #fff; color: #1B1B1B; border: 0; border-radius: 22px; padding: 0 28px; gap: 24px; }
+  .b-ticker.spot .tag { height: auto; padding: 8px 14px; border-radius: 10px; font: 800 18px var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: #fff; box-shadow: none; }
+  .b-ticker.spot .st { flex: 1; min-width: 0; font: 800 30px var(--display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.5s; }
+  .b-ticker.spot .sv { flex: none; font: 700 22px var(--body); color: var(--panel); white-space: nowrap; }
   @keyframes marquee { to { transform: translateX(-50%); } }
 
   /* race */
@@ -162,14 +205,14 @@
   .b-msg .small { font: 500 26px var(--body); color: var(--dim); margin-top: 14px; }
 
   /* footer: freshness and which screen is next */
-  footer { position: absolute; left: 64px; right: 64px; bottom: 12px; height: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; font: 500 16px var(--body); color: var(--dim); }
+  footer { z-index: 1; position: absolute; left: 64px; right: 64px; bottom: 12px; height: 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; font: 500 16px var(--body); color: var(--dim); }
   .stale { color: var(--warn); }
   .dots { display: flex; gap: 10px; align-items: center; }
   .dots i { width: 36px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); overflow: hidden; display: block; }
   .dots i b { display: block; height: 100%; width: 0; background: var(--glow); box-shadow: 0 0 10px var(--glow); }
   @media (prefers-reduced-motion: reduce) {
-    .livedot, .b-ticker .track, .goal .gb b::after { animation: none; }
-    .pg, .rr, .rr .fill, .ring circle.v, .goal .gb b, .bars3d b { transition: none; }
+    .livedot, .livepill i, .b-ticker .track, .goal .gb b::after { animation: none; }
+    .pg, .rr, .rr .fill, .ring circle.v, .goal .gb b, .bars3d b, .pbars b, .ccard .pb b { transition: none; }
   }
 </style>
 </head>
@@ -199,7 +242,7 @@
       behind: "Loopt achter", onTrack: "Op schema", updated: "Bijgewerkt", stale: "Geen verse cijfers", none: "Nog geen kanalen op deze wall.",
       noData: "Nog geen cijfers", lastHour: "Laatste uur", lastDays: "Laatste {n} dagen", share: "Aandeel {what}",
       note: "Websites, radio en tv zijn live. Socials melden per dag en worden elk uur tot elke drie uur opgehaald.",
-      msg: "Je eigen tekst"
+      msg: "Je eigen tekst", viewsHour: "Weergaven dit uur", last60: "Laatste 60 minuten", per5: "Per 5 minuten", now: "nu", popular: "Nu populair"
     },
     en: {
       liveNow: "Live now", liveSub: "listeners and viewers", liveWeb: "website views, last 5 min",
@@ -213,7 +256,7 @@
       behind: "Behind schedule", onTrack: "On track", updated: "Updated", stale: "No fresh numbers", none: "No channels on this wall yet.",
       noData: "No numbers yet", lastHour: "Last hour", lastDays: "Last {n} days", share: "Share of {what}",
       note: "Websites, radio and TV are live. Social media report per day and are fetched every one to three hours.",
-      msg: "Your own text"
+      msg: "Your own text", viewsHour: "Views this hour", last60: "Last 60 minutes", per5: "Per 5 minutes", now: "now", popular: "Popular now"
     }
   };
   var KIND = { website: "WEB", wordpress: "WEB", facebook: "FB", instagram: "IG", youtube: "YT", threads: "TH", x: "X", bluesky: "BSKY", mastodon: "MSTDN", icecast: "RADIO", owncast: "TV" };
@@ -327,6 +370,11 @@
       var change = sum(withF.map(function (s) { return s.followers_change || 0; }));
       return { value: sum(withF.map(function (s) { return s.followers; })), change: change, series: [], sub: b.channels && b.channels.length ? withF.map(function (s) { return s.name; }).join(", ") : T.allChannels, label: T.followers };
     }
+    var who0 = b.channels && b.channels.length ? src.map(function (s) { return s.name; }).join(", ") : T.allChannels;
+    if (metric === "views" && b.period === "hour") { // websites count every view: the last 12 bars of 5 minutes
+      var hour = addUp(src.filter(function (s) { return s.live && s.unit === "views"; }).map(function (s) { return (s.bars || []).slice(-12); }));
+      if (hour.length) return { value: sum(hour), series: hour, label: T.viewsHour, sub: T.last60 + " · " + who0, peak: Math.max.apply(null, [0].concat(hour)), live: true };
+    }
     var days = addUp(src.map(function (s) { return daysOf(s, metric); }));
     var n = periodDays(b.period), value = sum(days.slice(-n));
     var prev = n === 30 ? null : sum(days.slice(-2 * n, -n));
@@ -342,6 +390,7 @@
   var BLOCKS = {};
 
   BLOCKS.header = function (b, box) {
+    if (b.viz === "brand") return brandHeader(b, box);
     var scale = Math.min(1.25, box.h / 107);
     var node = el('<div class="b-header"><div class="brand"><span class="livedot"></span><h1></h1><span class="app"></span></div><div class="clock"></div></div>');
     node.querySelector("h1").style.fontSize = Math.round(58 * scale) + "px";
@@ -355,7 +404,47 @@
     } };
   };
 
+  function brandHeader(b, box) {
+    var scale = Math.min(1.25, box.h / 107);
+    var node = el('<div class="b-header brandh"><div class="brand"><img class="logo" alt="" hidden><div class="names"><h1></h1><span class="subt"></span></div></div>' +
+      '<div class="right"><span class="livepill"><i></i><span></span></span><span class="clock"></span></div></div>');
+    node.querySelector("h1").style.fontSize = Math.round(44 * scale) + "px";
+    node.querySelector(".clock").style.fontSize = Math.round(56 * scale) + "px";
+    var logo = node.querySelector(".logo");
+    logo.style.width = logo.style.height = Math.round(Math.min(84, box.h * 0.8)) + "px";
+    return { node: node, update: function () {
+      node.querySelector("h1").textContent = b.title || data.title;
+      node.querySelector(".subt").textContent = b.sub || T.lastHour + ", " + T.allChannels;
+      if (data.icon && /^data:image\//.test(data.icon)) { if (logo.getAttribute("src") !== data.icon) logo.src = data.icon; logo.hidden = false; } else logo.hidden = true;
+      var on = (data.sources || []).some(function (s) { return s.live && (s.online || s.unit === "views"); });
+      node.querySelector(".livepill").className = "livepill" + (on ? "" : " off");
+      node.querySelector(".livepill span").textContent = on ? T.onAir : T.offAir;
+      return null;
+    } };
+  }
+
+  function panelKpi(b, box) {
+    var size = Math.round(Math.min(box.h * 0.34, box.w * 0.26, 170));
+    var node = el('<div class="b-kpi panel"><div class="lbl"></div><div class="num" style="font-size:' + size + 'px">0</div><div class="foot"><span class="chipwrap"></span><span class="sub"></span></div></div>');
+    if (b.color && b.color !== "auto") node.style.background = b.color;
+    return { node: node, update: function () {
+      var f = figure(b);
+      node.querySelector(".lbl").textContent = b.title || f.label;
+      node.querySelector(".sub").textContent = f.sub;
+      count(node.querySelector(".num"), f.value, b.countup);
+      var pill = "";
+      if (b.trend) {
+        if (f.change) pill = (f.change < 0 ? "▼ " : "▲ ") + plain.format(Math.abs(f.change));
+        else if (f.prev && b.period === "7d") { var pct = Math.round((f.value - f.prev) / f.prev * 100); pill = (pct < 0 ? "▼ " : pct > 0 ? "▲ " : "") + Math.abs(pct) + "%"; }
+        else if (f.live) pill = "● " + T.onAir;
+      }
+      node.querySelector(".chipwrap").innerHTML = pill ? '<span class="pill">' + esc(pill) + "</span>" : "";
+      return (data.sources || []).length > 0;
+    } };
+  }
+
   BLOCKS.kpi = function (b, box) {
+    if (b.viz === "panel") return panelKpi(b, box);
     var viz = b.viz || "numline", a = accent(b);
     var size = Math.round(Math.min(box.h * 0.5, box.w * (viz === "gauge" ? 0.13 : 0.19), 170));
     var node = el('<div class="b-kpi' + (viz === "number" ? " center" : "") + '" style="--a:' + esc(a) + '"><div class="row"><div style="min-width:0"><div class="lbl"></div><div class="sub"></div></div><span class="chipwrap"></span></div><div class="num" style="font-size:' + size + 'px">0</div></div>');
@@ -391,8 +480,39 @@
     var soc = picked(b, data.socials || []).map(function (s) { return { key: "s" + s.id, live: false, src: s, color: colorFor(b, s.color), name: s.name }; });
     return live.concat(soc).slice(0, limit || 99);
   }
+  function cardTiles(b, box) {
+    var node = el('<div class="ccards"></div>'), shape = "";
+    return { node: node, update: function () {
+      var items = tileItems(b), n = items.length;
+      if (!n) { shape = "empty"; node.innerHTML = '<div class="empty">' + esc(T.none) + "</div>"; node.style.display = "flex"; return false; }
+      node.style.display = "";
+      // as few rows as fit, spread evenly (10 channels: 5 + 5); cards no taller than 210 px
+      var rows = Math.ceil(n / Math.max(1, Math.floor((box.w + 20) / 240))), cols = Math.ceil(n / rows);
+      var tw = (box.w - (cols - 1) * 20) / cols, th = Math.min(210, (box.h - (rows - 1) * 20) / rows);
+      var key = items.map(function (t) { return t.key + t.color; }).join(",") + "|" + cols;
+      if (shape !== key) {
+        shape = key;
+        node.style.gridTemplateColumns = "repeat(" + cols + ",minmax(0,1fr))";
+        node.style.gridTemplateRows = "repeat(" + rows + "," + Math.floor(th) + "px)";
+        var numSize = Math.round(Math.max(26, Math.min(56, th * 0.27, tw * 0.2)));
+        node.innerHTML = items.map(function (t) {
+          return '<div class="ccard" data-k="' + t.key + '" style="--c:' + esc(t.color) + (th < 150 ? ";padding:14px 18px" : "") + '"><div class="nm"><i></i><span>' + esc(t.name) + '</span></div><span class="num" style="font-size:' + numSize + 'px">0</span><div class="pb"><b style="width:0"></b></div><span class="un"></span></div>';
+        }).join("");
+      }
+      var vals = items.map(function (t) { return Number(t.live ? t.src.now : t.src.value) || 0; }), mx = Math.max.apply(null, [1].concat(vals));
+      items.forEach(function (t, i) {
+        var c = node.querySelector('[data-k="' + t.key + '"]'); if (!c) return;
+        count(c.querySelector(".num"), vals[i], b.countup);
+        c.querySelector(".pb b").style.width = Math.max(2, vals[i] / mx * 100) + "%";
+        c.querySelector(".un").textContent = t.live ? (t.src.online === false && t.src.unit !== "views" ? T.offAir.toLowerCase() : T[t.src.unit === "views" ? "viewsNow" : t.src.unit]) : dayLabel(t.src.day, t.src.measure);
+      });
+      return true;
+    } };
+  }
+
   BLOCKS.tiles = function (b, box) {
     var viz = b.viz || "tiles";
+    if (viz === "cards") return cardTiles(b, box);
     var node = el('<div class="blk-in" style="width:100%;height:100%;display:flex;flex-direction:column"></div>');
     if (viz !== "tiles") { node.className = "card"; node.style.cssText = "width:100%;height:100%"; }
     var shape = "";
@@ -486,8 +606,31 @@
     } };
   };
 
+  function pulseChart(b) {
+    var node = el('<div class="card" style="--a:' + esc(accent(b)) + '"><div class="lbl"></div><div class="pbars"></div><div class="paxis"></div></div>');
+    return { node: node, update: function () {
+      var live = sources(b).filter(function (s) { return s.live; });
+      var use = b.metric === "views" ? live.filter(function (s) { return s.unit === "views"; }) : b.metric === "live" ? live.filter(function (s) { return s.unit !== "views"; }) : live;
+      var bars = addUp(use.map(function (s) { return (s.bars || []).slice(-12); }));
+      node.querySelector(".lbl").textContent = b.title || T.per5 + " · " + (b.metric === "live" ? T.liveSub : b.metric === "views" ? T.mViews : T.allChannels);
+      var host = node.querySelector(".pbars"), axis = node.querySelector(".paxis");
+      if (!bars.length) { host.innerHTML = '<div class="empty" style="height:100%">' + esc(T.noData) + "</div>"; axis.innerHTML = ""; return false; }
+      if (host.children.length !== bars.length || host.querySelector(".empty")) {
+        host.innerHTML = bars.map(function (_, i) { return '<b style="height:4%;opacity:' + (i === bars.length - 1 ? 1 : (0.25 + i * 0.05).toFixed(2)) + '"></b>'; }).join("");
+      }
+      var mx = Math.max.apply(null, [1].concat(bars));
+      bars.forEach(function (v, i) { host.children[i].style.height = Math.max(3, v / mx * 100) + "%"; });
+      var end = new Date(data.at), n = bars.length, labels = [];
+      for (var i = 0; i < n - 1; i += 3) labels.push(new Date(end - (n - i) * 300000).toLocaleTimeString(lang, { hour: "2-digit", minute: "2-digit" }));
+      labels.push(T.now);
+      axis.innerHTML = labels.map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("");
+      return true;
+    } };
+  }
+
   BLOCKS.chart = function (b, box) {
     var viz = b.viz || "area";
+    if (viz === "pulse") return pulseChart(b);
     var node = el('<div class="card"><div class="lbl"></div><div class="chart"></div><div class="keys"></div></div>');
     return { node: node, update: function () {
       var src = sources(b), metric = b.metric === "interactions" ? "interactions" : "views";
@@ -540,7 +683,30 @@
     } };
   };
 
+  var spots = [];
+  function spotTicker(b) {
+    var node = el('<div class="b-ticker spot" style="--a:' + esc(accent(b)) + ';width:100%;height:100%"><span class="tag"></span><span class="st"></span><span class="sv"></span></div>');
+    var items = [], at = 0, st = node.querySelector(".st");
+    function draw() {
+      var t = items[at % Math.max(1, items.length)];
+      st.textContent = t ? t.title : ""; node.querySelector(".sv").textContent = t ? fmt(t.value) + " " + T.mViews : "";
+    }
+    spots.push(function () {
+      if (items.length < 2 || reduce) return;
+      st.style.opacity = "0";
+      setTimeout(function () { at = (at + 1) % items.length; draw(); st.style.opacity = "1"; }, 500);
+    });
+    return { node: node, update: function () {
+      items = picked(b, data.top || [], "source_id").slice(0, 5);
+      node.querySelector(".tag").textContent = b.title || T.popular;
+      node.querySelector(".tag").style.background = "var(--a)";
+      draw();
+      return items.length > 0;
+    } };
+  }
+
   BLOCKS.ticker = function (b) {
+    if (b.viz === "spotlight") return spotTicker(b);
     var node = el('<div class="b-ticker" style="--a:' + esc(accent(b)) + ';width:100%;height:100%"><div class="tag"></div><div class="track"></div></div>');
     return { node: node, update: function () {
       var top = picked(b, data.top || [], "source_id");
@@ -664,7 +830,7 @@
   var HIDE_EMPTY = { risers: true, goals: true, ticker: true };
   function boxOf(b) { return { x: PAD + b.x * (CW + GAP), y: PAD + b.y * (CH + GAP), w: b.w * CW + (b.w - 1) * GAP, h: b.h * CH + (b.h - 1) * GAP }; }
   function build(design) {
-    var host = $("screens"); host.innerHTML = ""; screens = [];
+    var host = $("screens"); host.innerHTML = ""; screens = []; spots = [];
     (design.screens || []).forEach(function (s) {
       var pg = el('<section class="pg"></section>'), blocks = [];
       (s.blocks || []).forEach(function (b) {
@@ -733,6 +899,7 @@
     if (colors.background) rootStyle.setProperty("--bg", colors.background);
     if (colors.glow) rootStyle.setProperty("--glow", colors.glow);
     if (colors.text) rootStyle.setProperty("--text", colors.text);
+    if (colors.panel) rootStyle.setProperty("--panel", colors.panel);
     if (!PREVIEW) document.title = d.title;
     d.channels = d.channels || []; d.sources = d.sources || [];
     var key = JSON.stringify(d.design || {}) + "|" + lang + "|" + (colors.glow || "");
@@ -763,6 +930,7 @@
 
   setInterval(tick, 1000);
   setInterval(rotate, 250);
+  setInterval(function () { spots.forEach(function (f) { f(); }); }, 7000);
   if (PREVIEW) {
     // The Wall Designer sends {type: "wall", data, design, screen, lang}.
     window.addEventListener("message", function (e) {

@@ -23,16 +23,19 @@ export interface Block {
   id: string; type: BlockType; x: number; y: number; w: number; h: number; title: string; metric: Metric; channels: number[];
   period: Period; viz: string; color: string; trend: boolean; countup: boolean; editors: boolean; rows: number; text: string; sub: string;
 }
-export interface Screen { id: string; name: string; seconds: number; background: "neon" | "aurora" | "plain"; blocks: Block[] }
+export type Background = "neon" | "aurora" | "rings" | "plain";
+type TemplateKey = "overview" | "stories" | "brand";
+export interface Screen { id: string; name: string; seconds: number; background: Background; blocks: Block[] }
 export interface Design { screens: Screen[] }
 interface Version { version: number; design: Design | null; created_at: string | null; created_by: string }
-interface DesignResp { design: Design; custom: boolean; draft: Design | null; version: number; versions: Version[]; templates: Record<"overview" | "stories", Screen> }
+interface DesignResp { design: Design; custom: boolean; draft: Design | null; version: number; versions: Version[]; templates: Record<TemplateKey, Screen> }
 interface SourceRef { id: number; name: string; kind: string }
 interface WallRef { id: number; name: string; title: string; source_ids: number[]; url: string }
 
 const TYPES: BlockType[] = ["header", "kpi", "tiles", "chart", "race", "goals", "risers", "ticker", "msg"];
 const VIZ: Partial<Record<BlockType, string[]>> = {
-  kpi: ["numline", "number", "gauge"], tiles: ["tiles", "bars3d", "list"], chart: ["area", "line", "bars", "donut"], race: ["race", "list"], goals: ["bar", "rings"],
+  header: ["", "brand"], kpi: ["numline", "number", "gauge", "panel"], tiles: ["tiles", "bars3d", "list", "cards"], chart: ["area", "line", "bars", "donut", "pulse"],
+  race: ["race", "list"], goals: ["bar", "rings"], ticker: ["", "spotlight"],
 };
 const SIZE: Record<BlockType, [number, number]> = { header: [12, 1], kpi: [4, 2], tiles: [6, 3], chart: [4, 3], race: [6, 5], goals: [4, 3], risers: [4, 2], ticker: [12, 1], msg: [6, 2] };
 const SWATCHES = ["#2FB8FF", "#2CC4B0", "#3CCB7F", "#F5A524", "#FF6B6F", "#E14FD0", "#6C5CE7", "#D8F3FF"];
@@ -282,11 +285,11 @@ export default function WallDesigner() {
     change((d) => { d.screens.splice(screenIdx, 1); });
     setScreenIdx(Math.max(0, screenIdx - 1)); setSel(null);
   };
-  const applyTemplate = (key: "overview" | "stories" | "empty") => {
+  const applyTemplate = (key: TemplateKey | "empty") => {
     if (!resp || !screen) return;
     if (screen.blocks.length && !window.confirm(t("designer.confirmTemplate"))) return;
     const blocks = key === "empty" ? [] : clone(resp.templates[key].blocks).map((b) => ({ ...b, id: uid() }));
-    changeScreen((s) => { s.blocks = blocks; });
+    changeScreen((s) => { s.blocks = blocks; if (key !== "empty") s.background = resp.templates[key].background; });
     setSel(null);
   };
 
@@ -294,9 +297,10 @@ export default function WallDesigner() {
   if (!design || !screen || !resp) return <div className="page"><p className="muted">{t("common.loading")}</p></div>;
 
   const clashes = new Set(screen.blocks.filter((b) => screen.blocks.some((o) => o !== b && overlap(o, b))).map((b) => b.id));
-  const vizLabel = (v: string) => t(`designer.viz.${v}`);
+  const vizLabel = (v: string) => t(`designer.viz.${v || "standard"}`);
   const channelsFor = (b: Block) => b.type !== "header" && b.type !== "msg";
-  const periodsFor = (b: Block): Period[] => b.type === "chart" ? ["hour", "7d", "30d"] : b.type === "kpi" && (b.metric === "views" || b.metric === "interactions") ? ["today", "7d", "30d"] : [];
+  const periodsFor = (b: Block): Period[] => b.type === "chart" ? ["hour", "7d", "30d"] : b.type === "kpi" && b.metric === "views" ? ["hour", "today", "7d", "30d"]
+    : b.type === "kpi" && b.metric === "interactions" ? ["today", "7d", "30d"] : [];
   const linkFor = wall ? `${wall.url}?screen=${screen.id}` : "";
 
   return (
@@ -345,7 +349,7 @@ export default function WallDesigner() {
           <h3><LayoutTemplate size={14} /> {t("designer.templates")}</h3>
           <p className="muted small">{t("designer.templatesHint")}</p>
           <div className="wd-tpl">
-            {(["overview", "stories", "empty"] as const).map((k) => (
+            {(["overview", "stories", "brand", "empty"] as const).map((k) => (
               <button key={k} type="button" onClick={() => applyTemplate(k)}>
                 <span className="wd-thumb">{k !== "empty" && resp.templates[k].blocks.map((b) => (
                   <i key={b.id} style={{ left: `${(b.x / COLS) * 100}%`, top: `${(b.y / ROWS) * 100}%`, width: `${(b.w / COLS) * 100 - 2}%`, height: `${(b.h / ROWS) * 100 - 3}%` }} />
@@ -406,6 +410,9 @@ export default function WallDesigner() {
                 <Field label={t("designer.blockTitle")} hint={t("designer.blockTitleHint")}>
                   <input maxLength={120} value={block.title} placeholder={block.type === "header" ? wall?.title || wall?.name : ""} onChange={(e) => changeBlock({ title: e.target.value })} />
                 </Field>
+              )}
+              {block.type === "header" && block.viz === "brand" && (
+                <Field label={t("designer.subtitle")}><input maxLength={300} value={block.sub} placeholder={t("designer.subtitleHint")} onChange={(e) => changeBlock({ sub: e.target.value })} /></Field>
               )}
               {(block.type === "kpi" || block.type === "chart") && (
                 <Field label={t("designer.metric")}>
@@ -471,7 +478,7 @@ export default function WallDesigner() {
               <Field label={t("designer.screenName")}><input maxLength={60} value={screen.name} onChange={(e) => changeScreen((s) => { s.name = e.target.value || "–"; })} /></Field>
               <Field label={t("designer.seconds")} hint={t("designer.secondsHint")}><input type="number" min={10} max={300} value={screen.seconds} onChange={(e) => changeScreen((s) => { s.seconds = Math.max(10, Math.min(300, Number(e.target.value) || 30)); })} /></Field>
               <div className="field"><span>{t("designer.background")}</span>
-                <div className="seg">{(["neon", "aurora", "plain"] as const).map((bg) => <button key={bg} type="button" aria-pressed={screen.background === bg} onClick={() => changeScreen((s) => { s.background = bg; })}>{t(`designer.backgrounds.${bg}`)}</button>)}</div>
+                <div className="seg">{(["neon", "aurora", "rings", "plain"] as const).map((bg) => <button key={bg} type="button" aria-pressed={screen.background === bg} onClick={() => changeScreen((s) => { s.background = bg; })}>{t(`designer.backgrounds.${bg}`)}</button>)}</div>
               </div>
               <Field label={t("designer.screenLink")} hint={t("designer.screenLinkHint")}><input readOnly value={linkFor} onFocus={(e) => e.target.select()} /></Field>
               <div className="row">
