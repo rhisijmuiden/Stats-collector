@@ -2,6 +2,8 @@
 
 Stats Collector leest je YouTube-kanaal uit met de **YouTube Data API v3** (video's, aantal abonnees) en de **YouTube Analytics API** (weergaven, kijktijd, likes, reacties, keren gedeeld, abonnees erbij en eraf). Na het koppelen haalt hij de **volledige geschiedenis van het kanaal** op, terug tot de dag waarop het is aangemaakt, en daarna houdt hij die elke drie uur bij.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 ## Wat je krijgt
 
 | Cijfer | Per | Opmerking |
@@ -17,6 +19,16 @@ Stats Collector leest je YouTube-kanaal uit met de **YouTube Data API v3** (vide
 - Video's die verwijderd of privé gemaakt zijn houden hun cijfers; ze tonen dan hun video-ID in plaats van de titel.
 
 De cijfers staan op het **Dashboard** (kaart *Website en video*) en op de pagina **Content**, waar elke video een item is. Zie [Content en redacteuren](content.md).
+
+## 0. Welk Google-account mag koppelen?
+
+1. Open [studio.youtube.com](https://studio.youtube.com) en kies het kanaal (profielfoto → **Account wijzigen**).
+2. Zoek uit hoe het kanaal in bezit is:
+    - een kanaal op een **merkaccount**: open [myaccount.google.com/brandaccounts](https://myaccount.google.com/brandaccounts), kies het kanaal → **Rechten beheren**. Elke **Eigenaar** of **Beheerder** in die lijst kan koppelen;
+    - een kanaal op een persoonlijk Google-account: alleen dat account kan koppelen.
+3. Mensen die alleen toegang hebben via **YouTube Studio → Instellingen → Rechten** (Beheerder, Bewerker, Kijker) kunnen **niet** koppelen: Google laat andere apps het kanaal niet namens hen lezen. Vraag de eigenaar ze beheerder van het merkaccount te maken, of laat de eigenaar de stap **Koppelen met Google** doen.
+
+Het Google Cloud-project zelf mag met een ander account gemaakt worden, bijvoorbeeld een organisatie-account. Alleen het inloggen bij **Koppelen met Google** moet met het account van het kanaal, en dat account moet **testgebruiker** zijn zolang de app op Testen staat.
 
 ## 1. Google Cloud-project
 

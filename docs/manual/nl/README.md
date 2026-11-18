@@ -32,6 +32,8 @@ Dezelfde handleiding opent in de applicatie via de knop **Help** onderaan het li
 
 ## Platforms koppelen
 
+Begin bij [Bronnen instellen: overzicht](sources.md): per platform waar je moet zijn, wat je nodig hebt, de kosten en welke waarde in welk veld komt.
+
 | Platform | Pagina | Beschikbaar vanaf |
 | --- | --- | --- |
 | Inloggen met Microsoft 365 (Entra ID) | [Microsoft 365](microsoft-365.md) | Fase 1 (instellingen kun je nu al voorbereiden) |

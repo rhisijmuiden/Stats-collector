@@ -32,6 +32,8 @@ The same manual opens inside the application through the **Help** button at the 
 
 ## Connecting platforms
 
+Start with [Setting up sources: overview](sources.md): per platform where to go, what you need, the costs and which value goes in which field.
+
 | Platform | Page | Available from |
 | --- | --- | --- |
 | Microsoft 365 sign-in (Entra ID) | [Microsoft 365](microsoft-365.md) | Phase 1 (settings can be prepared now) |

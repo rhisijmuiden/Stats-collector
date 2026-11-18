@@ -124,7 +124,7 @@ export default function Sources() {
   };
   return (
     <div className="page">
-      <PageHead help="owncast-icecast" title={t("sources.title")} subtitle={t("sources.subtitle")}
+      <PageHead help="sources" title={t("sources.title")} subtitle={t("sources.subtitle")}
         actions={<button className="btn" onClick={() => open({ ...EMPTY })}><Plus /> {t("sources.add")}</button>} />
 
       <Card>

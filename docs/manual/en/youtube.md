@@ -2,6 +2,8 @@
 
 Stats Collector reads your YouTube channel with the **YouTube Data API v3** (videos, subscriber count) and the **YouTube Analytics API** (views, watch time, likes, comments, shares, subscribers gained and lost). After connecting, it imports the **whole history of the channel**, back to the day it was created, and then keeps it up to date every three hours.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 ## What you get
 
 | Number | Per | Note |
@@ -17,6 +19,16 @@ Stats Collector reads your YouTube channel with the **YouTube Data API v3** (vid
 - Videos that were deleted or made private keep their numbers; they show their video ID instead of the title.
 
 The numbers appear on the **Dashboard** (card *Website and video*) and on the **Content** page, where every video is an item. See [Content and editors](content.md).
+
+## 0. Which Google account may connect?
+
+1. Open [studio.youtube.com](https://studio.youtube.com) and choose the channel (profile picture → **Switch account**).
+2. Find out how the channel is owned:
+    - a channel on a **Brand Account**: open [myaccount.google.com/brandaccounts](https://myaccount.google.com/brandaccounts), choose the channel → **Manage permissions**. Every **Owner** or **Manager** listed there can connect;
+    - a channel on a personal Google account: only that account can connect.
+3. People who only have access through **YouTube Studio → Settings → Permissions** (Manager, Editor, Viewer) **cannot** connect: Google does not let other apps read the channel on their behalf. Ask the owner to make them Manager of the Brand Account, or let the owner do the **Connect with Google** step.
+
+The Google Cloud project itself may be made with another account, for example an organisation account. Only the sign-in at **Connect with Google** must be done with the channel's account, and that account must be a **test user** while the app is in testing.
 
 ## 1. Google Cloud project
 

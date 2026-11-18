@@ -2,6 +2,8 @@
 
 Stats Collector heeft een eigen WordPress-plugin. Die telt per artikel, zonder cookies, hoe vaak het bekeken wordt, door hoeveel bezoekers, hoe lang mensen lezen, of ze het lezen, waar ze vandaan komen (Google, Facebook…), welk apparaat ze gebruiken en hoe vaak er op de deelknoppen wordt geklikt. Elke minuut stuurt de plugin deze cijfers naar Stats Collector, samen met de titel, auteur, categorie en tags van elk artikel, zodat je cijfers per redacteur ziet.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 Er is geen cookiebanner nodig: de plugin plaatst geen cookies en slaat geen IP-adressen op. Een bezoeker wordt maar één dag herkend, met een code die gemaakt is van het IP-adres, de browser en een willekeurige waarde die elke nacht verandert. De volgende dag telt dezelfde persoon als nieuwe bezoeker, en de code is nooit terug te rekenen naar een IP-adres.
 
 ## Vereisten
