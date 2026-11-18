@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/alerts/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/alerts/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/alerts/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/backup/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/backup/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/backup/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/best-times/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/best-times/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/best-times/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/bluesky-mastodon/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/bluesky-mastodon/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/bluesky-mastodon/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/branding/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/branding/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/branding/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/content/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/content/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/content/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/dashboard/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/dashboard/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/dashboard/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/dashboards/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/dashboards/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/dashboards/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/email/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/email/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/email/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/followers-and-goals/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/followers-and-goals/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/followers-and-goals/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/installation/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/installation/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/installation/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/live-wall/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/live-wall/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/live-wall/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/meta/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/meta/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/meta/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/microsoft-365/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/microsoft-365/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/microsoft-365/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/owncast-icecast/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/owncast-icecast/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/owncast-icecast/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/reports/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/reports/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/reports/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/reverse-proxy/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/reverse-proxy/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/reverse-proxy/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/sources/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/sources/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/sources/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/stories/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/stories/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/stories/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/threads/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/threads/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/threads/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/troubleshooting/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/troubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/updates/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/updates/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/updates/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/users-and-roles/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/users-and-roles/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/users-and-roles/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/website/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/website/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/website/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/weekly-summary/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/weekly-summary/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/weekly-summary/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/wordpress/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/wordpress/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/wordpress/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/x/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/x/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/x/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/youtube/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/youtube/"/>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8nl/youtube/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/alerts/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/alerts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8alerts/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/backup/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/backup/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8backup/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/best-times/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/best-times/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8best-times/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/bluesky-mastodon/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/bluesky-mastodon/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8bluesky-mastodon/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/branding/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/branding/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8branding/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/content/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/content/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8content/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/dashboard/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/dashboard/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8dashboard/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/dashboards/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/dashboards/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8dashboards/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/email/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/email/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8email/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/followers-and-goals/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/followers-and-goals/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8followers-and-goals/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/installation/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/installation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8installation/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/live-wall/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/live-wall/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8live-wall/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/meta/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/meta/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8meta/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/microsoft-365/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/microsoft-365/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8microsoft-365/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/owncast-icecast/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/owncast-icecast/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8owncast-icecast/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/reports/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/reports/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8reports/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/reverse-proxy/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/reverse-proxy/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8reverse-proxy/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/sources/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/sources/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8sources/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/stories/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/stories/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8stories/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/threads/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/threads/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8threads/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/troubleshooting/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8troubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/updates/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/updates/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8updates/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/users-and-roles/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/users-and-roles/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8users-and-roles/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/website/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/website/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8website/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/weekly-summary/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/weekly-summary/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8weekly-summary/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/wordpress/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/wordpress/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8wordpress/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/x/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/x/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8x/"/>
+    </url>
+    <url>
+        <loc>https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/youtube/</loc>
+        <lastmod>2026-11-18</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="nl" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8/nl/youtube/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://rhisijmuiden.github.io/stats-collector/0.13.1-rc.8youtube/"/>
+    </url>
+</urlset>
