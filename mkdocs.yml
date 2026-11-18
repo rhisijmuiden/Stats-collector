@@ -79,6 +79,7 @@ nav:
   - backup.md
   - updates.md
   - Platforms:
+      - sources.md
       - microsoft-365.md
       - owncast-icecast.md
       - wordpress.md

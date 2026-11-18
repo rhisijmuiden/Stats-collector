@@ -2,6 +2,8 @@
 
 Add your streaming servers under **Administration → Sources**. Each server is polled every 30 seconds for the number of viewers (Owncast) or listeners (Icecast). You can add 2 to 5 of each, or more.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 ![Sources](../images/en-sources.png)
 
 ## Add a source
@@ -24,12 +26,20 @@ Stats Collector reads `status-json.xsl`, available in Icecast 2.4 and later.
 
 Some hosting providers remove `status-json.xsl` and change `status.xsl` so it no longer shows the mount points. Stats Collector then reads the same numbers from `admin/stats`, the page Icecast keeps for its own admin interface. That page needs the **admin user and password**: ask your hosting provider for them if you do not have them. Without them the source shows *This server has no public status page*.
 
+### Where do I find the Icecast details?
+
+- **Server address**: take the stream link and leave off the mount. A stream at `https://audio.example.org/mp3` has server address `https://audio.example.org` and mount point `/mp3`. Some servers use a port, such as `:8000`.
+- **Your own Icecast server**: the admin user and password are in `icecast.xml` (on Debian `/etc/icecast2/icecast.xml`), in the block `<authentication>` as `<admin-user>` and `<admin-password>`. Check them by opening `https://<server>/admin/stats` in a browser.
+- **Hosted Icecast** (a streaming provider, Centova Cast, AzuraCast…): ask the provider for the Icecast **admin** login. The *source* password your playout software uses to send the stream is a different one and does not work here. In AzuraCast you find it under **Station → Mount points / Broadcasting → Icecast admin password**.
+
 ## Owncast
 
 - **Server address**: the address of your Owncast server, e.g. `https://live.example.org`.
 - **Admin password** (optional): the Owncast admin password. Without it the public status is used, which gives the same viewer numbers.
 
 Every broadcast becomes a separate item with its title and start and end time, so you can compare broadcasts under **Top broadcasts and streams** on the dashboard.
+
+**Where do I find the Owncast admin password?** Open `https://<your Owncast>/admin` (user name `admin`). The password is under **Configuration → Server setup → Admin password**. A new Owncast server starts with `abc123`: change it there first.
 
 ### Webhook (recommended)
 

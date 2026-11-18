@@ -2,6 +2,8 @@
 
 Stats Collector reads the numbers of an **X** account (formerly Twitter) through the X API v2. Each X account is its own source.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 !!! warning "X charges per post"
     The X API is **pay per use**: you buy credit in the X developer console and pay for every post that is read (about $0.005 per post in 2026). Stats Collector therefore has a **monthly budget** per source and stops reading for the rest of the month when it is spent. With the defaults (every 6 hours, budget $30) an account that posts 20 to 30 times a day stays within budget.
 
@@ -31,6 +33,9 @@ Good to know:
     - **Callback URI / Redirect URL**: the address Stats Collector shows in the source form (it ends in `/api/connectors/x/callback`);
     - **Website URL**: the address of Stats Collector.
 4. Save. Under **Keys and tokens** copy the **OAuth 2.0 Client ID** and **Client Secret** (not the API Key and Secret of OAuth 1.0a).
+
+!!! tip "Credit and spending limit"
+    Buy credit and set a spending limit in the X developer console under **Billing**. Stats Collector's monthly budget is a second safety net on top of it. Without credit, X refuses every read and the source shows that access was refused.
 
 ## 2. Add the source in Stats Collector
 

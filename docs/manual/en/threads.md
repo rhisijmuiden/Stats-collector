@@ -2,6 +2,8 @@
 
 Stats Collector reads the numbers of a **Threads** account through the Threads API. It uses the same Meta app as Facebook and Instagram (see [Meta: Facebook and Instagram](meta.md)), with one extra use case. Each Threads account is its own source.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 ## What is collected
 
 | | Per day for the account | Per post |

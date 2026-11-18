@@ -2,6 +2,8 @@
 
 Stats Collector has its own WordPress plugin. It counts per article, without cookies, how often it is viewed, by how many visitors, how long people read, whether they read it, where they came from (Google, Facebook…), which device they use and how often the share buttons are clicked. Every minute it sends these numbers to Stats Collector, together with the title, author, category and tags of each article, so you can see numbers per editor.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 No cookie banner is needed: the plugin does not set cookies and does not store IP addresses. A visitor is recognised for one day only, by a code made from the IP address, the browser and a random value that changes every night. The next day the same person counts as a new visitor, and the code can never be turned back into an IP address.
 
 ## Requirements

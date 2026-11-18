@@ -2,6 +2,8 @@
 
 Stats Collector reads public **Bluesky** and **Mastodon** accounts through their open APIs. There is no developer app, no app review and no cost: you only enter the account. Each account is its own source, so you can add several.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 ## What is collected
 
 | | Per day for the account | Per post |

@@ -32,6 +32,7 @@ ORDER = [
     "email",
     "backup",
     "updates",
+    "sources",
     "microsoft-365",
     "owncast-icecast",
     "wordpress",

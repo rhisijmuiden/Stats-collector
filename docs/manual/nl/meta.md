@@ -2,6 +2,8 @@
 
 Stats Collector leest de cijfers van een **Facebook-pagina** en van een **professioneel Instagram-account** (Zakelijk of Creator) via de Graph API van Meta. Eén Meta-app werkt voor allebei. Elke pagina en elk Instagram-account is een eigen bron, dus je kunt er meerdere toevoegen.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 Wat je nodig hebt:
 
 - een **Meta Business-portfolio** (Business Manager) dat **geverifieerd** is (voor dit project al gedaan);
@@ -23,6 +25,16 @@ Goed om te weten:
 - Instagram geeft nieuwe volgers alleen voor de laatste 30 dagen en alleen bij accounts met minstens 100 volgers, en meldt geen ontvolgers. Het aantal volgers per dag wordt teruggerekend vanaf het aantal dat Stats Collector elk uur ziet, en is dus exact vanaf de dag dat je koppelt.
 - **Bereik** is het aantal mensen dat iets zag. Opgeteld over meerdere dagen telt iemand die op twee dagen iets zag twee keer.
 - Meta werkt in hele dagen: in de weergave **24 uur** van het dashboard tonen Facebook en Instagram *alleen cijfers per dag*.
+
+## 0. Voorbereiden: Business-portfolio, pagina en Instagram
+
+Doe dit één keer, in de [instellingen van Meta Business Suite](https://business.facebook.com/settings):
+
+1. **Beveiligingscentrum**: de bedrijfsverificatie moet *Geverifieerd* tonen. Zo niet, klik op **Verificatie starten** en volg de stappen (officiële naam, adres, KvK-uittreksel of een energierekening, en een controle via telefoon, e-mail of domein). Meta heeft daar een paar werkdagen voor nodig.
+2. **Accounts → Pagina's**: de Facebook-pagina moet in het portfolio staan. Zo niet: **Toevoegen → Een pagina toevoegen** (een pagina die je al bezit) of **Toegang tot een pagina aanvragen** (een pagina van een ander portfolio).
+3. Nog steeds onder **Accounts → Pagina's**: open de pagina → **Mensen toewijzen**: wie straks op **Koppelen met Facebook** klikt, heeft **volledige controle** nodig, of minstens de taken *Statistieken* en *Content*.
+4. Instagram: ga in de Instagram-app naar **Instellingen en activiteit → Accounttype en tools → Overstappen naar professioneel account** en kies **Zakelijk** (of *Creator*). Koppel het daarna aan de pagina: in Business Suite **Accounts → Instagram-accounts → Toevoegen**, of open op Facebook de pagina → **Instellingen → Gekoppelde accounts → Instagram → Account koppelen**.
+5. Houd een **URL van het privacybeleid** bij de hand (bijvoorbeeld de privacypagina van je eigen website); Meta vraagt die in stap 1 en vóór de App Review.
 
 ## 1. App aanmaken
 
@@ -47,6 +59,9 @@ Goed om te weten:
 | `business_management` | Pagina's die bij het Business-portfolio horen |
 | `instagram_basic` | Instagram-account en berichten |
 | `instagram_manage_insights` | Instagram-weergaven, bereik, opgeslagen, profielbezoeken |
+
+!!! tip "Collega's in ontwikkelmodus"
+    Zolang de App Review niet is goedgekeurd, kunnen alleen mensen met een rol in de app koppelen. Voeg ze toe onder **App roles → Roles → Add people** als *Administrator*, *Developer* of *Tester*; zij accepteren de uitnodiging op [developers.facebook.com/requests](https://developers.facebook.com/requests).
 
 Zolang de app in **ontwikkelmodus** staat werkt hij al voor mensen met een rol in de app (beheerder, ontwikkelaar of tester); dat is genoeg om je eigen pagina te koppelen. Om de app zonder die beperking te laten werken vraag je **geavanceerde toegang** aan:
 

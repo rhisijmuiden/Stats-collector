@@ -2,6 +2,8 @@
 
 Stats Collector reads the numbers of a **Facebook Page** and of an **Instagram professional account** (Business or Creator) through Meta's Graph API. One Meta app serves both. Each Page and each Instagram account is its own source, so you can add several.
 
+> New to sources? [Setting up sources: overview](sources.md) shows per platform where to go, what you need and which value goes in which field.
+
 What you need:
 
 - a **Meta Business portfolio** (Business Manager) that is **verified** (done for this project);
@@ -23,6 +25,16 @@ Good to know:
 - Instagram gives new followers only for the last 30 days and only for accounts with at least 100 followers, and does not report unfollows. The follower count per day is worked back from the count Stats Collector sees every hour, so it becomes exact from the day you connect.
 - **Reach** is the number of people who saw something. Summed over several days, a person who saw something on two days counts twice.
 - Meta works in whole days: in the dashboard's **24 hours** view Facebook and Instagram show *daily numbers only*.
+
+## 0. Prepare the Business portfolio, the Page and Instagram
+
+Do this once, in [Meta Business Suite settings](https://business.facebook.com/settings):
+
+1. **Security Center**: business verification must show *Verified*. If not, click **Start verification** and follow the steps (legal name, address, Chamber of Commerce extract or a utility bill, and a phone number, email or domain check). Meta needs a few working days.
+2. **Accounts → Pages**: the Facebook Page must be in the portfolio. If it is not: **Add → Add a Page** (a Page you already own) or **Request access to a Page** (a Page of another portfolio).
+3. Still under **Accounts → Pages**, open the Page → **Assign people**: the person who will click **Connect with Facebook** needs **full control**, or at least the tasks *Insights* and *Content*.
+4. Instagram: in the Instagram app go to **Settings and activity → Account type and tools → Switch to professional account** and choose **Business** (or *Creator*). Then link it to the Page: in Business Suite **Accounts → Instagram accounts → Add**, or on Facebook open the Page → **Settings → Linked accounts → Instagram → Connect account**.
+5. Have a **privacy policy URL** at hand (for example the privacy page of your own website); Meta asks for it in step 1 and before App Review.
 
 ## 1. Create the app
 
@@ -47,6 +59,9 @@ Good to know:
 | `business_management` | Pages owned by the Business portfolio |
 | `instagram_basic` | Instagram account and posts |
 | `instagram_manage_insights` | Instagram views, reach, saves, profile visits |
+
+!!! tip "Colleagues in development mode"
+    Until App Review is approved, only people with a role in the app can connect. Add them under **App roles → Roles → Add people** as *Administrator*, *Developer* or *Tester*; they accept the invitation on [developers.facebook.com/requests](https://developers.facebook.com/requests).
 
 While the app is in **development mode** it already works for people who have a role in the app (admin, developer or tester), which is enough to connect your own Page. For the app to keep working without that, request **advanced access**:
 

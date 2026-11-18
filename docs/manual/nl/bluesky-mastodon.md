@@ -2,6 +2,8 @@
 
 Stats Collector leest openbare **Bluesky**- en **Mastodon**-accounts via hun open API's. Er is geen ontwikkelaarsapp, geen app-review en het kost niets: je vult alleen het account in. Elk account is een eigen bron, dus je kunt er meerdere toevoegen.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 ## Wat wordt verzameld
 
 | | Per dag voor het account | Per bericht |

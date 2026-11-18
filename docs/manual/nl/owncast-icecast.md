@@ -2,6 +2,8 @@
 
 Voeg je streamingservers toe onder **Beheer → Bronnen**. Elke server wordt elke 30 seconden opgehaald voor het aantal kijkers (Owncast) of luisteraars (Icecast). Je kunt er van elk 2 tot 5 toevoegen, of meer.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 ![Bronnen](../images/nl-sources.png)
 
 ## Een bron toevoegen
@@ -24,12 +26,20 @@ Stats Collector leest `status-json.xsl`, beschikbaar vanaf Icecast 2.4.
 
 Sommige hostingpartijen halen `status-json.xsl` weg en passen `status.xsl` zo aan dat de mountpoints er niet meer op staan. Stats Collector leest dezelfde cijfers dan uit `admin/stats`, de pagina die Icecast voor zijn eigen beheeromgeving heeft. Daarvoor zijn de **beheerder-gebruikersnaam en het wachtwoord** nodig: vraag die op bij je hostingpartij als je ze niet hebt. Zonder die gegevens meldt de bron *Deze server heeft geen openbare statuspagina*.
 
+### Waar vind ik de Icecast-gegevens?
+
+- **Serveradres**: neem de streamlink en laat het mountpoint weg. Een stream op `https://audio.example.org/mp3` heeft serveradres `https://audio.example.org` en mountpoint `/mp3`. Sommige servers gebruiken een poort, zoals `:8000`.
+- **Eigen Icecast-server**: de beheergebruiker en het wachtwoord staan in `icecast.xml` (op Debian `/etc/icecast2/icecast.xml`), in het blok `<authentication>` als `<admin-user>` en `<admin-password>`. Controleer ze door `https://<server>/admin/stats` in een browser te openen.
+- **Gehoste Icecast** (een streamingpartij, Centova Cast, AzuraCast…): vraag de partij om de **beheer**-login (admin) van Icecast. Het *source*-wachtwoord waarmee je uitzendsoftware de stream verstuurt is een ander wachtwoord en werkt hier niet. In AzuraCast vind je het onder **Station → Mount points / Broadcasting → Icecast admin password**.
+
 ## Owncast
 
 - **Serveradres**: het adres van je Owncast-server, bijv. `https://live.example.org`.
 - **Beheerwachtwoord** (optioneel): het beheerwachtwoord van Owncast. Zonder wordt de openbare status gebruikt, die dezelfde kijkcijfers geeft.
 
 Elke uitzending wordt een apart item met titel, begin- en eindtijd, zodat je uitzendingen kunt vergelijken onder **Best bekeken uitzendingen en streams** op het dashboard.
+
+**Waar vind ik het beheerwachtwoord van Owncast?** Open `https://<jouw Owncast>/admin` (gebruikersnaam `admin`). Het wachtwoord staat onder **Configuration → Server setup → Admin password**. Een nieuwe Owncast-server begint met `abc123`: verander dat daar eerst.
 
 ### Webhook (aanbevolen)
 

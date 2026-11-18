@@ -2,6 +2,8 @@
 
 Stats Collector leest de cijfers van een **X**-account (voorheen Twitter) via de X API v2. Elk X-account is een eigen bron.
 
+> Nieuw met bronnen? [Bronnen instellen: overzicht](sources.md) laat per platform zien waar je moet zijn, wat je nodig hebt en welke waarde in welk veld komt.
+
 !!! warning "X rekent per bericht"
     De X API is **pay per use**: je koopt tegoed in de X-ontwikkelaarsconsole en betaalt voor elk bericht dat gelezen wordt (ongeveer $0,005 per bericht in 2026). Stats Collector heeft daarom per bron een **maandbudget** en stopt voor de rest van de maand met lezen als dat op is. Met de standaardinstellingen (elke 6 uur, budget $30) blijft een account dat 20 tot 30 keer per dag post binnen het budget.
 
@@ -31,6 +33,9 @@ Goed om te weten:
     - **Callback URI / Redirect URL**: het adres dat Stats Collector in het bronformulier toont (het eindigt op `/api/connectors/x/callback`);
     - **Website URL**: het adres van Stats Collector.
 4. Sla op. Kopieer onder **Keys and tokens** de **OAuth 2.0 Client ID** en het **Client Secret** (niet de API Key en Secret van OAuth 1.0a).
+
+!!! tip "Tegoed en bestedingslimiet"
+    Koop tegoed en stel een bestedingslimiet in in de X-ontwikkelaarsconsole onder **Billing**. Het maandbudget in Stats Collector is een tweede vangnet daarbovenop. Zonder tegoed weigert X elke leesactie en meldt de bron dat de toegang is geweigerd.
 
 ## 2. De bron toevoegen in Stats Collector
 
